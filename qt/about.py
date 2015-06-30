@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'about.ui'
 #
-# Created: Tue Jun 16 23:46:45 2015
+# Created: Tue Jun 30 22:57:57 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -29,7 +29,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
         Dialog.setWindowModality(QtCore.Qt.ApplicationModal)
-        Dialog.resize(240, 240)
+        Dialog.resize(340, 150)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -56,5 +56,6 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "About", None))
-        self.label.setText(_translate("Dialog", "<html><head/><body><p align=\"center\">Yandex Disk Service Helper.</p></body></html>", None))
+        self.label.setText(_translate("Dialog", "<html><head/><body><p align=\"center\">Yandex Disk Service Helper.</p><p align=\"center\"><a href=\"https://sourceforge.net/projects/yandish/\"><span style=\" text-decoration: underline; color:#0000ff;\">https://sourceforge.net/projects/yandish/</span></a></p><p align=\"center\">Alexander Sokolov</p></body></html>", None))
         self.pushButton.setText(_translate("Dialog", "Ok", None))
+
