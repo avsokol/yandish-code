@@ -6,11 +6,16 @@ from PyQt4.QtGui import *
 from wlayout import Ui_MainWindow
 import actions
 from init import GetPrg, GetCfgFile, GetExcludedDirs, IsDaemonRunning, AppendExcludedDir, ClearExcludedDirs
-from about import About
+from about import Ui_Dialog
 from trayIcon import SystemTrayIcon
 from opts import YaOptions
 
 import threading
+
+class About(QDialog, Ui_Dialog):
+    def __init__(self, parent = None):
+        QDialog.__init__(self, parent)
+        self.setupUi(self)
 
 class Window(QMainWindow, Ui_MainWindow):
 

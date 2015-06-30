@@ -29,7 +29,7 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName(_fromUtf8("Dialog"))
         Dialog.setWindowModality(QtCore.Qt.ApplicationModal)
-        Dialog.resize(488, 356)
+        Dialog.resize(240, 240)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -56,16 +56,5 @@ class Ui_Dialog(object):
 
     def retranslateUi(self, Dialog):
         Dialog.setWindowTitle(_translate("Dialog", "About", None))
-        self.label.setText(_translate("Dialog", "<html><head/><body><p align=\"center\">Yandex Disk Service Wrapper.</p></body></html>", None))
+        self.label.setText(_translate("Dialog", "<html><head/><body><p align=\"center\">Yandex Disk Service Helper.</p></body></html>", None))
         self.pushButton.setText(_translate("Dialog", "Ok", None))
-
-class About(QDialog, Ui_Dialog):
-    def __init__(self, parent = None):
-        QDialog.__init__(self, parent)
-        self.setupUi(self)
-
-if __name__ == "__main__":
-    import sys
-    app = QtGui.QApplication(sys.argv)
-    about = About()
-    about.show()
