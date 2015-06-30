@@ -271,6 +271,10 @@
          <property name="text">
           <string>Start</string>
          </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>../ico/start.png</normaloff>../ico/start.png</iconset>
+         </property>
         </widget>
        </item>
        <item>
@@ -281,6 +285,10 @@
          <property name="text">
           <string>Stop</string>
          </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>../ico/stop.png</normaloff>../ico/stop.png</iconset>
+         </property>
         </widget>
        </item>
        <item>
@@ -290,6 +298,10 @@
          </property>
          <property name="text">
           <string>Status</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>../ico/status.png</normaloff>../ico/status.png</iconset>
          </property>
         </widget>
        </item>
@@ -313,6 +325,10 @@
          </property>
          <property name="text">
           <string>Exit</string>
+         </property>
+         <property name="icon">
+          <iconset>
+           <normaloff>../ico/exit.png</normaloff>../ico/exit.png</iconset>
          </property>
         </widget>
        </item>
@@ -359,6 +375,10 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <action name="actionStart">
+   <property name="icon">
+    <iconset>
+     <normaloff>../ico/start.png</normaloff>../ico/start.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Start</string>
    </property>
@@ -367,6 +387,10 @@
    </property>
   </action>
   <action name="actionStop">
+   <property name="icon">
+    <iconset>
+     <normaloff>../ico/stop.png</normaloff>../ico/stop.png</iconset>
+   </property>
    <property name="text">
     <string>Sto&amp;p</string>
    </property>
@@ -375,6 +399,10 @@
    </property>
   </action>
   <action name="actionStatus">
+   <property name="icon">
+    <iconset>
+     <normaloff>../ico/status.png</normaloff>../ico/status.png</iconset>
+   </property>
    <property name="text">
     <string>S&amp;tatus</string>
    </property>
@@ -383,6 +411,10 @@
    </property>
   </action>
   <action name="actionExit">
+   <property name="icon">
+    <iconset>
+     <normaloff>../ico/exit.png</normaloff>../ico/exit.png</iconset>
+   </property>
    <property name="text">
     <string>E&amp;xit</string>
    </property>
@@ -391,6 +423,10 @@
    </property>
   </action>
   <action name="actionSaveCfg">
+   <property name="icon">
+    <iconset>
+     <normaloff>../ico/save.png</normaloff>../ico/save.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Save</string>
    </property>
@@ -399,6 +435,10 @@
    </property>
   </action>
   <action name="actionReloadCfg">
+   <property name="icon">
+    <iconset>
+     <normaloff>../ico/reload.png</normaloff>../ico/reload.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Reload</string>
    </property>
@@ -407,6 +447,10 @@
    </property>
   </action>
   <action name="actionAbout">
+   <property name="icon">
+    <iconset>
+     <normaloff>../ico/about.png</normaloff>../ico/about.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;About</string>
    </property>

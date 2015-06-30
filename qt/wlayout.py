@@ -2,11 +2,12 @@
 
 # Form implementation generated from reading ui file 'wlayout.ui'
 #
-# Created: Mon Jun 29 23:57:19 2015
+# Created: Tue Jun 30 22:24:39 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
 
+import os
 from PyQt4 import QtCore, QtGui
 
 try:
@@ -150,17 +151,29 @@ class Ui_MainWindow(object):
         self.hboxlayout = QtGui.QHBoxLayout(self.ctrFrame)
         self.hboxlayout.setObjectName(_fromUtf8("hboxlayout"))
         self.btnStart = QtGui.QPushButton(self.ctrFrame)
+        icon = QtGui.QIcon()
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/start.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btnStart.setIcon(icon)
         self.btnStart.setObjectName(_fromUtf8("btnStart"))
         self.hboxlayout.addWidget(self.btnStart)
         self.btnStop = QtGui.QPushButton(self.ctrFrame)
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/stop.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btnStop.setIcon(icon1)
         self.btnStop.setObjectName(_fromUtf8("btnStop"))
         self.hboxlayout.addWidget(self.btnStop)
         self.btnStatus = QtGui.QPushButton(self.ctrFrame)
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/status.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btnStatus.setIcon(icon2)
         self.btnStatus.setObjectName(_fromUtf8("btnStatus"))
         self.hboxlayout.addWidget(self.btnStatus)
         spacerItem1 = QtGui.QSpacerItem(40, 20, QtGui.QSizePolicy.Expanding, QtGui.QSizePolicy.Minimum)
         self.hboxlayout.addItem(spacerItem1)
         self.btnExit = QtGui.QPushButton(self.ctrFrame)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/exit.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.btnExit.setIcon(icon3)
         self.btnExit.setObjectName(_fromUtf8("btnExit"))
         self.hboxlayout.addWidget(self.btnExit)
         self.verticalLayout.addWidget(self.ctrFrame)
@@ -179,18 +192,31 @@ class Ui_MainWindow(object):
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
         MainWindow.setStatusBar(self.statusbar)
         self.actionStart = QtGui.QAction(MainWindow)
+        self.actionStart.setIcon(icon)
         self.actionStart.setObjectName(_fromUtf8("actionStart"))
         self.actionStop = QtGui.QAction(MainWindow)
+        self.actionStop.setIcon(icon1)
         self.actionStop.setObjectName(_fromUtf8("actionStop"))
         self.actionStatus = QtGui.QAction(MainWindow)
+        self.actionStatus.setIcon(icon2)
         self.actionStatus.setObjectName(_fromUtf8("actionStatus"))
         self.actionExit = QtGui.QAction(MainWindow)
+        self.actionExit.setIcon(icon3)
         self.actionExit.setObjectName(_fromUtf8("actionExit"))
         self.actionSaveCfg = QtGui.QAction(MainWindow)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/save.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionSaveCfg.setIcon(icon4)
         self.actionSaveCfg.setObjectName(_fromUtf8("actionSaveCfg"))
         self.actionReloadCfg = QtGui.QAction(MainWindow)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/reload.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionReloadCfg.setIcon(icon5)
         self.actionReloadCfg.setObjectName(_fromUtf8("actionReloadCfg"))
         self.actionAbout = QtGui.QAction(MainWindow)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/about.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionAbout.setIcon(icon6)
         self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
         self.menuAction.addAction(self.actionStart)
         self.menuAction.addAction(self.actionStop)

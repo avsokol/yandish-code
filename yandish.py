@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import sys
+import sys, os
 
 #############################################################################
 
@@ -34,7 +34,7 @@ def ShowWidget():
     from opts import YaOptions
 
     app = QtGui.QApplication(sys.argv)
-    app.setWindowIcon(QtGui.QIcon("ico/yandex-disk.xpm"))
+    app.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.realpath(__file__)), "ico/yandex-disk.xpm")))
 
     window = Window()
 
