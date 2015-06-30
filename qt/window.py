@@ -428,7 +428,7 @@ class Window(QMainWindow, Ui_MainWindow):
         threadRm.daemon = True
         threadRm.start()
 
-    @waitCursor
+    #@waitCursor
     def showAbout(self):
         about = About()
         about.exec_()
