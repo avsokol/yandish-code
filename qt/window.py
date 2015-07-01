@@ -420,13 +420,14 @@ class Window(QMainWindow, Ui_MainWindow):
     def refreshStatus(self):
         self.actService("status")
 
-        threadAdd = threading.Thread(target=self.refreshSyncDirs)
-        threadAdd.daemon = True
-        threadAdd.start()
+        if self.isHidden() == False:
+            threadAdd = threading.Thread(target=self.refreshSyncDirs)
+            threadAdd.daemon = True
+            threadAdd.start()
 
-        threadRm = threading.Thread(target=self.checkAndRmUnusedTreeItem)
-        threadRm.daemon = True
-        threadRm.start()
+            threadRm = threading.Thread(target=self.checkAndRmUnusedTreeItem)
+            threadRm.daemon = True
+            threadRm.start()
 
     #@waitCursor
     def showAbout(self):
