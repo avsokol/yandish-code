@@ -203,7 +203,7 @@ class Window(QMainWindow, Ui_MainWindow):
         except:
             exists = 0
 
-        if exists == 0 or (exists == 1 and os.path.isdir(full_path) and os.path.exists(full_path) ==0 ):
+        if exists == 0 or (exists == 1 and os.path.isdir(full_path) and os.path.exists(full_path) == 0 ):
             parentItem.removeChild(child)
             return 1
         else:
