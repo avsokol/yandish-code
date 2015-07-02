@@ -3,9 +3,11 @@
 import os
 
 class YaOptions():
-    RCFILE_NAME = ".yadiskrc"
+    RCFILE_NAME = ".yandishrc"
 
-    params = {"StartMinimized": 1, "HideOnMinimize": 1, "autorefresh": 15}
+    params = {"StartMinimized": 1,
+              "HideOnMinimize": 1,
+              "autorefresh": 15}
 
     def __init__(self):
         self.readParamsFromRcFile()
