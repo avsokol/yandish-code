@@ -5,7 +5,6 @@ from PyQt4.QtGui import *
 
 from wlayout import Ui_MainWindow
 import actions
-from init import GetPrg, GetCfgFile, GetExcludedDirs, IsDaemonRunning, AppendExcludedDir, ClearExcludedDirs
 from about import Ui_Dialog
 from trayIcon import SystemTrayIcon
 from opts import YaOptions
@@ -21,7 +20,20 @@ class Window(QMainWindow, Ui_MainWindow):
 
     _geometry = None
 
-    def __init__(self, parent = None):
+    _prg = None
+    _config = None
+    _dir = None
+    _auth = None
+    _exclude_dirs = None
+
+    def __init__(self, params, parent = None):
+
+        self._prg = params["prg"]
+        self._config = params["config"]
+        self._dir = params["dir"]
+        self._auth = params["auth"]
+        self._exclude_dirs = params["exclude-dirs"]
+
         QMainWindow.__init__(self, parent)
 
         self.setupUi(self)
@@ -31,9 +43,16 @@ class Window(QMainWindow, Ui_MainWindow):
         self.uTimer = QtCore.QTimer()
         QtCore.QObject.connect(self.uTimer, QtCore.SIGNAL("timeout()"), self.refreshStatus)
 
-        is_running,message = IsDaemonRunning()
+        is_running,message = actions.IsDaemonRunning(self._prg)
         if is_running:
             self.startTimer()
+
+    def getParams(self):
+        return {"prg": self._prg,
+                "config": self._config,
+                "auth": self._auth,
+                "exclude-dirs": self._exclude_dirs,
+                "dir": self._dir}
 
     def startTimer(self):
         if self.refreshTimeout.value() > 0 and self.isTimerActive() == False:
@@ -46,6 +65,11 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def isTimerActive(self):
         return self.uTimer.isActive()
+
+    def restartTimer():
+        if self.isTimerActive():
+            self.stopTimer()
+        self.startTimer()
 
     def closeEvent(self, event):
         self.hide()
@@ -91,13 +115,13 @@ class Window(QMainWindow, Ui_MainWindow):
         self.tIcon.updateTrayMenuState()
 
     def fillOptionsTab(self):
-        self.yandex_exec.setText(GetPrg())
+        self.yandex_exec.setText(self._prg)
         self.yandex_exec.setEnabled(False)
-        self.yandex_cfg.setText(GetCfgFile())
+        self.yandex_cfg.setText(self._config)
         self.yandex_cfg.setEnabled(False)
-        self.yandex_root.setText(actions.FindRootDir())
+        self.yandex_root.setText(self._dir)
         self.yandex_root.setReadOnly(True)
-        self.yandex_auth.setText(actions.GetParamFromCfgFile("auth"))
+        self.yandex_auth.setText(self._auth)
         self.yandex_auth.setReadOnly(True)
 
         yaOpts = YaOptions()
@@ -112,7 +136,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.fillOptionsTab()
         root = self.treeWidget.invisibleRootItem()
         self.checkChildren(root)
-        for element in GetExcludedDirs():
+        for element in self._exclude_dirs:
             self.uncheckPath(element, 0)
 
     def saveYandexOptions(self):
@@ -120,11 +144,11 @@ class Window(QMainWindow, Ui_MainWindow):
         yandex_root = self.yandex_root.text()
         yandex_auth = self.yandex_auth.text()
 
-        self.getExcludedDirsFromTree()
-        dirs = ",".join(GetExcludedDirs())
+        self._excluded_dirs = self.getExcludedDirsFromTree()
+        dirs = ",".join(self._exclude_dirs)
 
         params = {"auth": yandex_auth, "dir": yandex_root, "exclude-dirs": dirs}
-        actions.SaveParamsInCfgFile(params)
+        actions.SaveParamsInCfgFile(params,self._config)
 
     def saveWindowOptions(self):
         yaOpts = YaOptions()
@@ -139,16 +163,21 @@ class Window(QMainWindow, Ui_MainWindow):
     def saveOptions(self):
         self.saveYandexOptions()
         self.saveWindowOptions()
-        self.saveTreeExcludedDirs()
+        #self.saveTreeExcludedDirs()
 
     def chooseRootDir(self):
         dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory to ve the root for Yandex Disk", self.yandex_root.text())
         if dirname != "":
+            self._dir = str(dirname)
             self.yandex_root.setText(dirname)
+            #self.treeWidget.clear()
+            #self.refreshSyncDirs()
+            #self.checkAndRmUnusedTreeItem()
 
     def chooseAuthFile(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, "Select Yandex Auth File", os.environ["HOME"])
         if filename != "":
+            self._auth = str(filename)
             self.yandex_auth.setText(filename)
 
     def getPathFromItem(self,item):
@@ -191,8 +220,7 @@ class Window(QMainWindow, Ui_MainWindow):
                 path = self.getPathFromItem(child)
             except:
                 continue
-            root_dir = actions.FindRootDir()
-            full_path = os.path.join(root_dir,path)
+            full_path = os.path.join(self._dir,path)
 
             if self.rmChild(full_path, parentItem, child):
                 continue
@@ -212,8 +240,7 @@ class Window(QMainWindow, Ui_MainWindow):
             elif d == ".sync":
                 pass
             else:
-                root_dir = actions.FindRootDir()
-                trunc_element = element.lstrip(root_dir)
+                trunc_element = element.lstrip(self._dir)
 
                 child = self.findPathItem(trunc_element, 0)
 
@@ -235,8 +262,7 @@ class Window(QMainWindow, Ui_MainWindow):
                     if os.path.exists(target):
                         el_exists = 1
 
-                excl_dirs = GetExcludedDirs()
-                if element in excl_dirs:
+                if element in self._exclude_dirs:
                     el_exists = 0
 
                 child.setFlags(child.flags()|Qt.ItemIsUserCheckable)
@@ -346,22 +372,19 @@ class Window(QMainWindow, Ui_MainWindow):
             AppendExcludedDir(path)
 
     def saveTreeExcludedDirs(self):
-        ClearExcludedDirs()
-        self.getExcludedDirsFromTree()
-        dirs = GetExcludedDirs()
-        actions.SaveExcludedDirs(dirs)
+        self._excluded_dirs = self.getExcludedDirsFromTree()
+        actions.SaveExcludedDirs(self._exclude_dirs,self._config)
 
     def refreshSyncDirs(self):
-        root_dir = actions.FindRootDir()
-        if os.path.exists(root_dir) == False:
+        if os.path.exists(self._dir) == False:
             os.mkdir(root_dir)
         #self.treeWidget.clear()
-        self.addDirAsTreeItem(root_dir,"root")
+        self.addDirAsTreeItem(self._dir,"root")
 
-    def initApp(self,root_dir):
+    def initApp(self):
         self.fillOptionsTab()
         self.refreshSyncDirs()
-        for element in GetExcludedDirs():
+        for element in self._exclude_dirs:
             if element != "":
                 self.uncheckPath(element)
 
@@ -400,8 +423,9 @@ class Window(QMainWindow, Ui_MainWindow):
     def actService(self,action):
         if action == "start":
             self.saveTreeExcludedDirs()
-        res,msg = actions.DoAction(action)
-        text_msg = actions.ProcessResult(res,action,msg,0)
+        params = self.getParams()
+        res,msg = actions.DoAction(action,params)
+        text_msg = actions.ProcessResult(res,action,msg,params,0)
 
         cur_text = self.textEdit.toPlainText()
         new_text = text_msg.decode("utf8")
@@ -411,7 +435,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self.textEdit.append(new_text)
             self.tIcon.updateToolTip(new_text)
 
-        is_running,message = IsDaemonRunning()
+        is_running,message = actions.IsDaemonRunning(self._prg)
         if is_running:
             self.startTimer()
         else:
@@ -429,13 +453,17 @@ class Window(QMainWindow, Ui_MainWindow):
             threadRm.daemon = True
             threadRm.start()
 
+    def handleSpinChange(self):
+        self.refreshStatus()
+        self.restartTimer()
+
     #@waitCursor
     def showAbout(self):
         about = About()
         about.exec_()
 
     def updateActionButtons(self):
-        is_running,message = IsDaemonRunning()
+        is_running,message = actions.IsDaemonRunning(self._prg)
         if is_running:
             self.setButtonInState("start","disabled")
             self.setButtonInState("stop","enabled")
@@ -479,4 +507,4 @@ class Window(QMainWindow, Ui_MainWindow):
 
         QtCore.QObject.connect(self.actionAbout, QtCore.SIGNAL("activated()"), self.showAbout)
 
-        QtCore.QObject.connect(self.refreshTimeout, QtCore.SIGNAL("editingFinished()"), self.refreshStatus)
+        QtCore.QObject.connect(self.refreshTimeout, QtCore.SIGNAL("editingFinished()"), self.handleSpinChange)

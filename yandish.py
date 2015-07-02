@@ -1,44 +1,64 @@
 #!/usr/bin/python
 
-import sys, os
+import sys, os, argparse
+from subprocess import Popen, PIPE
 
 #############################################################################
 
-def ParseArgs(argv):
+def getDefaultParams():
+    daemon = WhichPrg()
+    params = {"config": "~/.config/yandex-disk/config.cfg",
+              "auth": "~/.config/yandex-disk/passwd",
+              "exclude_dirs": [],
+              "prg": daemon}
 
-    if len(argv) == 0:
-        return "widget"
-
-    if len(argv) > 1:
-        raise Exception("Only one argument can be accepted")
-
-    known_actions = ["start","stop","status","widget"]
-    action = argv[0]
-
-    result = next((i for i, v in enumerate(known_actions) if v == action), None)
-
-    if result == None:
-        raise Exception("Possible values: '%s'" % ",".join(known_actions))
-
-    return action
+    return params
 
 #############################################################################
 
-def ShowWidget():
+def WhichPrg():
+    global PRG
+
+    executable = "yandex-disk"
+
+    proc = Popen(["which", executable], stdout=PIPE, stderr=PIPE)
+    return_code = proc.wait()
+    if return_code == 0:
+        PRG = proc.stdout.read()
+        PRG = PRG.strip()
+        return PRG
+    else:
+        raise Exception("Error %s: Couldn't find '%s' executable\n%s" % (return_code, executable, proc.stderr.read()))
+
+#############################################################################
+
+def ArgParser():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--program", default="")
+    parser.add_argument("-c", "--config", default="")
+    parser.add_argument("-d", "--dir", default="")
+    parser.add_argument("-a", "--auth", default="")
+    parser.add_argument("-x","--exclude-dirs",default=[])
+    parser.add_argument("--action",choices=["start","stop","status","widget"],default="widget")
+
+    return parser
+
+#############################################################################
+
+def ShowWidget(params):
 
     from PyQt4 import QtCore, QtGui
     from PyQt4.QtGui import (QApplication, QFileSystemModel, QTreeView, QTreeWidgetItem, QDirModel)
     from PyQt4.QtCore import pyqtSlot, QObject, QDir, Qt, QModelIndex
     from qt.window import Window
-    from actions import FindRootDir
     from opts import YaOptions
 
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.realpath(__file__)), "ico/yandex-disk.xpm")))
 
-    window = Window()
+    window = Window(params)
 
-    window.initApp(FindRootDir())
+    window.initApp()
 
     yaOpts = YaOptions()
     startMinimized = yaOpts.getParam("StartMinimized")
@@ -53,23 +73,49 @@ def ShowWidget():
 
 def main(argv):
 
-    action = ParseArgs(argv)
+    from actions import GetAuthFromCfgFile, GetExcludedDirsFromCfgFile, GetRootDirFromCfgFile, DoAction, ProcessResult
 
-    import init
-    from actions import AppendExcludedDir, FindExcludedDirs
-    is_running,message = init.Init()
+    defParams = getDefaultParams()
 
-    excl_dirs = FindExcludedDirs()
-    for element in excl_dirs:
-        if element != "":
-            init.AppendExcludedDir(element)
+    parser = ArgParser()
+    pArgs = parser.parse_args(argv[0:])
+ 
+    prg = pArgs.program
+    cfgfile = pArgs.config
+    rootdir = pArgs.dir
+    auth = pArgs.auth
+    exclude_dirs = pArgs.exclude_dirs
+    action = pArgs.action
+
+    if prg == "":
+        prg = defParams["prg"]
+    if cfgfile == "":
+        cfgfile = defParams["config"]
+    if auth == "":
+        auth = GetAuthFromCfgFile(cfgfile,0)
+    if auth == "":
+        auth = defParams["auth"]
+    if rootdir == "":
+        rootdir = GetRootDirFromCfgFile(cfgfile,0)
+
+    if len(exclude_dirs) == 0:
+        exclude_dirs = GetExcludedDirsFromCfgFile(cfgfile,0)
+        if exclude_dirs == [""]:
+            exclude_dirs = []
+    else:
+        exclude_dirs = ",".join(exclude_dirs)
+
+    params = {"prg": prg,
+              "config": cfgfile,
+              "auth": auth,
+              "exclude-dirs": exclude_dirs,
+              "dir": rootdir}
 
     if action == "widget":
-        ShowWidget()
+        ShowWidget(params)
     else:
-        import actions
-        res,msg = actions.DoAction(action)
-        actions.ProcessResult(res,action,msg)
+        res,msg = DoAction(action,params)
+        ProcessResult(res,action,msg,params)
         exit(res)
 
 #############################################################################   

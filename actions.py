@@ -2,11 +2,10 @@
 
 import sys, os, re
 from subprocess import Popen, PIPE
-from init import IsDaemonRunning, GetPrg, GetCfgFile, GetExcludedDirs, AppendExcludedDir
 
 #############################################################################
 
-def CheckLinks(dir):
+def CheckLinks(dir,rootdir,exclude_dirs,cfgfile):
 
     elements = os.listdir(dir)
 
@@ -14,7 +13,7 @@ def CheckLinks(dir):
         element = os.path.join(dir,element)
 
         if os.path.isfile(element):
-            pass
+            continue
 
         if os.path.islink(element):
             target = os.readlink(element)
@@ -23,23 +22,22 @@ def CheckLinks(dir):
             elif os.path.isdir(target):
                 print("ERR!")
             else:
-                root_dir = FindRootDir()
-                element = element.lstrip(root_dir)
-                excl_dirs = GetExcludedDirs()
+                element = element.lstrip(rootdir)
                 if element != "":
-                    AppendExcludedDir(element)
+                    if element in exclude_dirs:
+                        pass
+                    else:
+                        exclude_dirs.append(element)
 
         if os.path.isdir(element) and os.path.islink(element) == 0:
-            CheckLinks(element)
+            CheckLinks(element,rootdir,exclude_dirs,cfgfile)
     return
 
 #############################################################################
 
-def GetParamFromCfgFile(param):
+def GetParamFromCfgFile(param,cfgfile):
 
-    CFGFILE = GetCfgFile()
-
-    with open(os.path.expanduser(CFGFILE), "r") as f:
+    with open(os.path.expanduser(cfgfile), "r") as f:
         for line in f:
 
             if line.strip() == "":
@@ -53,68 +51,92 @@ def GetParamFromCfgFile(param):
 
 #############################################################################
 
-def SaveParamsInCfgFile(pvalues):
-    CFGFILE = GetCfgFile()
+def SaveParamsInCfgFile(pvalues,cfgfile):
 
-    tmp_file = CFGFILE + ".tmp"
+    tmp_file = cfgfile + ".tmp"
+
+    seen_elements = []
 
     with open(os.path.expanduser(tmp_file), "w") as fw:
-        with open(os.path.expanduser(CFGFILE), "r") as fr:
+        with open(os.path.expanduser(cfgfile), "r") as fr:
             for line in fr:
                 elements = line.split("=")
 
                 if elements[0] in pvalues.keys():
+                    seen_elements.append(elements[0])
                     new_line = elements[0] + "=\"" + pvalues[elements[0]] + "\"\n"
                     fw.write(new_line)
 
                 else:
                     fw.write(line)
 
-    os.rename(os.path.expanduser(tmp_file),os.path.expanduser(CFGFILE))
+            for key in pvalues.keys():
+                if key in seen_elements:
+                    continue
+                new_line = key + "=\"" + pvalues[key] + "\"\n"
+                fw.write(new_line)
+
+    os.rename(os.path.expanduser(tmp_file),os.path.expanduser(cfgfile))
 
 
 #############################################################################
 
-def FindRootDir():
+def GetAuthFromCfgFile(cfgfile,raiseExcept=1):
+    if os.path.exists(os.path.expanduser(cfgfile)) == False:
+        if raiseExcept:
+            raise Exception("Couldn't find config file:\n%s" % cfgfile)
+        else:
+            return ""
 
-    CFGFILE = GetCfgFile()
-
-    if os.path.exists(os.path.expanduser(CFGFILE)) == False:
-        raise Exception("Couldn't find default config file:\n%s" % CFGFILE)
-
-    path = GetParamFromCfgFile("dir")
-    if path == "":
-        raise Exception("Couldn't get parameter 'dir' from config file")
-
-    return path
+    return GetParamFromCfgFile("auth",cfgfile)
 
 #############################################################################
 
-def FindExcludedDirs():
+def GetRootDirFromCfgFile(cfgfile,raiseExcept=1):
+    if os.path.exists(os.path.expanduser(cfgfile)) == False:
+        if raiseExcept:
+            raise Exception("Couldn't find config file:\n%s" % cfgfile)
+        else:
+            return ""
 
-    CFGFILE = GetCfgFile()
-
-    if os.path.exists(os.path.expanduser(CFGFILE)) == False:
-        raise Exception("Couldn't find default config file:\n%s" % CFGFILE)
-
-    return GetParamFromCfgFile("exclude-dirs").split(",")
+    return GetParamFromCfgFile("dir",cfgfile)
 
 #############################################################################
 
-def SaveExcludedDirs(dirs):
-    CFGFILE = GetCfgFile()
+def GetExcludedDirsFromCfgFile(cfgfile,raiseExcept=1):
+    if os.path.exists(os.path.expanduser(cfgfile)) == False:
+        if raiseExcept:
+            raise Exception("Couldn't find default config file:\n%s" % cfgfile)
+        else:
+            return []
+
+    return GetParamFromCfgFile("exclude-dirs",cfgfile).split(",")
+
+#############################################################################
+
+def SaveExcludedDirs(dirs,cfgfile):
 
     value = ",".join(dirs)
     params = {"exclude-dirs": value}
-    SaveParamsInCfgFile(params)
+    SaveParamsInCfgFile(params,cfgfile)
 
 #############################################################################
 
-def DoAction(action):
+def DoAction(action,params):
 
-    PRG = GetPrg()
-    params=""
-    is_running,message = IsDaemonRunning()
+    prg = params["prg"]
+    cfgfile = params["config"]
+    auth = params["auth"]
+    rootdir = params["dir"]
+    exclude_dirs = params["exclude-dirs"]
+
+    CheckLinks(rootdir,rootdir,exclude_dirs,cfgfile)
+    excludeOpt = ",".join(exclude_dirs)
+
+    cfgOpt = os.path.expanduser(cfgfile)
+    authParam = os.path.expanduser(auth)
+
+    is_running,message = IsDaemonRunning(prg)
 
     if action == "status":
         return is_running,message
@@ -124,22 +146,22 @@ def DoAction(action):
     elif action == "start":
         if is_running:
             return 2,message
-        excl_dirs = FindExcludedDirs()
-        CheckLinks(FindRootDir())
-
-        if len(excl_dirs):
-            params = "--exclude-dirs=" + "\"" + ",".join(excl_dirs) + "\""
-
     else:
         raise Exception("Unexpected action %s\n%s:\n'%s'" % (action, return_code, proc.stderr.read()))
 
-    proc = Popen([PRG, action, params], stdout=PIPE, stderr=PIPE)
+    proc = Popen([prg, action,
+                  "--exclude-dirs", excludeOpt,
+                  "--config", cfgOpt,
+                  "--auth", authParam,
+                  "--dir", rootdir],
+                 stdout=PIPE, stderr=PIPE)
+
     return_code = proc.wait()
     if return_code == 0:
         OUT = proc.stdout.read()
         OUT = OUT.strip()
     else:
-        raise Exception("Failure %s:\n'%s'" % (return_code, proc.stderr.read()))
+        raise Exception("Failure %s:\n'%s'\n'%s'" % (return_code, proc.stdout.read(), proc.stderr.read()))
 
     return return_code,OUT
 
@@ -153,11 +175,10 @@ def ShowMsg(msg,type,title,icon,verbose):
 
 #############################################################################
 
-def ProcessResult(res,action,out,verbose=1):
+def ProcessResult(res,action,out,params,verbose=1):
 
-    excl_dirs = GetExcludedDirs()
-
-    PRG = GetPrg()
+    exclude_dirs = params["exclude-dirs"]
+    prg = params["prg"]
 
     if res == 0:
         type = "ok"
@@ -165,8 +186,8 @@ def ProcessResult(res,action,out,verbose=1):
         icon = "info"
         if action == "start":
             msg = "Yandex Disk service is started"
-            if len(excl_dirs):
-                msg = msg + "\nDirectories excluded:\n" + "\n".join(excl_dirs)
+            if len(exclude_dirs):
+                msg = msg + "\nDirectories excluded:\n" + "\n".join(exclude_dirs)
         elif action == "stop":
             msg = "Yandex Disk service is stopped"
         elif action == "status":
@@ -180,8 +201,8 @@ def ProcessResult(res,action,out,verbose=1):
             icon = "error"
         elif action == "status":
             msg = "Yandex Disk service is running"
-            if len(excl_dirs):
-                msg = msg + "\nDirectories excluded:\n" + "\n".join(excl_dirs)
+            if len(exclude_dirs):
+                msg = msg + "\nDirectories excluded:\n" + "\n".join(exclude_dirs)
             msg = msg + "\n\n" + out
             type = "ok"
             title = "Info"
@@ -202,5 +223,28 @@ def ProcessResult(res,action,out,verbose=1):
 
     ShowMsg(msg,type,title,icon,verbose)
     return msg
+
+#############################################################################
+
+def IsDaemonRunning(prg):
+
+    proc = Popen([prg, "status"], stdout=PIPE, stderr=PIPE)
+    return_code = proc.wait()
+    if return_code == 0 or return_code == 1:
+        RES = proc.stdout.read()
+        RES = RES.strip()
+    else:
+        raise Exception("Failure %s:\n'%s'\n'%s'" % (return_code, proc.stdout.read(), proc.stderr.read()))
+
+    message = RES
+
+    if return_code == 0:
+        is_running = 1
+    elif return_code == 1:
+        is_running = 0
+    else:
+        raise Exception("Unexpected error code: %s", return_code)
+
+    return is_running,message
 
 #############################################################################
