@@ -76,13 +76,7 @@ class Window(QMainWindow, Ui_MainWindow):
         event.ignore()
 
     def event(self, event):
-        if (event.type() == QtCore.QEvent.WindowStateChange and 
-                self.isMinimized()):
-            # The window is already minimized at this point.  AFAIK,
-            # there is no hook stop a minimize event. Instead,
-            # removing the Qt.Tool flag should remove the window
-            # from the taskbar.
-            #self.setWindowFlags(self.windowFlags() & ~QtCore.Qt.Tool)
+        if (event.type() == QtCore.QEvent.WindowStateChange and self.isMinimized()):
             yaOpts = YaOptions()
             HideOnMinimize = yaOpts.getParam("HideOnMinimize")
             if HideOnMinimize:
@@ -163,10 +157,9 @@ class Window(QMainWindow, Ui_MainWindow):
     def saveOptions(self):
         self.saveYandexOptions()
         self.saveWindowOptions()
-        #self.saveTreeExcludedDirs()
 
     def chooseRootDir(self):
-        dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory to ve the root for Yandex Disk", self.yandex_root.text())
+        dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory to be the root for Yandex Disk", self.yandex_root.text())
         if dirname != "":
             self._dir = str(dirname)
             self.yandex_root.setText(dirname)
@@ -196,7 +189,7 @@ class Window(QMainWindow, Ui_MainWindow):
         path = "/".join(path)
         return path
 
-    def rmChild(self, full_path, parentItem, child):
+    def isChildToBeRemoved(self, full_path, parentItem, child):
         try:
             os.lstat(full_path)
             exists = 1
@@ -204,11 +197,12 @@ class Window(QMainWindow, Ui_MainWindow):
             exists = 0
 
         if exists == 0 or (exists == 1 and os.path.isdir(full_path) and os.path.exists(full_path) == 0 ):
-            parentItem.removeChild(child)
             return 1
         else:
             return 0
 
+    def rmItem(self,parent,item):
+        parent.removeChild(item)
 
     def checkAndRmUnusedTreeItem(self,parentItem=""):
         if parentItem == "" or parentItem == None:
@@ -222,10 +216,79 @@ class Window(QMainWindow, Ui_MainWindow):
                 continue
             full_path = os.path.join(self._dir,path)
 
-            if self.rmChild(full_path, parentItem, child):
+            res = self.isChildToBeRemoved(full_path, parentItem, child)
+
+            if res:
+                self.emit(QtCore.SIGNAL("removeChild"),parentItem,child)
                 continue
             else:
                 self.checkAndRmUnusedTreeItem(child)
+
+    def getPathProperties(self,path):
+        exists = 0
+        is_link = 0
+        target = ""
+
+        if os.path.isdir(path):
+            exists = 1
+        if os.path.islink(path):
+            is_link = 1
+            target = os.readlink(path)
+            if os.path.exists(target):
+                exists = 1
+            else:
+                exists = 0
+
+        if path in self._exclude_dirs:
+            exists = 0
+
+        return exists,is_link,target
+
+    def prepareItemProperties(self,text,exists,is_link,target):
+
+        properties = {"itemText": text.decode("utf8"),
+                      "foreground": Qt.black,
+                      "checkable": 1,
+                      "state": Qt.Unchecked}
+
+        if is_link:
+            text = text + " -> " + target
+        properties["itemText"] = text.decode("utf8")
+
+        if is_link == 1 and exists == 0:
+            properties["foreground"] = Qt.red
+            properties["checkable"] = 0
+
+        if exists:
+            properties["state"] = Qt.Checked
+
+        return properties
+
+    def setItemProperties(self,child,properties):
+        child.setText(0, properties["itemText"])
+        child.setForeground(0, properties["foreground"])
+        if properties["checkable"]:
+            child.setFlags(child.flags()|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
+        else:
+            child.setFlags(child.flags()^Qt.ItemIsUserCheckable^Qt.ItemIsSelectable)
+        child.setCheckState(0, properties["state"])
+
+    def createItemIfNeeded(self,parentItem,path,properties):
+        path = path.lstrip(self._dir)
+
+        child = self.findPathItem(path, 0)
+
+        if child == "" or child == None:
+            if parentItem == "root":
+                child = QTreeWidgetItem(self.treeWidget)
+                self.treeWidget.itemBelow(child)
+            else:
+                child = QTreeWidgetItem(parentItem)
+                parentItem.addChild(child)
+
+        self.setItemProperties(child,properties)
+
+        return child
 
     def addDirAsTreeItem(self,parentDir,parentItem):
         if os.path.exists(parentDir) == 0:
@@ -240,53 +303,12 @@ class Window(QMainWindow, Ui_MainWindow):
             elif d == ".sync":
                 pass
             else:
-                trunc_element = element.lstrip(self._dir)
+                exists,is_link,target = self.getPathProperties(element)
+                properties = self.prepareItemProperties(d,exists,is_link,target)
 
-                child = self.findPathItem(trunc_element, 0)
+                child = self.createItemIfNeeded(parentItem,element,properties)
 
-                if child == "" or child == None:
-                    if parentItem == "root":
-                        child = QTreeWidgetItem(self.treeWidget)
-                        self.treeWidget.itemBelow(child)
-                    else:
-                        child = QTreeWidgetItem(parentItem)
-                        parentItem.addChild(child)
-
-                is_link = 0
-                el_exists = 0
-                if os.path.isdir(element):
-                    el_exists = 1
-                if os.path.islink(element):
-                    is_link = 1
-                    target = os.readlink(element)
-                    if os.path.exists(target):
-                        el_exists = 1
-
-                if element in self._exclude_dirs:
-                    el_exists = 0
-
-                child.setFlags(child.flags()|Qt.ItemIsUserCheckable)
-                    
-                itemText = d
-                if is_link == 1:
-                    itemText = d + " -> " + target
-
-                child.setText(0, itemText.decode("utf8"))
-
-                if is_link == 1:
-                    if el_exists == 0:
-                        child.setForeground(0, Qt.red)
-                        child.setFlags(child.flags()^Qt.ItemIsUserCheckable^Qt.ItemIsSelectable)
-                    else:
-                        child.setForeground(0, Qt.black)
-                        child.setFlags(child.flags()|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
-
-                if el_exists == 1:
-                    child.setCheckState(0, Qt.Checked)
-                else:
-                    child.setCheckState(0, Qt.Unchecked)
-
-                if el_exists == 1:
+                if exists:
                     self.addDirAsTreeItem(element,child)
 
     def findUncheckedItemsAmongChildren(self, items, parentItem, column=0):
@@ -448,6 +470,8 @@ class Window(QMainWindow, Ui_MainWindow):
             threadAdd = threading.Thread(target=self.refreshSyncDirs)
             threadAdd.daemon = True
             threadAdd.start()
+
+            self.connect(self, QtCore.SIGNAL("removeChild"), self.rmItem)
 
             threadRm = threading.Thread(target=self.checkAndRmUnusedTreeItem)
             threadRm.daemon = True
