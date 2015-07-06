@@ -189,14 +189,14 @@ class Window(QMainWindow, Ui_MainWindow):
         path = "/".join(path)
         return path
 
-    def isChildToBeRemoved(self, full_path, parentItem, child):
+    def isChildToBeRemoved(self, path, parentItem, child):
         try:
-            os.lstat(full_path)
+            os.lstat(path)
             exists = 1
         except:
             exists = 0
 
-        if exists == 0 or (exists == 1 and os.path.isdir(full_path) and os.path.exists(full_path) == 0 ):
+        if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0 ):
             return 1
         else:
             return 0
@@ -214,9 +214,9 @@ class Window(QMainWindow, Ui_MainWindow):
                 path = self.getPathFromItem(child)
             except:
                 continue
-            full_path = os.path.join(self._dir,path)
+            path = os.path.join(self._dir,path)
 
-            res = self.isChildToBeRemoved(full_path, parentItem, child)
+            res = self.isChildToBeRemoved(path, parentItem, child)
 
             if res:
                 self.emit(QtCore.SIGNAL("removeChild"),parentItem,child)
