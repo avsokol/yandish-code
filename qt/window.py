@@ -130,8 +130,8 @@ class Window(QMainWindow, Ui_MainWindow):
         self.fillOptionsTab()
         root = self.treeWidget.invisibleRootItem()
         self.checkChildren(root)
-        for element in self._exclude_dirs:
-            self.uncheckPath(element, 0)
+        for path in self._exclude_dirs:
+            self.uncheckPath(path, 0)
 
     def saveYandexOptions(self):
         yandex_cfg = self.yandex_cfg.text()
@@ -296,20 +296,20 @@ class Window(QMainWindow, Ui_MainWindow):
 
         dirs = os.listdir(parentDir)
         for d in sorted(dirs):
-            element = os.path.join(parentDir,d)
+            path = os.path.join(parentDir,d)
 
-            if os.path.isfile(element):
+            if os.path.isfile(path):
                 pass
             elif d == ".sync":
                 pass
             else:
-                exists,is_link,target = self.getPathProperties(element)
+                exists,is_link,target = self.getPathProperties(path)
                 properties = self.prepareItemProperties(d,exists,is_link,target)
 
-                child = self.createItemIfNeeded(parentItem,element,properties)
+                child = self.createItemIfNeeded(parentItem,path,properties)
 
                 if exists:
-                    self.addDirAsTreeItem(element,child)
+                    self.addDirAsTreeItem(path,child)
 
     def findUncheckedItemsAmongChildren(self, items, parentItem, column=0):
         if parentItem == "" or parentItem == None:
@@ -406,9 +406,9 @@ class Window(QMainWindow, Ui_MainWindow):
     def initApp(self):
         self.fillOptionsTab()
         self.refreshSyncDirs()
-        for element in self._exclude_dirs:
-            if element != "":
-                self.uncheckPath(element)
+        for path in self._exclude_dirs:
+            if path != "":
+                self.uncheckPath(path)
 
         self.treeWidget.expandToDepth(False)
         self.treeWidget.itemChanged.connect(self.handleitemChanged)
