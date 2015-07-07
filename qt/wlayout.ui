@@ -18,6 +18,10 @@
     <item>
      <widget class="QTabWidget" name="tabWidget">
       <widget class="QWidget" name="tab_1">
+       <attribute name="icon">
+        <iconset>
+         <normaloff>../ico/tab_status.png</normaloff>../ico/tab_status.png</iconset>
+       </attribute>
        <attribute name="title">
         <string>Service Status</string>
        </attribute>
@@ -35,6 +39,10 @@
        </layout>
       </widget>
       <widget class="QWidget" name="tab_2">
+       <attribute name="icon">
+        <iconset>
+         <normaloff>../ico/tab_folders.png</normaloff>../ico/tab_folders.png</iconset>
+       </attribute>
        <attribute name="title">
         <string>Sync Dirs</string>
        </attribute>
@@ -51,6 +59,10 @@
        </layout>
       </widget>
       <widget class="QWidget" name="tab_3">
+       <attribute name="icon">
+        <iconset>
+         <normaloff>../ico/tab_opts.png</normaloff>../ico/tab_opts.png</iconset>
+       </attribute>
        <attribute name="title">
         <string>Options</string>
        </attribute>
