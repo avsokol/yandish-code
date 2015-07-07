@@ -11,6 +11,12 @@ from opts import YaOptions
 
 import threading
 
+try:
+    _fromUtf8 = QtCore.QString.fromUtf8
+except AttributeError:
+    def _fromUtf8(s):
+        return s
+
 class About(QDialog, Ui_Dialog):
     def __init__(self, parent = None):
         QDialog.__init__(self, parent)
@@ -130,6 +136,9 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def reloadOptions(self):
         self.fillOptionsTab()
+
+        self.refreshTree()
+
         root = self.treeWidget.invisibleRootItem()
         self.checkChildren(root)
         for path in self._exclude_dirs:
@@ -277,8 +286,15 @@ class Window(QMainWindow, Ui_MainWindow):
         child.setText(0, properties["itemText"])
         child.setForeground(0, properties["foreground"])
         if properties["checkable"]:
+            folderIcon = QtGui.QIcon()
+            folderIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder_closed.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            folderIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder.png"))), QtGui.QIcon.Normal, QtGui.QIcon.On)
+            child.setIcon(0, folderIcon)
             child.setFlags(child.flags()|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
         else:
+            errIcon = QtGui.QIcon()
+            errIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder_error.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            child.setIcon(0, errIcon)
             child.setFlags(child.flags()^Qt.ItemIsUserCheckable^Qt.ItemIsSelectable)
         child.setCheckState(0, properties["state"])
 
