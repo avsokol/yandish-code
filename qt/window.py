@@ -213,7 +213,7 @@ class Window(QMainWindow, Ui_MainWindow):
         child = self.findPathItem(path, 0)
         if child == "" or child == None:
             child = self.createChild(path)
-        self.setItemProperties(child,properties)
+            self.setItemProperties(child,properties)
 
     def checkAndRmUnusedTreeItem(self,parentItem=""):
         if parentItem == "" or parentItem == None:
