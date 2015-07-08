@@ -209,19 +209,11 @@ class Window(QMainWindow, Ui_MainWindow):
         else:
             return 0
 
-    def rmItem(self,parent,item):
-        parent.removeChild(item)
-
-    def addItem(self,parentItem,path,properties,exists):
-
+    def addItem(self,path,properties):
         child = self.findPathItem(path, 0)
         if child == "" or child == None:
-            child = self.createChild(parentItem,path)
-            self.setItemProperties(child,properties)
-            if exists:
-                threadAdd = threading.Thread(target=self.addDirAsTreeItem, args = (path,child))
-                threadAdd.daemon = True
-                threadAdd.start()
+            child = self.createChild(path)
+        self.setItemProperties(child,properties)
 
     def checkAndRmUnusedTreeItem(self,parentItem=""):
         if parentItem == "" or parentItem == None:
@@ -308,8 +300,11 @@ class Window(QMainWindow, Ui_MainWindow):
         else:
             return 0
 
-    def createChild(self,parentItem,path):
-        if parentItem == "root":
+    def createChild(self,path):
+
+        parentItem = self.findPathItem(os.path.dirname(path))
+
+        if parentItem == None:
             child = QTreeWidgetItem(self.treeWidget)
             self.treeWidget.itemBelow(child)
         else:
@@ -318,7 +313,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         return child
 
-    def addDirAsTreeItem(self,parentDir="",parentItem="root"):
+    def addDirAsTreeItem(self,parentDir=""):
         if parentDir == "":
             parentDir = self._dir
 
@@ -326,6 +321,10 @@ class Window(QMainWindow, Ui_MainWindow):
             return
 
         dirs = os.listdir(parentDir)
+
+        if len(dirs) == 0:
+            return
+
         for d in sorted(dirs):
             path = os.path.join(parentDir,d)
 
@@ -337,7 +336,9 @@ class Window(QMainWindow, Ui_MainWindow):
                 exists,is_link,target = self.getPathProperties(path)
                 properties = self.prepareItemProperties(d,exists,is_link,target)
                 if self.isChildToBeCreated(path):
-                    self.emit(QtCore.SIGNAL("addChild"),parentItem,path,properties,exists)
+                    self.emit(QtCore.SIGNAL("addChild"),path,properties)
+                else:
+                    self.addDirAsTreeItem(path)
 
     def findUncheckedItemsAmongChildren(self, items, parentItem, column=0):
         if parentItem == "" or parentItem == None:
@@ -513,6 +514,8 @@ class Window(QMainWindow, Ui_MainWindow):
                     if parent == None:
                         parent = self.treeWidget.invisibleRootItem()
                     parent.removeChild(child)
+                    if path in self._exclude_dirs:
+                        self._exclude_dirs.remove(path)
             self._removeItems = []
 
     def handleSpinChange(self):
