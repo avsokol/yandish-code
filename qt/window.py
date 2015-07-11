@@ -1,4 +1,5 @@
 import os, re
+#import time, Queue
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import *
@@ -33,6 +34,8 @@ class Window(QMainWindow, Ui_MainWindow):
     _dir = None
     _auth = None
     _exclude_dirs = None
+
+    #_queue=Queue.Queue()
 
     def __init__(self, params, parent = None):
 
@@ -172,7 +175,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def chooseRootDir(self):
         dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory to be the root for Yandex Disk", self.yandex_root.text())
         if dirname != "":
-            self._dir = str(dirname)
+            self._dir = str(dirname.toUtf8())
             self.yandex_root.setText(dirname)
 
     def chooseAuthFile(self):
@@ -208,6 +211,19 @@ class Window(QMainWindow, Ui_MainWindow):
             return 1
         else:
             return 0
+
+    def addItem1(self):
+        el = self._queue.get(True)
+        path = el[0]
+        properties = el[1]
+        
+        child = self.findPathItem(path, 0)
+
+        if child == "" or child == None:
+            child = self.createChild(path)
+            self.setItemProperties(child,properties)
+
+        self._queue.task_done()
 
     def addItem(self,path,properties):
         child = self.findPathItem(path, 0)
@@ -291,7 +307,6 @@ class Window(QMainWindow, Ui_MainWindow):
         child.setCheckState(0, properties["state"])
 
     def isChildToBeCreated(self,path):
-        path = path.lstrip(self._dir)
 
         child = self.findPathItem(path, 0)
 
@@ -302,7 +317,12 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def createChild(self,path):
 
-        parentItem = self.findPathItem(os.path.dirname(path))
+        updir = os.path.dirname(path)
+
+        if updir == "":
+            parentItem = None
+        else:
+            parentItem = self.findPathItem(updir)
 
         if parentItem == None:
             child = QTreeWidgetItem(self.treeWidget)
@@ -312,6 +332,33 @@ class Window(QMainWindow, Ui_MainWindow):
             parentItem.addChild(child)
 
         return child
+
+    def createDirsTree(self):
+        tree = []
+
+        for path,dirs,files in os.walk(self._dir):
+            for d in dirs:
+                if d != ".sync":
+                    dpath = os.path.join(path,d)
+                    #tree.append(dpath.lstrip(self._dir).decode("utf8"))
+                    tree.append(dpath.lstrip(self._dir))
+
+            for file in files:
+                fpath = os.path.join(path,file)
+                if os.path.islink(fpath):
+                    #tree.append(fpath.lstrip(self._dir).decode("utf8"))
+                    tree.append(fpath.lstrip(self._dir))
+
+        for path in tree:
+            exists,is_link,target = self.getPathProperties(path)
+            properties = self.prepareItemProperties(path,exists,is_link,target)
+            path = path.lstrip(self._dir)
+            if self.isChildToBeCreated(path):
+                #self.emit(QtCore.SIGNAL("addChild"),path,properties)
+
+                self.addItem(path,properties)
+
+        return tree
 
     def addDirAsTreeItem(self,parentDir=""):
         if parentDir == "":
@@ -335,10 +382,15 @@ class Window(QMainWindow, Ui_MainWindow):
             else:
                 exists,is_link,target = self.getPathProperties(path)
                 properties = self.prepareItemProperties(d,exists,is_link,target)
-                if self.isChildToBeCreated(path):
-                    self.emit(QtCore.SIGNAL("addChild"),path,properties)
-                else:
-                    self.addDirAsTreeItem(path)
+
+                lpath = path.lstrip(self._dir)
+
+                if self.isChildToBeCreated(lpath):
+                    #self._queue.put((lpath,properties))
+                    self.emit(QtCore.SIGNAL("addChild"),lpath,properties)
+                    #self.emit(QtCore.SIGNAL("addChild"))
+
+                self.addDirAsTreeItem(path)
 
     def findUncheckedItemsAmongChildren(self, items, parentItem, column=0):
         if parentItem == "" or parentItem == None:
@@ -356,7 +408,7 @@ class Window(QMainWindow, Ui_MainWindow):
             parentItem = self.treeWidget.invisibleRootItem()
 
         for i in range(parentItem.childCount()):
-            if re.search(textToFind + "( ->.)*", parentItem.child(i).text(column).toUtf8()):
+            if re.search(re.escape(textToFind) + "( ->.)*", parentItem.child(i).text(column).toUtf8()):
                 return parentItem.child(i)
 
     def findPathItem(self, pathToFind, column = 0):
@@ -428,15 +480,23 @@ class Window(QMainWindow, Ui_MainWindow):
         self._excluded_dirs = self.getExcludedDirsFromTree()
         actions.SaveExcludedDirs(self._exclude_dirs,self._config)
 
-    def refreshTree(self):
+    def refreshTree(self,force=0):
         if os.path.exists(self._dir) == False:
             os.mkdir(self._dir)
         self.treeWidget.clear()
-        self.refreshStatus()
+        self.refreshStatus(force)
 
     def initApp(self):
         self.fillOptionsTab()
-        self.refreshTree()
+        self.refreshTree(1)
+
+        #self.connect(self, QtCore.SIGNAL("addChild"), self.addItem)
+
+        #threadAdd = threading.Thread(target=self.createDirsTree)
+        #threadAdd.daemon = True
+        #threadAdd.start()
+
+        #self.createDirsTree()
 
         self.treeWidget.expandToDepth(False)
         self.treeWidget.itemChanged.connect(self.handleitemChanged)
@@ -491,10 +551,12 @@ class Window(QMainWindow, Ui_MainWindow):
         else:
             self.stopTimer()
 
-    def refreshStatus(self):
+    def refreshStatus(self,force=0):
         self.actService("status")
 
-        if self.isHidden() == False:
+        if self.isHidden() == False or force == 1:
+
+            #self.connect(self, QtCore.SIGNAL("addChild"), self.addItem1)
             self.connect(self, QtCore.SIGNAL("addChild"), self.addItem)
 
             threadAdd = threading.Thread(target=self.addDirAsTreeItem)
