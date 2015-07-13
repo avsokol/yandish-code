@@ -51,9 +51,9 @@ class Window(QMainWindow, Ui_MainWindow):
         self.uTimer = QtCore.QTimer()
         QtCore.QObject.connect(self.uTimer, QtCore.SIGNAL("timeout()"), self.refreshStatus)
 
-        is_running,message = actions.IsDaemonRunning(self._prg)
-        if is_running:
-            self.startTimer()
+        #is_running,message = actions.IsDaemonRunning(self._prg)
+        #if is_running:
+        self.startTimer()
 
     def getParams(self):
         return {"prg": self._prg,
@@ -141,7 +141,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def reloadOptions(self):
         self.fillOptionsTab()
 
-        self.refreshTree()
+        self.refreshTree(0,1)
 
         root = self.treeWidget.invisibleRootItem()
         self.checkChildren(root)
@@ -179,7 +179,7 @@ class Window(QMainWindow, Ui_MainWindow):
         if dirname != "":
             self._dir = str(dirname.toUtf8())
             self.yandex_root.setText(dirname)
-            self.refreshTree(1)
+            self.refreshTree(1,1)
 
     def chooseAuthFile(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, "Select Yandex Auth File", os.environ["HOME"])
@@ -203,23 +203,18 @@ class Window(QMainWindow, Ui_MainWindow):
         path = "/".join(path)
         return path
 
-    def isChildToBeRemoved(self, path):
-        try:
-            os.lstat(path)
-            exists = 1
-        except:
-            exists = 0
-
-        if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0 ):
-            return 1
-        else:
-            return 0
-
     def addItem(self,path,properties):
         child = self.findPathItem(path)
         if child == "" or child == None:
             child = self.createChild(path)
         self.setItemProperties(child,properties)
+
+    def modifyItem(self,path,properties):
+        child = self.findPathItem(path)
+        if child == "" or child == None:
+            pass
+        else:
+            self.setItemProperties(child,properties)
 
     def checkAndRmUnusedTreeItem(self,parentItem=""):
         if parentItem == "" or parentItem == None:
@@ -239,6 +234,19 @@ class Window(QMainWindow, Ui_MainWindow):
                 self._removeItems.append(path)
             else:
                 self.checkAndRmUnusedTreeItem(child)
+
+    def getItemProperties(self,item):
+        properties = {"itemText": item.text(0),
+                      "foreground": item.foreground(0),
+                      "checkable": 1,
+                      "state": item.checkState(0)}
+
+        if item.flags() & QtCore.Qt.ItemIsUserCheckable:
+            properties["checkable"] = 1
+        else:
+            properties["checkable"] = 0
+
+        return properties
 
     def getPathProperties(self,path):
         exists = 0
@@ -300,14 +308,39 @@ class Window(QMainWindow, Ui_MainWindow):
             child.setFlags(child.flags()^Qt.ItemIsUserCheckable^Qt.ItemIsSelectable)
         child.setCheckState(0, properties["state"])
 
-    def isChildToBeCreated(self,path):
+    def isChildExists(self,path):
 
         child = self.findPathItem(path)
 
         if child == "" or child == None:
+            return 0
+        else:
+            return 1
+
+    def isChildToBeRemoved(self, path):
+        try:
+            os.lstat(path)
+            exists = 1
+        except:
+            exists = 0
+
+        if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0 ):
             return 1
         else:
             return 0
+
+    def isChildToBeModified(self,path,properties):
+        child = self.findPathItem(path)
+        if child == "" or child == None:
+            return 0
+
+        itemProp = self.getItemProperties(child)
+
+        for key in properties.keys():
+            if properties[key] != itemProp[key]:
+                return 1
+
+        return 0
 
     def createChild(self,path):
 
@@ -351,8 +384,10 @@ class Window(QMainWindow, Ui_MainWindow):
                 exists,is_link,target,state = self.getPathProperties(path)
                 properties = self.prepareItemProperties(lpath,d,exists,is_link,target,state)
 
-                if self.isChildToBeCreated(lpath):
+                if self.isChildExists(lpath) == 0:
                     self.emit(QtCore.SIGNAL("addChild"),lpath,properties)
+                elif self.isChildToBeModified(lpath,properties):
+                    self.emit(QtCore.SIGNAL("modifyChild"),lpath,properties)
 
                 self.addDirAsTreeItem(path)
 
@@ -444,15 +479,42 @@ class Window(QMainWindow, Ui_MainWindow):
         self._exclude_dirs = self.getExcludeDirsFromTree()
         actions.SaveExcludeDirs(self._exclude_dirs,self._config)
 
-    def refreshTree(self,force=0):
+    def refreshTree(self,force=0,clear=0):
         if os.path.exists(self._dir) == False:
             os.mkdir(self._dir)
-        self.treeWidget.clear()
-        self.refreshStatus(force)
+
+        if self.isHidden() == False or force == 1:
+
+            if clear:
+                self.treeWidget.clear()
+
+            self.connect(self, QtCore.SIGNAL("addChild"), self.addItem)
+            self.connect(self, QtCore.SIGNAL("modifyChild"), self.modifyItem)
+
+            threadAdd = threading.Thread(target=self.addDirAsTreeItem)
+            threadAdd.daemon = True
+            threadAdd.start()
+
+            threadRm = threading.Thread(target=self.checkAndRmUnusedTreeItem)
+            threadRm.daemon = True
+            threadRm.start()
+            threadRm.join()
+
+            for path in self._removeItems:
+                path = path.lstrip(self._dir)
+                child = self.findPathItem(path)
+                if child != None:
+                    parent = child.parent()
+                    if parent == None:
+                        parent = self.treeWidget.invisibleRootItem()
+                    parent.removeChild(child)
+                    if path in self._exclude_dirs:
+                        self._exclude_dirs.remove(path)
+            self._removeItems = []
 
     def initApp(self):
         self.fillOptionsTab()
-        self.refreshTree(1)
+        self.refreshStatus(1)
 
         self.treeWidget.expandToDepth(False)
         self.treeWidget.itemChanged.connect(self.handleitemChanged)
@@ -501,39 +563,15 @@ class Window(QMainWindow, Ui_MainWindow):
             self.textEdit.append(new_text)
             self.tIcon.updateToolTip(new_text)
 
-        is_running,message = actions.IsDaemonRunning(self._prg)
-        if is_running:
-            self.startTimer()
-        else:
-            self.stopTimer()
+        #is_running,message = actions.IsDaemonRunning(self._prg)
+        #if is_running:
+        #    self.startTimer()
+        #else:
+        #    self.stopTimer()
 
-    def refreshStatus(self,force=0):
+    def refreshStatus(self,force=0,clear=0):
         self.actService("status")
-
-        if self.isHidden() == False or force == 1:
-
-            self.connect(self, QtCore.SIGNAL("addChild"), self.addItem)
-
-            threadAdd = threading.Thread(target=self.addDirAsTreeItem)
-            threadAdd.daemon = True
-            threadAdd.start()
-
-            threadRm = threading.Thread(target=self.checkAndRmUnusedTreeItem)
-            threadRm.daemon = True
-            threadRm.start()
-            threadRm.join()
-
-            for path in self._removeItems:
-                path = path.lstrip(self._dir)
-                child = self.findPathItem(path)
-                if child != None:
-                    parent = child.parent()
-                    if parent == None:
-                        parent = self.treeWidget.invisibleRootItem()
-                    parent.removeChild(child)
-                    if path in self._exclude_dirs:
-                        self._exclude_dirs.remove(path)
-            self._removeItems = []
+        self.refreshTree(force,clear)
 
     def handleSpinChange(self):
         self.refreshStatus()
