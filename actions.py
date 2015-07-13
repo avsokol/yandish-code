@@ -103,7 +103,7 @@ def GetRootDirFromCfgFile(cfgfile,raiseExcept=1):
 
 #############################################################################
 
-def GetExcludedDirsFromCfgFile(cfgfile,raiseExcept=1):
+def GetExcludeDirsFromCfgFile(cfgfile,raiseExcept=1):
     if os.path.exists(os.path.expanduser(cfgfile)) == False:
         if raiseExcept:
             raise Exception("Couldn't find default config file:\n%s" % cfgfile)
@@ -114,7 +114,7 @@ def GetExcludedDirsFromCfgFile(cfgfile,raiseExcept=1):
 
 #############################################################################
 
-def SaveExcludedDirs(dirs,cfgfile):
+def SaveExcludeDirs(dirs,cfgfile):
 
     value = ",".join(dirs)
     params = {"exclude-dirs": value}

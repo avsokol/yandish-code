@@ -175,6 +175,7 @@ class Window(QMainWindow, Ui_MainWindow):
         if dirname != "":
             self._dir = str(dirname.toUtf8())
             self.yandex_root.setText(dirname)
+            self.refreshTree(1)
 
     def chooseAuthFile(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, "Select Yandex Auth File", os.environ["HOME"])

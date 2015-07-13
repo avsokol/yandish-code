@@ -73,7 +73,7 @@ def ShowWidget(params):
 
 def main(argv):
 
-    from actions import GetAuthFromCfgFile, GetExcludedDirsFromCfgFile, GetRootDirFromCfgFile, DoAction, ProcessResult
+    from actions import GetAuthFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile, DoAction, ProcessResult
 
     defParams = getDefaultParams()
 
@@ -99,7 +99,7 @@ def main(argv):
         rootdir = GetRootDirFromCfgFile(cfgfile,0)
 
     if len(exclude_dirs) == 0:
-        exclude_dirs = GetExcludedDirsFromCfgFile(cfgfile,0)
+        exclude_dirs = GetExcludeDirsFromCfgFile(cfgfile,0)
         if exclude_dirs == [""]:
             exclude_dirs = []
     else:
