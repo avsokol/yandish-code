@@ -5,9 +5,10 @@ import os
 class AppOptions():
     RCFILE_NAME = ".yandishrc"
 
-    params = {"StartMinimized": 1,
-              "HideOnMinimize": 1,
-              "autorefresh": 15}
+    params = {"StartMinimized": "1",
+              "HideOnMinimize": "1",
+              "autorefresh": "15",
+              "yandex-cfg": ""}
 
     def __init__(self):
         self.readParamsFromRcFile()
@@ -29,7 +30,7 @@ class AppOptions():
 
     def setParam(self,param,value):
         if self.params.has_key(param):
-            self.params[param] = int(value)
+            self.params[param] = value
 
     def printParams(self):
         for k,v in self.params.items():
@@ -48,7 +49,7 @@ class AppOptions():
                     continue
                 key,value = elements[0],elements[1]
                 if self.params.has_key(key):
-                    self.params[key] = int(value)
+                    self.params[key] = value
 
     def saveParamsToRcFile(self):
         with open(self.getRcPath(), "w") as f:

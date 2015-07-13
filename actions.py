@@ -51,7 +51,7 @@ def GetParamFromCfgFile(param,cfgfile):
 
 #############################################################################
 
-def SaveParamsInCfgFile(pvalues,cfgfile):
+def replaceParamsInCfgFile(pvalues,cfgfile):
 
     tmp_file = cfgfile + ".tmp"
 
@@ -78,6 +78,33 @@ def SaveParamsInCfgFile(pvalues,cfgfile):
 
     os.rename(os.path.expanduser(tmp_file),os.path.expanduser(cfgfile))
 
+#############################################################################
+
+def writeCfgFile(pvalues,cfgfile):
+    with open(os.path.expanduser(cfgfile), "w") as fw:
+        for key in pvalues.keys():
+            new_line = key + "=\"" + pvalues[key] + "\"\n"
+            fw.write(new_line)
+
+#############################################################################
+
+def SaveParamsInCfgFile(pvalues,cfgfile):
+
+    if os.path.exists(os.path.expanduser(cfgfile)):
+        replaceParamsInCfgFile(pvalues,cfgfile)
+    else:
+        writeCfgFile(pvalues,cfgfile)
+
+#############################################################################
+
+def GetYandexCfgFromCfgFile(cfgfile,raiseExcept=1):
+    if os.path.exists(os.path.expanduser(cfgfile)) == False:
+        if raiseExcept:
+            raise Exception("Couldn't find config file:\n%s" % cfgfile)
+        else:
+            return ""
+
+    return GetParamFromCfgFile("yandex-cfg",cfgfile)
 
 #############################################################################
 

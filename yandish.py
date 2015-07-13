@@ -2,6 +2,7 @@
 
 import sys, os, argparse
 from subprocess import Popen, PIPE
+from opts import AppOptions
 
 #############################################################################
 
@@ -10,7 +11,9 @@ def getDefaultParams():
     params = {"config": "~/.config/yandex-disk/config.cfg",
               "auth": "~/.config/yandex-disk/passwd",
               "exclude_dirs": [],
-              "prg": daemon}
+              "rootdir": "~/Yandex.Disk",
+              "prg": daemon,
+              "proxy": "no"}
 
     return params
 
@@ -38,6 +41,7 @@ def ArgParser():
     parser.add_argument("-c", "--config", default="")
     parser.add_argument("-d", "--dir", default="")
     parser.add_argument("-a", "--auth", default="")
+    parser.add_argument("--proxy", default="")
     parser.add_argument("-x","--exclude-dirs",default=[])
     parser.add_argument("--action",choices=["start","stop","status","widget"],default="widget")
 
@@ -73,7 +77,7 @@ def ShowWidget(params):
 
 def main(argv):
 
-    from actions import GetAuthFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile, DoAction, ProcessResult
+    from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile, DoAction, ProcessResult
 
     defParams = getDefaultParams()
 
@@ -85,18 +89,34 @@ def main(argv):
     rootdir = pArgs.dir
     auth = pArgs.auth
     exclude_dirs = pArgs.exclude_dirs
+    proxy = pArgs.proxy
     action = pArgs.action
 
     if prg == "":
         prg = defParams["prg"]
+
+    if cfgfile == "":
+        appOpts = AppOptions()
+        appCfg = appOpts.getRcPath()
+        cfgfile = GetYandexCfgFromCfgFile(appCfg,0)
     if cfgfile == "":
         cfgfile = defParams["config"]
+    cfgfile = os.path.expanduser(cfgfile)
+
     if auth == "":
         auth = GetAuthFromCfgFile(cfgfile,0)
     if auth == "":
         auth = defParams["auth"]
+    auth = os.path.expanduser(auth)
+
     if rootdir == "":
         rootdir = GetRootDirFromCfgFile(cfgfile,0)
+    if rootdir == "":
+        rootdir = defParams["rootdir"]
+    rootdir = os.path.expanduser(rootdir)
+
+    if proxy == "":
+        proxy = defParams["proxy"]
 
     if len(exclude_dirs) == 0:
         exclude_dirs = GetExcludeDirsFromCfgFile(cfgfile,0)
@@ -109,7 +129,8 @@ def main(argv):
               "config": cfgfile,
               "auth": auth,
               "exclude-dirs": exclude_dirs,
-              "dir": rootdir}
+              "dir": rootdir,
+              "proxy": proxy}
 
     if action == "widget":
         ShowWidget(params)

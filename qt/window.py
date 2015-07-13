@@ -8,6 +8,7 @@ import actions
 from about import Ui_Dialog
 from trayIcon import SystemTrayIcon
 from opts import AppOptions
+from yandish import getDefaultParams
 
 import threading
 
@@ -34,6 +35,7 @@ class Window(QMainWindow, Ui_MainWindow):
     _dir = None
     _auth = None
     _exclude_dirs = None
+    _proxy = None
 
     def __init__(self, params, parent = None):
 
@@ -42,6 +44,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self._dir = params["dir"]
         self._auth = params["auth"]
         self._exclude_dirs = params["exclude-dirs"]
+        self._proxy = params["proxy"]
 
         QMainWindow.__init__(self, parent)
 
@@ -123,18 +126,18 @@ class Window(QMainWindow, Ui_MainWindow):
         self.yandex_cfg.setText(self._config)
         self.yandex_cfg.setEnabled(False)
 
-        self._dir = actions.GetParamFromCfgFile("dir",self._config)
+        #self._dir = actions.GetRootDirFromCfgFile(self._config,0)
         self.yandex_root.setText(self._dir)
         self.yandex_root.setReadOnly(True)
 
-        self_auth = actions.GetParamFromCfgFile("auth",self._config)
+        #self_auth = actions.GetAuthFromCfgFile(self._config,0)
         self.yandex_auth.setText(self._auth)
         self.yandex_auth.setReadOnly(True)
 
         appOpts = AppOptions()
-        HideOnMinimize = appOpts.getParam("HideOnMinimize")
-        StartMinimized = appOpts.getParam("StartMinimized")
-        refreshPeriod = appOpts.getParam("autorefresh")
+        HideOnMinimize = int(appOpts.getParam("HideOnMinimize"))
+        StartMinimized = int(appOpts.getParam("StartMinimized"))
+        refreshPeriod = int(appOpts.getParam("autorefresh"))
         self.checkBox_1.setChecked(StartMinimized)
         self.checkBox_2.setChecked(HideOnMinimize)
         self.refreshTimeout.setProperty("value", refreshPeriod)
@@ -153,19 +156,32 @@ class Window(QMainWindow, Ui_MainWindow):
         yandex_cfg = self.yandex_cfg.text()
         yandex_root = self.yandex_root.text()
         yandex_auth = self.yandex_auth.text()
+        yandex_proxy = self._proxy
 
         self._exclude_dirs = self.getExcludeDirsFromTree()
 
         dirs = ",".join(self._exclude_dirs)
 
-        params = {"auth": yandex_auth, "dir": yandex_root, "exclude-dirs": dirs}
+        defParams = getDefaultParams()
+
+        yandexcfg = yandex_cfg
+        if yandex_cfg == defParams["config"]:
+            yandexcfg = ""
+
+        params = {"auth": yandex_auth, "dir": yandex_root, "exclude-dirs": dirs, "proxy": yandex_proxy}
         actions.SaveParamsInCfgFile(params,self._config)
 
     def saveWindowOptions(self):
         appOpts = AppOptions()
-        StartMinimized = self.checkBox_1.isChecked()
-        HideOnMinimize = self.checkBox_2.isChecked()
-        refreshPeriod =  self.refreshTimeout.value()
+        if self.checkBox_1.isChecked():
+            StartMinimized = "1"
+        else:
+            StartMinimized = "0"
+        if self.checkBox_2.isChecked():
+            HideOnMinimize = "1"
+        else:
+            HideOnMinimize = "0"
+        refreshPeriod =  str(self.refreshTimeout.value())
         appOpts.setParam("HideOnMinimize",HideOnMinimize)
         appOpts.setParam("StartMinimized",StartMinimized)
         appOpts.setParam("autorefresh",refreshPeriod)
