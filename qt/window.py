@@ -364,32 +364,24 @@ class Window(QMainWindow, Ui_MainWindow):
         if parentDir == "":
             parentDir = self._dir
 
-        if os.path.exists(parentDir) == 0:
-            return
+        if os.path.exists(parentDir):
+            dirs = os.listdir(parentDir)
 
-        dirs = os.listdir(parentDir)
+            if len(dirs):
+                for d in sorted(dirs):
+                    path = os.path.join(parentDir,d)
 
-        if len(dirs) == 0:
-            return
+                    if os.path.isfile(path) == 0 and d != ".sync":
+                        lpath = path.lstrip(self._dir)
+                        exists,is_link,target,state = self.getPathProperties(path)
+                        properties = self.prepareItemProperties(lpath,d,exists,is_link,target,state)
 
-        for d in sorted(dirs):
-            path = os.path.join(parentDir,d)
+                        if self.isChildExists(lpath) == 0:
+                            self.emit(QtCore.SIGNAL("addChild"),lpath,properties)
+                        elif self.isChildToBeModified(lpath,properties):
+                            self.emit(QtCore.SIGNAL("modifyChild"),lpath,properties)
 
-            if os.path.isfile(path):
-                pass
-            elif d == ".sync":
-                pass
-            else:
-                lpath = path.lstrip(self._dir)
-                exists,is_link,target,state = self.getPathProperties(path)
-                properties = self.prepareItemProperties(lpath,d,exists,is_link,target,state)
-
-                if self.isChildExists(lpath) == 0:
-                    self.emit(QtCore.SIGNAL("addChild"),lpath,properties)
-                elif self.isChildToBeModified(lpath,properties):
-                    self.emit(QtCore.SIGNAL("modifyChild"),lpath,properties)
-
-                self.addDirAsTreeItem(path)
+                        self.addDirAsTreeItem(path)
 
     def findUncheckedItemsAmongChildren(self, items, parentItem, column=0):
         if parentItem == "" or parentItem == None:
