@@ -25,6 +25,7 @@ class About(QDialog, Ui_Dialog):
 class Window(QMainWindow, Ui_MainWindow):
 
     _removeItems = []
+    _threads = []
 
     _geometry = None
 
@@ -205,16 +206,31 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def addItem(self,path,properties):
         child = self.findPathItem(path)
-        if child == "" or child == None:
+        if child == None:
             child = self.createChild(path)
-        self.setItemProperties(child,properties)
+        if child != None:
+            self.setItemProperties(child,properties)
 
     def modifyItem(self,path,properties):
         child = self.findPathItem(path)
-        if child == "" or child == None:
+        if child == None:
             pass
         else:
             self.setItemProperties(child,properties)
+
+    def removeItem(self,path):
+        child = self.findPathItem(path)
+        if child == None:
+            pass
+        else:
+            parent = child.parent()
+            if parent == None:
+                parent = self.treeWidget.invisibleRootItem()
+                parent.removeChild(child)
+                if path in self._removeItems:
+                    self._removeItems.remove(path)
+                if path in self._exclude_dirs:
+                    self._exclude_dirs.remove(path)
 
     def checkAndRmUnusedTreeItem(self,parentItem=""):
         if parentItem == "" or parentItem == None:
@@ -228,10 +244,9 @@ class Window(QMainWindow, Ui_MainWindow):
                 continue
             path = os.path.join(self._dir,path)
 
-            res = self.isChildToBeRemoved(path)
-
-            if res:
+            if self.isChildToBeRemoved(path):
                 self._removeItems.append(path)
+                #self.emit(QtCore.SIGNAL("removeChild"),path)
             else:
                 self.checkAndRmUnusedTreeItem(child)
 
@@ -312,7 +327,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         child = self.findPathItem(path)
 
-        if child == "" or child == None:
+        if child == None:
             return 0
         else:
             return 1
@@ -331,7 +346,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def isChildToBeModified(self,path,properties):
         child = self.findPathItem(path)
-        if child == "" or child == None:
+        if child == None:
             return 0
 
         itemProp = self.getItemProperties(child)
@@ -347,13 +362,15 @@ class Window(QMainWindow, Ui_MainWindow):
         updir = os.path.dirname(path)
 
         if updir == "":
-            parentItem = None
+            parentItem = "root"
         else:
             parentItem = self.findPathItem(updir)
 
-        if parentItem == None:
+        if parentItem == "root":
             child = QTreeWidgetItem(self.treeWidget)
             self.treeWidget.itemBelow(child)
+        elif parentItem == None:
+            child = None
         else:
             child = QTreeWidgetItem(parentItem)
             parentItem.addChild(child)
@@ -363,6 +380,11 @@ class Window(QMainWindow, Ui_MainWindow):
     def addDirAsTreeItem(self,parentDir=""):
         if parentDir == "":
             parentDir = self._dir
+
+        c = threading.currentThread()
+
+        if c not in self._threads:
+            self._threads.append(c)
 
         if os.path.exists(parentDir):
             dirs = os.listdir(parentDir)
@@ -382,6 +404,9 @@ class Window(QMainWindow, Ui_MainWindow):
                             self.emit(QtCore.SIGNAL("modifyChild"),lpath,properties)
 
                         self.addDirAsTreeItem(path)
+
+        if c in self._threads:
+            self._threads.remove(c)
 
     def findUncheckedItemsAmongChildren(self, items, parentItem, column=0):
         if parentItem == "" or parentItem == None:
@@ -405,7 +430,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def findPathItem(self, pathToFind, column = 0):
         path = pathToFind.split("/")
 
-        index = ""
+        index = None
         for i in path:
             try:
                 index = self.findItemAmongChildren(index, i, column)
@@ -416,7 +441,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def changeCheckStateForPath(self, pathToFind, state, column=0):
         item = self.findPathItem(pathToFind, column)
-        if item == "" or item == None:
+        if item == None:
             pass
         else:
             item.setCheckState(column, state)
@@ -477,11 +502,15 @@ class Window(QMainWindow, Ui_MainWindow):
 
         if self.isHidden() == False or force == 1:
 
+            #for thread in self._threads:
+            #    thread._Thread__stop()
+
             if clear:
                 self.treeWidget.clear()
 
             self.connect(self, QtCore.SIGNAL("addChild"), self.addItem)
             self.connect(self, QtCore.SIGNAL("modifyChild"), self.modifyItem)
+            #self.connect(self, QtCore.SIGNAL("removeChild"), self.removeItem)
 
             threadAdd = threading.Thread(target=self.addDirAsTreeItem)
             threadAdd.daemon = True
@@ -493,16 +522,7 @@ class Window(QMainWindow, Ui_MainWindow):
             threadRm.join()
 
             for path in self._removeItems:
-                path = path.lstrip(self._dir)
-                child = self.findPathItem(path)
-                if child != None:
-                    parent = child.parent()
-                    if parent == None:
-                        parent = self.treeWidget.invisibleRootItem()
-                    parent.removeChild(child)
-                    if path in self._exclude_dirs:
-                        self._exclude_dirs.remove(path)
-            self._removeItems = []
+                self.removeItem(path.lstrip(self._dir))
 
     def initApp(self):
         self.fillOptionsTab()
@@ -555,15 +575,17 @@ class Window(QMainWindow, Ui_MainWindow):
             self.textEdit.append(new_text)
             self.tIcon.updateToolTip(new_text)
 
-        #is_running,message = actions.IsDaemonRunning(self._prg)
-        #if is_running:
-        #    self.startTimer()
-        #else:
-        #    self.stopTimer()
-
     def refreshStatus(self,force=0,clear=0):
+
+        self.stopTimer()
+
+        for thread in self._threads:
+            thread._Thread__stop()
+
         self.actService("status")
         self.refreshTree(force,clear)
+
+        self.startTimer()
 
     def handleSpinChange(self):
         self.refreshStatus()
