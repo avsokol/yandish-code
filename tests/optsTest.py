@@ -6,25 +6,25 @@ import sys, os
 curdir = os.path.dirname(os.path.realpath(__file__))
 sys.path.insert(0,os.path.dirname(curdir))
 
-from opts import YaOptions
+from opts import AppOptions
 
-ya = YaOptions()
+appOpts = AppOptions()
 
-ya.setRcFileName(".yadisktest")
+appOpts.setRcFileName(".yadisktest")
 
-print("Test cfg file: '%s'" % ya.getRcFileName())
+print("Test cfg file: '%s'" % appOpts.getRcFileName())
 
 #ya.saveParamsToRcFile()
 #ya.readParamsFromRcFile()
 
-ya.printParams()
+appOpts.printParams()
 
-ya.setParam("StartMinimized", 0)
-ya.setParam("HideOnMinimize", 0)
-ya.setParam("autorefresh", 30)
+appOpts.setParam("StartMinimized", 0)
+appOpts.setParam("HideOnMinimize", 0)
+appOpts.setParam("autorefresh", 30)
 
 
-ya.saveParamsToRcFile()
-ya.readParamsFromRcFile()
+appOpts.saveParamsToRcFile()
+appOpts.readParamsFromRcFile()
 
-ya.printParams()
+appOpts.printParams()

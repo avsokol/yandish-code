@@ -2,7 +2,7 @@
 
 import os
 
-class YaOptions():
+class AppOptions():
     RCFILE_NAME = ".yandishrc"
 
     params = {"StartMinimized": 1,

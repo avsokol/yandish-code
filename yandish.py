@@ -51,7 +51,7 @@ def ShowWidget(params):
     from PyQt4.QtGui import (QApplication, QFileSystemModel, QTreeView, QTreeWidgetItem, QDirModel)
     from PyQt4.QtCore import pyqtSlot, QObject, QDir, Qt, QModelIndex
     from qt.window import Window
-    from opts import YaOptions
+    from opts import AppOptions
 
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.realpath(__file__)), "ico/yandex-disk.xpm")))
@@ -60,8 +60,8 @@ def ShowWidget(params):
 
     window.initApp()
 
-    yaOpts = YaOptions()
-    startMinimized = yaOpts.getParam("StartMinimized")
+    appOpts = AppOptions()
+    startMinimized = appOpts.getParam("StartMinimized")
     if startMinimized == 0:
         window.show()
     window.updateTrayMenuState()

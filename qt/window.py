@@ -7,7 +7,7 @@ from wlayout import Ui_MainWindow
 import actions
 from about import Ui_Dialog
 from trayIcon import SystemTrayIcon
-from opts import YaOptions
+from opts import AppOptions
 
 import threading
 
@@ -85,8 +85,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def event(self, event):
         if (event.type() == QtCore.QEvent.WindowStateChange and self.isMinimized()):
-            yaOpts = YaOptions()
-            HideOnMinimize = yaOpts.getParam("HideOnMinimize")
+            appOpts = AppOptions()
+            HideOnMinimize = appOpts.getParam("HideOnMinimize")
             if HideOnMinimize:
                 self.hide()
             return True
@@ -121,15 +121,19 @@ class Window(QMainWindow, Ui_MainWindow):
         self.yandex_exec.setEnabled(False)
         self.yandex_cfg.setText(self._config)
         self.yandex_cfg.setEnabled(False)
+
+        self._dir = actions.GetParamFromCfgFile("dir",self._config)
         self.yandex_root.setText(self._dir)
         self.yandex_root.setReadOnly(True)
+
+        self_auth = actions.GetParamFromCfgFile("auth",self._config)
         self.yandex_auth.setText(self._auth)
         self.yandex_auth.setReadOnly(True)
 
-        yaOpts = YaOptions()
-        HideOnMinimize = yaOpts.getParam("HideOnMinimize")
-        StartMinimized = yaOpts.getParam("StartMinimized")
-        refreshPeriod = yaOpts.getParam("autorefresh")
+        appOpts = AppOptions()
+        HideOnMinimize = appOpts.getParam("HideOnMinimize")
+        StartMinimized = appOpts.getParam("StartMinimized")
+        refreshPeriod = appOpts.getParam("autorefresh")
         self.checkBox_1.setChecked(StartMinimized)
         self.checkBox_2.setChecked(HideOnMinimize)
         self.refreshTimeout.setProperty("value", refreshPeriod)
@@ -157,14 +161,14 @@ class Window(QMainWindow, Ui_MainWindow):
         actions.SaveParamsInCfgFile(params,self._config)
 
     def saveWindowOptions(self):
-        yaOpts = YaOptions()
+        appOpts = AppOptions()
         StartMinimized = self.checkBox_1.isChecked()
         HideOnMinimize = self.checkBox_2.isChecked()
         refreshPeriod =  self.refreshTimeout.value()
-        yaOpts.setParam("HideOnMinimize",HideOnMinimize)
-        yaOpts.setParam("StartMinimized",StartMinimized)
-        yaOpts.setParam("autorefresh",refreshPeriod)
-        yaOpts.saveParamsToRcFile()
+        appOpts.setParam("HideOnMinimize",HideOnMinimize)
+        appOpts.setParam("StartMinimized",StartMinimized)
+        appOpts.setParam("autorefresh",refreshPeriod)
+        appOpts.saveParamsToRcFile()
 
     def saveOptions(self):
         self.saveYandexOptions()
