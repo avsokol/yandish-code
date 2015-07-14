@@ -221,28 +221,32 @@ class Window(QMainWindow, Ui_MainWindow):
         return path
 
     def addItem(self,path,properties):
-        child = self.findPathItem(path)
-        if child == None:
-            child = self.createChild(path)
-        if child != None:
-            self.setItemProperties(child,properties)
+        item = self.findPathItem(path)
+        if item == None:
+            item = self.createChild(path)
+        if item != None:
+            self.setItemProperties(item,properties)
 
     def modifyItem(self,path,properties):
-        child = self.findPathItem(path)
-        if child == None:
+        item = self.findPathItem(path)
+        if item == None:
             pass
         else:
-            self.setItemProperties(child,properties)
+            self.setItemProperties(item,properties)
+            if properties["checkable"] == 0:
+                for i in range(item.childCount()):
+                    child = item.child(i)
+                    item.removeChild(child)
 
     def removeItem(self,path):
-        child = self.findPathItem(path)
-        if child == None:
+        item = self.findPathItem(path)
+        if item == None:
             pass
         else:
-            parent = child.parent()
+            parent = item.parent()
             if parent == None:
                 parent = self.treeWidget.invisibleRootItem()
-                parent.removeChild(child)
+                parent.removeChild(item)
                 if path in self._removeItems:
                     self._removeItems.remove(path)
                 if path in self._exclude_dirs:
