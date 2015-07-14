@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>401</width>
+    <width>417</width>
     <height>481</height>
    </rect>
   </property>
@@ -103,13 +103,30 @@
             <layout class="QVBoxLayout" name="verticalLayout">
              <item>
               <widget class="QLabel" name="loginLabel">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <italic>true</italic>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>Login:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                </property>
               </widget>
              </item>
              <item>
               <widget class="QLabel" name="passLabel">
+               <property name="font">
+                <font>
+                 <weight>75</weight>
+                 <italic>true</italic>
+                 <bold>true</bold>
+                </font>
+               </property>
                <property name="text">
                 <string>Password:</string>
                </property>
@@ -143,10 +160,30 @@
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout">
                 <item>
-                 <widget class="QLineEdit" name="yaLogin"/>
+                 <widget class="QLineEdit" name="yaLogin">
+                  <property name="minimumSize">
+                   <size>
+                    <width>119</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>119</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                 </widget>
                 </item>
                 <item>
                  <widget class="QLabel" name="yandexRu">
+                  <property name="font">
+                   <font>
+                    <weight>75</weight>
+                    <italic>true</italic>
+                    <bold>true</bold>
+                   </font>
+                  </property>
                   <property name="text">
                    <string>@yandex.ru</string>
                   </property>
@@ -163,7 +200,7 @@
                <property name="frameShadow">
                 <enum>QFrame::Raised</enum>
                </property>
-               <layout class="QVBoxLayout" name="verticalLayout_4">
+               <layout class="QHBoxLayout" name="horizontalLayout_11">
                 <item>
                  <widget class="QLineEdit" name="yaPass">
                   <property name="sizePolicy">
@@ -172,11 +209,31 @@
                     <verstretch>0</verstretch>
                    </sizepolicy>
                   </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>119</width>
+                    <height>0</height>
+                   </size>
+                  </property>
                   <property name="inputMethodHints">
                    <set>Qt::ImhHiddenText|Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText</set>
                   </property>
                   <property name="echoMode">
                    <enum>QLineEdit::Password</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="pushButton">
+                  <property name="font">
+                   <font>
+                    <weight>75</weight>
+                    <italic>true</italic>
+                    <bold>true</bold>
+                   </font>
+                  </property>
+                  <property name="text">
+                   <string>Login</string>
                   </property>
                  </widget>
                 </item>
@@ -190,8 +247,6 @@
         </widget>
        </item>
       </layout>
-      <zorder>loginFfame</zorder>
-      <zorder>loginFfame</zorder>
      </widget>
     </item>
     <item>
@@ -295,15 +350,9 @@
            </widget>
           </item>
          </layout>
-         <zorder>yaRoot</zorder>
-         <zorder>yaRoot</zorder>
-         <zorder>yaRootCh</zorder>
         </widget>
        </item>
       </layout>
-      <zorder>defRootLabel</zorder>
-      <zorder>defRootLabel</zorder>
-      <zorder>yaRootFrame</zorder>
      </widget>
     </item>
     <item>
