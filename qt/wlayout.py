@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wlayout.ui'
 #
-# Created: Tue Jul  7 23:09:38 2015
+# Created: Tue Jul 14 13:01:25 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -75,6 +75,9 @@ class Ui_MainWindow(object):
         self.yandex_cfg = QtGui.QLineEdit(self.groupBox_2)
         self.yandex_cfg.setObjectName(_fromUtf8("yandex_cfg"))
         self.horizontalLayout_2.addWidget(self.yandex_cfg)
+        self.ch_yandex_cfg = QtGui.QToolButton(self.groupBox_2)
+        self.ch_yandex_cfg.setObjectName(_fromUtf8("ch_yandex_cfg"))
+        self.horizontalLayout_2.addWidget(self.ch_yandex_cfg)
         self.verticalLayout_3.addWidget(self.groupBox_2)
         self.groupBox_3 = QtGui.QGroupBox(self.tab_3)
         self.groupBox_3.setObjectName(_fromUtf8("groupBox_3"))
@@ -245,14 +248,25 @@ class Ui_MainWindow(object):
         self.treeWidget.headerItem().setText(0, _translate("MainWindow", "Directories to Sync", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "Sync Dirs", None))
         self.groupBox_1.setTitle(_translate("MainWindow", "yandex-disk executable path", None))
-        self.yandex_exec.setToolTip(_translate("MainWindow", "Automatically detected path to yandex-disk executable", None))
+        self.yandex_exec.setToolTip(_translate("MainWindow", "yandex-disk executable path", None))
+        self.yandex_exec.setStatusTip(_translate("MainWindow", "yandex-disk executable path", None))
         self.groupBox_2.setTitle(_translate("MainWindow", "Configuration file path", None))
         self.yandex_cfg.setToolTip(_translate("MainWindow", "Path to yandex disk configuration file", None))
+        self.yandex_cfg.setStatusTip(_translate("MainWindow", "Path to yandex disk configuration file", None))
+        self.ch_yandex_cfg.setToolTip(_translate("MainWindow", "Change Yandex Configuration File Path", None))
+        self.ch_yandex_cfg.setStatusTip(_translate("MainWindow", "Change Yandex Configuration File Path", None))
+        self.ch_yandex_cfg.setText(_translate("MainWindow", "...", None))
         self.groupBox_3.setTitle(_translate("MainWindow", "Yandex Disk root directory", None))
         self.yandex_root.setToolTip(_translate("MainWindow", "Root directory for synchronization", None))
+        self.yandex_root.setStatusTip(_translate("MainWindow", "Root directory for synchronization", None))
+        self.ch_yandex_root.setToolTip(_translate("MainWindow", "Change Yandex Disk Root Directory", None))
+        self.ch_yandex_root.setStatusTip(_translate("MainWindow", "Change Yandex Disk Root Directory", None))
         self.ch_yandex_root.setText(_translate("MainWindow", "...", None))
         self.groupBox_4.setTitle(_translate("MainWindow", "Yandex Disk auth file path", None))
         self.yandex_auth.setToolTip(_translate("MainWindow", "Yandex Disk authorization file path", None))
+        self.yandex_auth.setStatusTip(_translate("MainWindow", "Yandex Disk authorization file path", None))
+        self.ch_yandex_auth.setToolTip(_translate("MainWindow", "Change Yandex Authorization File Path", None))
+        self.ch_yandex_auth.setStatusTip(_translate("MainWindow", "Change Yandex Authorization File Path", None))
         self.ch_yandex_auth.setText(_translate("MainWindow", "...", None))
         self.groupBox_5.setTitle(_translate("MainWindow", "Application Options", None))
         self.checkBox_1.setToolTip(_translate("MainWindow", "Start Application Hidden in a System Tray", None))
@@ -267,12 +281,16 @@ class Ui_MainWindow(object):
         self.l_refresh_2.setText(_translate("MainWindow", "sec", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "Options", None))
         self.btnStart.setToolTip(_translate("MainWindow", "Start Service", None))
+        self.btnStart.setStatusTip(_translate("MainWindow", "Start Service", None))
         self.btnStart.setText(_translate("MainWindow", "Start", None))
         self.btnStop.setToolTip(_translate("MainWindow", "Stop Service", None))
+        self.btnStop.setStatusTip(_translate("MainWindow", "Stop Service", None))
         self.btnStop.setText(_translate("MainWindow", "Stop", None))
         self.btnStatus.setToolTip(_translate("MainWindow", "Check Service Status", None))
+        self.btnStatus.setStatusTip(_translate("MainWindow", "Check Service Status", None))
         self.btnStatus.setText(_translate("MainWindow", "Status", None))
         self.btnExit.setToolTip(_translate("MainWindow", "Exit Application", None))
+        self.btnExit.setStatusTip(_translate("MainWindow", "Exit Application", None))
         self.btnExit.setText(_translate("MainWindow", "Exit", None))
         self.menuAction.setTitle(_translate("MainWindow", "&Service", None))
         self.menuCfg.setTitle(_translate("MainWindow", "&Configuration", None))

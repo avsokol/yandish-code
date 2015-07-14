@@ -124,7 +124,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.yandex_exec.setText(self._prg)
         self.yandex_exec.setEnabled(False)
         self.yandex_cfg.setText(self._config)
-        self.yandex_cfg.setEnabled(False)
+        self.yandex_cfg.setReadOnly(True)
 
         #self._dir = actions.GetRootDirFromCfgFile(self._config,0)
         self.yandex_root.setText(self._dir)
@@ -159,14 +159,7 @@ class Window(QMainWindow, Ui_MainWindow):
         yandex_proxy = self._proxy
 
         self._exclude_dirs = self.getExcludeDirsFromTree()
-
         dirs = ",".join(self._exclude_dirs)
-
-        defParams = getDefaultParams()
-
-        yandexcfg = yandex_cfg
-        if yandex_cfg == defParams["config"]:
-            yandexcfg = ""
 
         params = {"auth": yandex_auth, "dir": yandex_root, "exclude-dirs": dirs, "proxy": yandex_proxy}
         actions.SaveParamsInCfgFile(params,self._config)
@@ -182,9 +175,19 @@ class Window(QMainWindow, Ui_MainWindow):
         else:
             HideOnMinimize = "0"
         refreshPeriod =  str(self.refreshTimeout.value())
+
+        yandex_cfg = self.yandex_cfg.text()
+
+        defParams = getDefaultParams()
+
+        yandexcfg = yandex_cfg
+        if yandex_cfg == os.path.expanduser(defParams["config"]):
+            yandexcfg = ""
+        
         appOpts.setParam("HideOnMinimize",HideOnMinimize)
         appOpts.setParam("StartMinimized",StartMinimized)
         appOpts.setParam("autorefresh",refreshPeriod)
+        appOpts.setParam("yandex-cfg",yandexcfg)
         appOpts.saveParamsToRcFile()
 
     def saveOptions(self):
@@ -203,6 +206,14 @@ class Window(QMainWindow, Ui_MainWindow):
         if filename != "":
             self._auth = str(filename)
             self.yandex_auth.setText(filename)
+
+    def chooseCfgFile(self):
+        filename = QtGui.QFileDialog.getSaveFileName(self, "Select Yandex Configuration File", os.environ["HOME"])
+        if filename != "":
+            self._config = str(filename)
+            self.yandex_cfg.setText(filename)
+
+            self.saveOptions()
 
     def getPathFromItem(self,item):
         path = []
@@ -658,6 +669,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         QtCore.QObject.connect(self.ch_yandex_root, QtCore.SIGNAL("clicked()"), self.chooseRootDir)
         QtCore.QObject.connect(self.ch_yandex_auth, QtCore.SIGNAL("clicked()"), self.chooseAuthFile)
+        QtCore.QObject.connect(self.ch_yandex_cfg, QtCore.SIGNAL("clicked()"), self.chooseCfgFile)
 
         QtCore.QObject.connect(self.actionAbout, QtCore.SIGNAL("activated()"), self.showAbout)
 
