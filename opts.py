@@ -54,5 +54,6 @@ class AppOptions():
     def saveParamsToRcFile(self):
         with open(self.getRcPath(), "w") as f:
             for k,v in self.params.items():
+                v = v.strip()
                 line = k + "=" + str(v) + "\n"
                 f.write(line)
