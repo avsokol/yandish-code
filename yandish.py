@@ -20,7 +20,8 @@ def getDefaultParams():
 #############################################################################
 
 def WhichPrg():
-    global PRG
+
+    PRG = ""
 
     executable = "yandex-disk"
 

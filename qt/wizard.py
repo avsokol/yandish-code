@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wizard.ui'
 #
-# Created: Wed Jul 15 21:53:54 2015
+# Created: Wed Jul 15 22:05:19 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -156,6 +156,7 @@ class Ui_Wizard(object):
         self.loginResult = QtGui.QLabel(self.wizardPage1)
         self.loginResult.setText(_fromUtf8(""))
         self.loginResult.setAlignment(QtCore.Qt.AlignCenter)
+        self.loginResult.setWordWrap(True)
         self.loginResult.setObjectName(_fromUtf8("loginResult"))
         self.verticalLayout_3.addWidget(self.loginResult)
         self.stepLabel_1 = QtGui.QLabel(self.wizardPage1)
