@@ -1,15 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import sys,os
-
+import sys,os, shutil
 
 rpath = os.path.realpath(__file__)
-print(rpath)
 dirname = os.path.dirname(rpath)
 rjoin = os.path.join(dirname,"../")
 sys.path.append(rjoin)
-
-print(sys.path)
 
 from subprocess import Popen, PIPE
 
@@ -18,20 +14,42 @@ from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import *
 
 from wizard import Ui_Wizard
-
-from yandish import WhichPrg
+from yandish import WhichPrg, getDefaultParams
+from opts import AppOptions
+import actions
 
 class yaWizard(QWizard,  Ui_Wizard):
-    def __init__(self, parent = None):
+
+    _prg = None
+    _config = None
+    _dir = None
+    _auth = None
+    _exclude_dirs = None
+    _proxy = None
+
+    _default_auth = "/tmp/yandish_auth.tmp"
+
+    def __init__(self, params, parent = None):
+
+        self._prg = params["prg"]
+        self._config = params["config"]
+        self._dir = params["rootdir"]
+        self._auth = params["auth"]
+        self._proxy = params["proxy"]
+
         QWizard.__init__(self, parent)
         self.setupUi(self)
+
+        self.yaRoot.setText(self._dir)
+        self.yaCfg.setText(self._config)
+        self.yaAuth.setText(self._auth)
+        
         self.setSignals()
 
     def loginToYandex(self):
         login = str(self.yaLogin.text())
-        passw = self.yaPass.text()
-
         login = login.rstrip("@yandex.ru")
+        passw = self.yaPass.text()
 
         hint = ""
 
@@ -49,12 +67,10 @@ class yaWizard(QWizard,  Ui_Wizard):
             self.setLoginStatus(2,hint)
             return
 
-        prg = WhichPrg()
-
-        proc = Popen([prg, "token",
+        proc = Popen([self._prg, "token",
                       "-p", passw,
                       login,
-                      "/tmp/yandish.tmp"],
+                      self._default_auth],
                      stdout=PIPE, stderr=PIPE)
         return_code = proc.wait()
 
@@ -81,12 +97,45 @@ class yaWizard(QWizard,  Ui_Wizard):
         self.loginResult.setText(message)
         self.loginResult.setToolTip(hint)
 
+        if status == 0:
+            self.button(self.NextButton).setEnabled(True)
+        else:
+            self.button(self.NextButton).setEnabled(False)
+
+    def saveAuthFile(self):
+        shutil.move(self._default_auth,os.path.expanduser(self._auth))
+
+    def wizardFinish(self):
+        yandex_cfg = os.path.expanduser(self._config)
+        yandex_root = os.path.expanduser(self._dir)
+        yandex_auth = os.path.expanduser(self._auth)
+        #yandex_proxy = self._proxy
+
+        self.saveAuthFile()
+
+        params = {"auth": yandex_auth, "dir": yandex_root}
+        actions.SaveParamsInCfgFile(params,yandex_cfg)
+
+        appOpts = AppOptions()
+        defParams = getDefaultParams()
+        yandexcfg = yandex_cfg
+        if yandex_cfg == os.path.expanduser(defParams["config"]):
+            yandexcfg = ""
+        appOpts.setParam("yandex-cfg",yandexcfg)
+        appOpts.saveParamsToRcFile()
+
     def setSignals(self):
         QtCore.QObject.connect(self.loginButton, QtCore.SIGNAL("clicked()"), self.loginToYandex)
+        QtCore.QObject.connect(self.button(self.FinishButton), QtCore.SIGNAL("clicked()"), self.wizardFinish)
 
 if __name__ == "__main__":
+
+    params = getDefaultParams()
+
     app = QtGui.QApplication(sys.argv)
-    yaWiz = yaWizard()
+    yaWiz = yaWizard(params)
+
     yaWiz.show()
-    #sys.exit(app.exec_())
+    yaWiz.button(yaWiz.NextButton).setEnabled(False)
+
     sys.exit(yaWiz.exec_())
