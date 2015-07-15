@@ -41,7 +41,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         self._prg = params["prg"]
         self._config = params["config"]
-        self._dir = params["dir"]
+        self._dir = params["rootdir"]
         self._auth = params["auth"]
         self._exclude_dirs = params["exclude-dirs"]
         self._proxy = params["proxy"]
