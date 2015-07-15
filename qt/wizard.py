@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wizard.ui'
 #
-# Created: Wed Jul 15 14:28:48 2015
+# Created: Wed Jul 15 21:53:54 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -39,7 +39,6 @@ class Ui_Wizard(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8("../ico/yandex-disk_1.xpm")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Wizard.setWindowIcon(icon)
-        Wizard.setWizardStyle(QtGui.QWizard.ClassicStyle)
         self.wizardPage1 = QtGui.QWizardPage()
         self.wizardPage1.setObjectName(_fromUtf8("wizardPage1"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.wizardPage1)
@@ -142,18 +141,23 @@ class Ui_Wizard(object):
         self.yaPass.setEchoMode(QtGui.QLineEdit.Password)
         self.yaPass.setObjectName(_fromUtf8("yaPass"))
         self.horizontalLayout_11.addWidget(self.yaPass)
-        self.pushButton = QtGui.QPushButton(self.yaPassFrame)
+        self.loginButton = QtGui.QPushButton(self.yaPassFrame)
         font = QtGui.QFont()
         font.setBold(True)
         font.setItalic(True)
         font.setWeight(75)
-        self.pushButton.setFont(font)
-        self.pushButton.setObjectName(_fromUtf8("pushButton"))
-        self.horizontalLayout_11.addWidget(self.pushButton)
+        self.loginButton.setFont(font)
+        self.loginButton.setObjectName(_fromUtf8("loginButton"))
+        self.horizontalLayout_11.addWidget(self.loginButton)
         self.verticalLayout_2.addWidget(self.yaPassFrame)
         self.horizontalLayout_3.addWidget(self.loginEntryFrame)
         self.horizontalLayout_2.addWidget(self.loginFfame)
         self.verticalLayout_3.addWidget(self.accountGroupBox)
+        self.loginResult = QtGui.QLabel(self.wizardPage1)
+        self.loginResult.setText(_fromUtf8(""))
+        self.loginResult.setAlignment(QtCore.Qt.AlignCenter)
+        self.loginResult.setObjectName(_fromUtf8("loginResult"))
+        self.verticalLayout_3.addWidget(self.loginResult)
         self.stepLabel_1 = QtGui.QLabel(self.wizardPage1)
         self.stepLabel_1.setObjectName(_fromUtf8("stepLabel_1"))
         self.verticalLayout_3.addWidget(self.stepLabel_1)
@@ -331,7 +335,7 @@ class Ui_Wizard(object):
         self.loginLabel.setText(_translate("Wizard", "Login:", None))
         self.passLabel.setText(_translate("Wizard", "Password:", None))
         self.yandexRu.setText(_translate("Wizard", "@yandex.ru", None))
-        self.pushButton.setText(_translate("Wizard", "Login", None))
+        self.loginButton.setText(_translate("Wizard", "Login", None))
         self.stepLabel_1.setText(_translate("Wizard", "Step 1 of 4", None))
         self.yaRootGroupBox.setTitle(_translate("Wizard", "Select a directory for Yandex.Disk location:", None))
         self.defRootLabel.setText(_translate("Wizard", "Default: ~/Yandex.Disk (recommended)", None))
