@@ -130,7 +130,7 @@ def main(argv):
               "config": cfgfile,
               "auth": auth,
               "exclude-dirs": exclude_dirs,
-              "dir": rootdir,
+              "rootdir": rootdir,
               "proxy": proxy}
 
     if action == "widget":
