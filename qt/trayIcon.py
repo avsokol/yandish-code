@@ -19,7 +19,7 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         QtGui.QSystemTrayIcon.__init__(self, parent)
 
         if QtGui.QSystemTrayIcon.isSystemTrayAvailable():
-            icon = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk.xpm")
+            icon = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk_1.xpm")
             self.trayIcon = QtGui.QSystemTrayIcon(QtGui.QIcon(icon), parent)
             menu = QtGui.QMenu(parent)
             self.showAction = menu.addAction("Show")
