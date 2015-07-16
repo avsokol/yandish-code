@@ -37,7 +37,7 @@ class Ui_Wizard(object):
         Wizard.setMinimumSize(QtCore.QSize(417, 492))
         Wizard.setMaximumSize(QtCore.QSize(417, 492))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8("../ico/yandex-disk_1.xpm")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/yandex-disk_1.xpm"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Wizard.setWindowIcon(icon)
         self.wizardPage1 = QtGui.QWizardPage()
         self.wizardPage1.setObjectName(_fromUtf8("wizardPage1"))
