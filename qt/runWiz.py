@@ -111,10 +111,19 @@ class yaWizard(QWizard,  Ui_Wizard):
         yandex_auth = os.path.expanduser(self._auth)
         #yandex_proxy = self._proxy
 
-        self.saveAuthFile()
+        try:
+            self.saveAuthFile()
+        except IOError:
+            print("Couldn't write Yandex authorization file")
+            sys.exit(2)
 
         params = {"auth": yandex_auth, "dir": yandex_root}
-        actions.SaveParamsInCfgFile(params,yandex_cfg)
+
+        try:
+            actions.SaveParamsInCfgFile(params,yandex_cfg)
+        except IOError:
+            print("Couldn't write Yandex configuration file")
+            sys.exit(3)
 
         appOpts = AppOptions()
         defParams = getDefaultParams()
@@ -122,7 +131,12 @@ class yaWizard(QWizard,  Ui_Wizard):
         if yandex_cfg == os.path.expanduser(defParams["config"]):
             yandexcfg = ""
         appOpts.setParam("yandex-cfg",yandexcfg)
-        appOpts.saveParamsToRcFile()
+
+        try:
+            appOpts.saveParamsToRcFile()
+        except IOError:
+            print("Couldn't write App configuration file")
+            sys.exit(4)
 
     def setSignals(self):
         QtCore.QObject.connect(self.loginButton, QtCore.SIGNAL("clicked()"), self.loginToYandex)
