@@ -22,7 +22,7 @@ class yaWizard(QWizard,  Ui_Wizard):
 
     _prg = None
     _config = None
-    _dir = None
+    _rootdir = None
     _auth = None
     _exclude_dirs = None
     _proxy = None
@@ -33,14 +33,14 @@ class yaWizard(QWizard,  Ui_Wizard):
 
         self._prg = params["prg"]
         self._config = params["config"]
-        self._dir = params["rootdir"]
+        self._rootdir = params["rootdir"]
         self._auth = params["auth"]
         self._proxy = params["proxy"]
 
         QWizard.__init__(self, parent)
         self.setupUi(self)
 
-        self.yaRoot.setText(self._dir)
+        self.yaRoot.setText(self._rootdir)
         self.yaCfg.setText(self._config)
         self.yaAuth.setText(self._auth)
         
@@ -106,9 +106,9 @@ class yaWizard(QWizard,  Ui_Wizard):
         shutil.move(self._default_auth,os.path.expanduser(self._auth))
 
     def wizardFinish(self):
-        yandex_cfg = os.path.expanduser(self._config)
-        yandex_root = os.path.expanduser(self._dir)
-        yandex_auth = os.path.expanduser(self._auth)
+        yandex_cfg = str(self.yaCfg.text())
+        yandex_root = str(self.yaRoot.text())
+        yandex_auth = str(self.yaAuth.text())
         #yandex_proxy = self._proxy
 
         try:

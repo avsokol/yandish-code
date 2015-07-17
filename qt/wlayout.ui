@@ -17,9 +17,6 @@
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QTabWidget" name="tabWidget">
-      <property name="currentIndex">
-       <number>2</number>
-      </property>
       <widget class="QWidget" name="tab_1">
        <attribute name="icon">
         <iconset>
@@ -422,7 +419,7 @@
      <height>27</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuAction">
+   <widget class="QMenu" name="menuService">
     <property name="title">
      <string>&amp;Service</string>
     </property>
@@ -430,7 +427,6 @@
     <addaction name="actionStop"/>
     <addaction name="actionStatus"/>
     <addaction name="separator"/>
-    <addaction name="actionExit"/>
    </widget>
    <widget class="QMenu" name="menuCfg">
     <property name="title">
@@ -445,7 +441,17 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
-   <addaction name="menuAction"/>
+   <widget class="QMenu" name="menuApplication">
+    <property name="title">
+     <string>&amp;Application</string>
+    </property>
+    <addaction name="actionSetup_Wizard"/>
+    <addaction name="separator"/>
+    <addaction name="actionHide"/>
+    <addaction name="actionExit"/>
+   </widget>
+   <addaction name="menuApplication"/>
+   <addaction name="menuService"/>
    <addaction name="menuCfg"/>
    <addaction name="menuHelp"/>
   </widget>
@@ -532,6 +538,20 @@
    </property>
    <property name="statusTip">
     <string>About Application</string>
+   </property>
+  </action>
+  <action name="actionHide">
+   <property name="text">
+    <string>&amp;Hide</string>
+   </property>
+  </action>
+  <action name="actionSetup_Wizard">
+   <property name="icon">
+    <iconset>
+     <normaloff>../ico/wizard.png</normaloff>../ico/wizard.png</iconset>
+   </property>
+   <property name="text">
+    <string>Setup &amp;Wizard</string>
    </property>
   </action>
  </widget>

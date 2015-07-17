@@ -3,6 +3,7 @@
 import sys, os, argparse
 from subprocess import Popen, PIPE
 from opts import AppOptions
+from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile, DoAction, ProcessResult
 
 #############################################################################
 
@@ -10,7 +11,7 @@ def getDefaultParams():
     daemon = WhichPrg()
     params = {"config": "~/.config/yandex-disk/config.cfg",
               "auth": "~/.config/yandex-disk/passwd",
-              "exclude_dirs": [],
+              "exclude-dirs": [],
               "rootdir": "~/Yandex.Disk",
               "prg": daemon,
               "proxy": "no"}
@@ -76,62 +77,64 @@ def ShowWidget(params):
 
 #############################################################################
 
-def main(argv):
-
-    from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile, DoAction, ProcessResult
+def tuneParams(params):
 
     defParams = getDefaultParams()
 
-    parser = ArgParser()
-    pArgs = parser.parse_args(argv[0:])
- 
-    prg = pArgs.program
-    cfgfile = pArgs.config
-    rootdir = pArgs.dir
-    auth = pArgs.auth
-    exclude_dirs = pArgs.exclude_dirs
-    proxy = pArgs.proxy
-    action = pArgs.action
+    if params["prg"] == "":
+        params["prg"] = defParams["prg"]
 
-    if prg == "":
-        prg = defParams["prg"]
-
-    if cfgfile == "":
+    if params["config"] == "":
         appOpts = AppOptions()
         appCfg = appOpts.getRcPath()
-        cfgfile = GetYandexCfgFromCfgFile(appCfg,0)
-    if cfgfile == "":
-        cfgfile = defParams["config"]
-    cfgfile = os.path.expanduser(cfgfile)
+        params["config"] = GetYandexCfgFromCfgFile(appCfg,0)
+    if params["config"] == "":
+        params["config"] = defParams["config"]
+    params["config"] = os.path.expanduser(params["config"])
 
-    if auth == "":
-        auth = GetAuthFromCfgFile(cfgfile,0)
-    if auth == "":
-        auth = defParams["auth"]
-    auth = os.path.expanduser(auth)
+    if params["auth"] == "":
+        params["auth"] = GetAuthFromCfgFile(params["config"],0)
+    if params["auth"] == "":
+        params["auth"] = defParams["auth"]
+    params["auth"] = os.path.expanduser(params["auth"])
 
-    if rootdir == "":
-        rootdir = GetRootDirFromCfgFile(cfgfile,0)
-    if rootdir == "":
-        rootdir = defParams["rootdir"]
-    rootdir = os.path.expanduser(rootdir)
+    if params["rootdir"] == "":
+        params["rootdir"] = GetRootDirFromCfgFile(params["config"],0)
+    if params["rootdir"] == "":
+        params["rootdir"] = defParams["rootdir"]
+    params["rootdir"] = os.path.expanduser(params["rootdir"])
 
-    if proxy == "":
-        proxy = defParams["proxy"]
+    if params["proxy"] == "":
+        params["proxy"] = defParams["proxy"]
 
-    if len(exclude_dirs) == 0:
-        exclude_dirs = GetExcludeDirsFromCfgFile(cfgfile,0)
-        if exclude_dirs == [""]:
-            exclude_dirs = []
+    if len(params["exclude-dirs"]) == 0:
+        params["exclude-dirs"] = GetExcludeDirsFromCfgFile(params["config"],0)
+        if params["exclude-dirs"] == [""]:
+            params["exclude-dirs"] = []
     else:
-        exclude_dirs = ",".join(exclude_dirs)
+        params["exclude-dirs"] = ",".join(params["exclude-dirs"])
+    
 
-    params = {"prg": prg,
-              "config": cfgfile,
-              "auth": auth,
-              "exclude-dirs": exclude_dirs,
-              "rootdir": rootdir,
-              "proxy": proxy}
+#############################################################################
+
+def main(argv):
+
+    params = {}
+
+    parser = ArgParser()
+    pArgs = parser.parse_args(argv[0:])
+
+    action = pArgs.action
+ 
+    params["prg"] = pArgs.program
+
+    params["config"] = pArgs.config
+    params["rootdir"] = pArgs.dir
+    params["auth"] = pArgs.auth
+    params["exclude-dirs"] = pArgs.exclude_dirs
+    params["proxy"] = pArgs.proxy
+
+    tuneParams(params)
 
     if action == "widget":
         ShowWidget(params)
