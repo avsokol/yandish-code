@@ -2,12 +2,13 @@
 
 import os
 
-class YaOptions():
+class AppOptions():
     RCFILE_NAME = ".yandishrc"
 
-    params = {"StartMinimized": 1,
-              "HideOnMinimize": 1,
-              "autorefresh": 15}
+    params = {"StartMinimized": "1",
+              "HideOnMinimize": "1",
+              "autorefresh": "15",
+              "yandex-cfg": ""}
 
     def __init__(self):
         self.readParamsFromRcFile()
@@ -29,7 +30,7 @@ class YaOptions():
 
     def setParam(self,param,value):
         if self.params.has_key(param):
-            self.params[param] = int(value)
+            self.params[param] = value
 
     def printParams(self):
         for k,v in self.params.items():
@@ -48,10 +49,11 @@ class YaOptions():
                     continue
                 key,value = elements[0],elements[1]
                 if self.params.has_key(key):
-                    self.params[key] = int(value)
+                    self.params[key] = value
 
     def saveParamsToRcFile(self):
         with open(self.getRcPath(), "w") as f:
             for k,v in self.params.items():
+                v = v.strip()
                 line = k + "=" + str(v) + "\n"
                 f.write(line)

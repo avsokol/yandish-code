@@ -7,7 +7,8 @@ from wlayout import Ui_MainWindow
 import actions
 from about import Ui_Dialog
 from trayIcon import SystemTrayIcon
-from opts import YaOptions
+from opts import AppOptions
+from yandish import getDefaultParams
 
 import threading
 
@@ -25,6 +26,7 @@ class About(QDialog, Ui_Dialog):
 class Window(QMainWindow, Ui_MainWindow):
 
     _removeItems = []
+    _threads = []
 
     _geometry = None
 
@@ -33,14 +35,16 @@ class Window(QMainWindow, Ui_MainWindow):
     _dir = None
     _auth = None
     _exclude_dirs = None
+    _proxy = None
 
     def __init__(self, params, parent = None):
 
         self._prg = params["prg"]
         self._config = params["config"]
-        self._dir = params["dir"]
+        self._dir = params["rootdir"]
         self._auth = params["auth"]
         self._exclude_dirs = params["exclude-dirs"]
+        self._proxy = params["proxy"]
 
         QMainWindow.__init__(self, parent)
 
@@ -51,9 +55,9 @@ class Window(QMainWindow, Ui_MainWindow):
         self.uTimer = QtCore.QTimer()
         QtCore.QObject.connect(self.uTimer, QtCore.SIGNAL("timeout()"), self.refreshStatus)
 
-        is_running,message = actions.IsDaemonRunning(self._prg)
-        if is_running:
-            self.startTimer()
+        #is_running,message = actions.IsDaemonRunning(self._prg)
+        #if is_running:
+        self.startTimer()
 
     def getParams(self):
         return {"prg": self._prg,
@@ -85,8 +89,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def event(self, event):
         if (event.type() == QtCore.QEvent.WindowStateChange and self.isMinimized()):
-            yaOpts = YaOptions()
-            HideOnMinimize = yaOpts.getParam("HideOnMinimize")
+            appOpts = AppOptions()
+            HideOnMinimize = appOpts.getParam("HideOnMinimize")
             if HideOnMinimize:
                 self.hide()
             return True
@@ -120,16 +124,20 @@ class Window(QMainWindow, Ui_MainWindow):
         self.yandex_exec.setText(self._prg)
         self.yandex_exec.setEnabled(False)
         self.yandex_cfg.setText(self._config)
-        self.yandex_cfg.setEnabled(False)
+        self.yandex_cfg.setReadOnly(True)
+
+        #self._dir = actions.GetRootDirFromCfgFile(self._config,0)
         self.yandex_root.setText(self._dir)
         self.yandex_root.setReadOnly(True)
+
+        #self_auth = actions.GetAuthFromCfgFile(self._config,0)
         self.yandex_auth.setText(self._auth)
         self.yandex_auth.setReadOnly(True)
 
-        yaOpts = YaOptions()
-        HideOnMinimize = yaOpts.getParam("HideOnMinimize")
-        StartMinimized = yaOpts.getParam("StartMinimized")
-        refreshPeriod = yaOpts.getParam("autorefresh")
+        appOpts = AppOptions()
+        HideOnMinimize = int(appOpts.getParam("HideOnMinimize"))
+        StartMinimized = int(appOpts.getParam("StartMinimized"))
+        refreshPeriod = int(appOpts.getParam("autorefresh"))
         self.checkBox_1.setChecked(StartMinimized)
         self.checkBox_2.setChecked(HideOnMinimize)
         self.refreshTimeout.setProperty("value", refreshPeriod)
@@ -137,7 +145,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def reloadOptions(self):
         self.fillOptionsTab()
 
-        self.refreshTree()
+        self.refreshTree(0,1)
 
         root = self.treeWidget.invisibleRootItem()
         self.checkChildren(root)
@@ -148,22 +156,39 @@ class Window(QMainWindow, Ui_MainWindow):
         yandex_cfg = self.yandex_cfg.text()
         yandex_root = self.yandex_root.text()
         yandex_auth = self.yandex_auth.text()
+        yandex_proxy = self._proxy
 
-        self._excluded_dirs = self.getExcludedDirsFromTree()
+        self._exclude_dirs = self.getExcludeDirsFromTree()
         dirs = ",".join(self._exclude_dirs)
 
-        params = {"auth": yandex_auth, "dir": yandex_root, "exclude-dirs": dirs}
+        params = {"auth": yandex_auth, "dir": yandex_root, "exclude-dirs": dirs, "proxy": yandex_proxy}
         actions.SaveParamsInCfgFile(params,self._config)
 
     def saveWindowOptions(self):
-        yaOpts = YaOptions()
-        StartMinimized = self.checkBox_1.isChecked()
-        HideOnMinimize = self.checkBox_2.isChecked()
-        refreshPeriod =  self.refreshTimeout.value()
-        yaOpts.setParam("HideOnMinimize",HideOnMinimize)
-        yaOpts.setParam("StartMinimized",StartMinimized)
-        yaOpts.setParam("autorefresh",refreshPeriod)
-        yaOpts.saveParamsToRcFile()
+        appOpts = AppOptions()
+        if self.checkBox_1.isChecked():
+            StartMinimized = "1"
+        else:
+            StartMinimized = "0"
+        if self.checkBox_2.isChecked():
+            HideOnMinimize = "1"
+        else:
+            HideOnMinimize = "0"
+        refreshPeriod =  str(self.refreshTimeout.value())
+
+        yandex_cfg = self.yandex_cfg.text()
+
+        defParams = getDefaultParams()
+
+        yandexcfg = yandex_cfg
+        if yandex_cfg == os.path.expanduser(defParams["config"]):
+            yandexcfg = ""
+        
+        appOpts.setParam("HideOnMinimize",HideOnMinimize)
+        appOpts.setParam("StartMinimized",StartMinimized)
+        appOpts.setParam("autorefresh",refreshPeriod)
+        appOpts.setParam("yandex-cfg",yandexcfg)
+        appOpts.saveParamsToRcFile()
 
     def saveOptions(self):
         self.saveYandexOptions()
@@ -172,14 +197,23 @@ class Window(QMainWindow, Ui_MainWindow):
     def chooseRootDir(self):
         dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory to be the root for Yandex Disk", self.yandex_root.text())
         if dirname != "":
-            self._dir = str(dirname)
+            self._dir = str(dirname.toUtf8())
             self.yandex_root.setText(dirname)
+            self.refreshTree(1,1)
 
     def chooseAuthFile(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, "Select Yandex Auth File", os.environ["HOME"])
         if filename != "":
             self._auth = str(filename)
             self.yandex_auth.setText(filename)
+
+    def chooseCfgFile(self):
+        filename = QtGui.QFileDialog.getSaveFileName(self, "Select Yandex Configuration File", os.environ["HOME"])
+        if filename != "":
+            self._config = str(filename)
+            self.yandex_cfg.setText(filename)
+
+            self.saveOptions()
 
     def getPathFromItem(self,item):
         path = []
@@ -197,23 +231,37 @@ class Window(QMainWindow, Ui_MainWindow):
         path = "/".join(path)
         return path
 
-    def isChildToBeRemoved(self, path):
-        try:
-            os.lstat(path)
-            exists = 1
-        except:
-            exists = 0
-
-        if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0 ):
-            return 1
-        else:
-            return 0
-
     def addItem(self,path,properties):
-        child = self.findPathItem(path, 0)
-        if child == "" or child == None:
-            child = self.createChild(path)
-            self.setItemProperties(child,properties)
+        item = self.findPathItem(path)
+        if item == None:
+            item = self.createChild(path)
+        if item != None:
+            self.setItemProperties(item,properties)
+
+    def modifyItem(self,path,properties):
+        item = self.findPathItem(path)
+        if item == None:
+            pass
+        else:
+            self.setItemProperties(item,properties)
+            if properties["checkable"] == 0:
+                for i in range(item.childCount()):
+                    child = item.child(i)
+                    item.removeChild(child)
+
+    def removeItem(self,path):
+        item = self.findPathItem(path)
+        if item == None:
+            pass
+        else:
+            parent = item.parent()
+            if parent == None:
+                parent = self.treeWidget.invisibleRootItem()
+                parent.removeChild(item)
+                if path in self._removeItems:
+                    self._removeItems.remove(path)
+                if path in self._exclude_dirs:
+                    self._exclude_dirs.remove(path)
 
     def checkAndRmUnusedTreeItem(self,parentItem=""):
         if parentItem == "" or parentItem == None:
@@ -227,17 +275,30 @@ class Window(QMainWindow, Ui_MainWindow):
                 continue
             path = os.path.join(self._dir,path)
 
-            res = self.isChildToBeRemoved(path)
-
-            if res:
+            if self.isChildToBeRemoved(path):
                 self._removeItems.append(path)
+                #self.emit(QtCore.SIGNAL("removeChild"),path)
             else:
                 self.checkAndRmUnusedTreeItem(child)
+
+    def getItemProperties(self,item):
+        properties = {"itemText": item.text(0),
+                      "foreground": item.foreground(0),
+                      "checkable": 1,
+                      "state": item.checkState(0)}
+
+        if item.flags() & QtCore.Qt.ItemIsUserCheckable:
+            properties["checkable"] = 1
+        else:
+            properties["checkable"] = 0
+
+        return properties
 
     def getPathProperties(self,path):
         exists = 0
         is_link = 0
         target = ""
+        state = Qt.Checked
 
         if os.path.isdir(path):
             exists = 1
@@ -249,17 +310,23 @@ class Window(QMainWindow, Ui_MainWindow):
             else:
                 exists = 0
 
-        if path in self._exclude_dirs:
-            exists = 0
+        if path.lstrip(self._dir) in self._exclude_dirs:
+            state = Qt.Unchecked
 
-        return exists,is_link,target
+        return exists,is_link,target,state
 
-    def prepareItemProperties(self,text,exists,is_link,target):
+    def prepareItemProperties(self,path,text,exists,is_link,target,state):
 
         properties = {"itemText": text.decode("utf8"),
                       "foreground": Qt.black,
                       "checkable": 1,
-                      "state": Qt.Unchecked}
+                      "state": state}
+
+        while path != "":
+            if path in self._exclude_dirs:
+                properties["state"] = Qt.Unchecked
+                break
+            path = os.path.dirname(path)
 
         if is_link:
             text = text + " -> " + target
@@ -268,9 +335,6 @@ class Window(QMainWindow, Ui_MainWindow):
         if is_link == 1 and exists == 0:
             properties["foreground"] = Qt.red
             properties["checkable"] = 0
-
-        if exists:
-            properties["state"] = Qt.Checked
 
         return properties
 
@@ -290,23 +354,54 @@ class Window(QMainWindow, Ui_MainWindow):
             child.setFlags(child.flags()^Qt.ItemIsUserCheckable^Qt.ItemIsSelectable)
         child.setCheckState(0, properties["state"])
 
-    def isChildToBeCreated(self,path):
-        path = path.lstrip(self._dir)
+    def isChildExists(self,path):
 
-        child = self.findPathItem(path, 0)
+        child = self.findPathItem(path)
 
-        if child == "" or child == None:
+        if child == None:
+            return 0
+        else:
+            return 1
+
+    def isChildToBeRemoved(self, path):
+        try:
+            os.lstat(path)
+            exists = 1
+        except:
+            exists = 0
+
+        if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0 ):
             return 1
         else:
             return 0
 
+    def isChildToBeModified(self,path,properties):
+        child = self.findPathItem(path)
+        if child == None:
+            return 0
+
+        itemProp = self.getItemProperties(child)
+
+        for key in properties.keys():
+            if properties[key] != itemProp[key]:
+                return 1
+
+        return 0
+
     def createChild(self,path):
 
-        parentItem = self.findPathItem(os.path.dirname(path))
+        updir = os.path.dirname(path)
 
-        if parentItem == None:
+        if updir == "":
+            parentItem = "root"
+        else:
+            parentItem = self.findPathItem(updir)
+
+        if parentItem == "root":
             child = QTreeWidgetItem(self.treeWidget)
             self.treeWidget.itemBelow(child)
+        elif parentItem == None:
+            child = None
         else:
             child = QTreeWidgetItem(parentItem)
             parentItem.addChild(child)
@@ -317,28 +412,32 @@ class Window(QMainWindow, Ui_MainWindow):
         if parentDir == "":
             parentDir = self._dir
 
-        if os.path.exists(parentDir) == 0:
-            return
+        c = threading.currentThread()
 
-        dirs = os.listdir(parentDir)
+        if c not in self._threads:
+            self._threads.append(c)
 
-        if len(dirs) == 0:
-            return
+        if os.path.exists(parentDir):
+            dirs = os.listdir(parentDir)
 
-        for d in sorted(dirs):
-            path = os.path.join(parentDir,d)
+            if len(dirs):
+                for d in sorted(dirs):
+                    path = os.path.join(parentDir,d)
 
-            if os.path.isfile(path):
-                pass
-            elif d == ".sync":
-                pass
-            else:
-                exists,is_link,target = self.getPathProperties(path)
-                properties = self.prepareItemProperties(d,exists,is_link,target)
-                if self.isChildToBeCreated(path):
-                    self.emit(QtCore.SIGNAL("addChild"),path,properties)
-                else:
-                    self.addDirAsTreeItem(path)
+                    if os.path.isfile(path) == 0 and d != ".sync":
+                        lpath = path.lstrip(self._dir)
+                        exists,is_link,target,state = self.getPathProperties(path)
+                        properties = self.prepareItemProperties(lpath,d,exists,is_link,target,state)
+
+                        if self.isChildExists(lpath) == 0:
+                            self.emit(QtCore.SIGNAL("addChild"),lpath,properties)
+                        elif self.isChildToBeModified(lpath,properties):
+                            self.emit(QtCore.SIGNAL("modifyChild"),lpath,properties)
+
+                        self.addDirAsTreeItem(path)
+
+        if c in self._threads:
+            self._threads.remove(c)
 
     def findUncheckedItemsAmongChildren(self, items, parentItem, column=0):
         if parentItem == "" or parentItem == None:
@@ -356,13 +455,13 @@ class Window(QMainWindow, Ui_MainWindow):
             parentItem = self.treeWidget.invisibleRootItem()
 
         for i in range(parentItem.childCount()):
-            if re.search(textToFind + "( ->.)*", parentItem.child(i).text(column).toUtf8()):
+            if re.search(re.escape(textToFind) + "( ->.)*", parentItem.child(i).text(column).toUtf8()):
                 return parentItem.child(i)
 
     def findPathItem(self, pathToFind, column = 0):
         path = pathToFind.split("/")
 
-        index = ""
+        index = None
         for i in path:
             try:
                 index = self.findItemAmongChildren(index, i, column)
@@ -373,7 +472,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def changeCheckStateForPath(self, pathToFind, state, column=0):
         item = self.findPathItem(pathToFind, column)
-        if item == "" or item == None:
+        if item == None:
             pass
         else:
             item.setCheckState(column, state)
@@ -414,7 +513,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self.handleItemUnchecked(item)
         self.treeWidget.blockSignals(False)
 
-    def getExcludedDirsFromTree(self):
+    def getExcludeDirsFromTree(self):
         paths = []
         items = []
         items = self.findUncheckedItemsAmongChildren(items,"")
@@ -424,19 +523,41 @@ class Window(QMainWindow, Ui_MainWindow):
 
         return paths
 
-    def saveTreeExcludedDirs(self):
-        self._excluded_dirs = self.getExcludedDirsFromTree()
-        actions.SaveExcludedDirs(self._exclude_dirs,self._config)
+    def saveTreeExcludeDirs(self):
+        self._exclude_dirs = self.getExcludeDirsFromTree()
+        actions.SaveExcludeDirs(self._exclude_dirs,self._config)
 
-    def refreshTree(self):
+    def refreshTree(self,force=0,clear=0):
         if os.path.exists(self._dir) == False:
             os.mkdir(self._dir)
-        self.treeWidget.clear()
-        self.refreshStatus()
+
+        if self.isHidden() == False or force == 1:
+
+            #for thread in self._threads:
+            #    thread._Thread__stop()
+
+            if clear:
+                self.treeWidget.clear()
+
+            self.connect(self, QtCore.SIGNAL("addChild"), self.addItem)
+            self.connect(self, QtCore.SIGNAL("modifyChild"), self.modifyItem)
+            #self.connect(self, QtCore.SIGNAL("removeChild"), self.removeItem)
+
+            threadAdd = threading.Thread(target=self.addDirAsTreeItem)
+            threadAdd.daemon = True
+            threadAdd.start()
+
+            threadRm = threading.Thread(target=self.checkAndRmUnusedTreeItem)
+            threadRm.daemon = True
+            threadRm.start()
+            threadRm.join()
+
+            for path in self._removeItems:
+                self.removeItem(path.lstrip(self._dir))
 
     def initApp(self):
         self.fillOptionsTab()
-        self.refreshTree()
+        self.refreshStatus(1)
 
         self.treeWidget.expandToDepth(False)
         self.treeWidget.itemChanged.connect(self.handleitemChanged)
@@ -472,7 +593,7 @@ class Window(QMainWindow, Ui_MainWindow):
     @actionWaitCursor
     def actService(self,action):
         if action == "start":
-            self.saveTreeExcludedDirs()
+            self.saveTreeExcludeDirs()
         params = self.getParams()
         res,msg = actions.DoAction(action,params)
         text_msg = actions.ProcessResult(res,action,msg,params,0)
@@ -485,38 +606,17 @@ class Window(QMainWindow, Ui_MainWindow):
             self.textEdit.append(new_text)
             self.tIcon.updateToolTip(new_text)
 
-        is_running,message = actions.IsDaemonRunning(self._prg)
-        if is_running:
-            self.startTimer()
-        else:
-            self.stopTimer()
+    def refreshStatus(self,force=0,clear=0):
 
-    def refreshStatus(self):
+        self.stopTimer()
+
+        for thread in self._threads:
+            thread._Thread__stop()
+
         self.actService("status")
+        self.refreshTree(force,clear)
 
-        if self.isHidden() == False:
-            self.connect(self, QtCore.SIGNAL("addChild"), self.addItem)
-
-            threadAdd = threading.Thread(target=self.addDirAsTreeItem)
-            threadAdd.daemon = True
-            threadAdd.start()
-
-            threadRm = threading.Thread(target=self.checkAndRmUnusedTreeItem)
-            threadRm.daemon = True
-            threadRm.start()
-            threadRm.join()
-
-            for path in self._removeItems:
-                path = path.lstrip(self._dir)
-                child = self.findPathItem(path, 0)
-                if child != None:
-                    parent = child.parent()
-                    if parent == None:
-                        parent = self.treeWidget.invisibleRootItem()
-                    parent.removeChild(child)
-                    if path in self._exclude_dirs:
-                        self._exclude_dirs.remove(path)
-            self._removeItems = []
+        self.startTimer()
 
     def handleSpinChange(self):
         self.refreshStatus()
@@ -569,6 +669,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         QtCore.QObject.connect(self.ch_yandex_root, QtCore.SIGNAL("clicked()"), self.chooseRootDir)
         QtCore.QObject.connect(self.ch_yandex_auth, QtCore.SIGNAL("clicked()"), self.chooseAuthFile)
+        QtCore.QObject.connect(self.ch_yandex_cfg, QtCore.SIGNAL("clicked()"), self.chooseCfgFile)
 
         QtCore.QObject.connect(self.actionAbout, QtCore.SIGNAL("activated()"), self.showAbout)
 
