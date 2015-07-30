@@ -658,6 +658,9 @@ class Window(QMainWindow, Ui_MainWindow):
             pass
 
     def runWizard(self):
+
+        self.hide()
+
         params = {}
         params["prg"] = self._prg
         params["config"] = self._config
@@ -673,6 +676,8 @@ class Window(QMainWindow, Ui_MainWindow):
         yaWiz.button(yaWiz.NextButton).setEnabled(False)
 
         wizResult = yaWiz.exec_()
+
+        self.show()
 
         if wizResult == 0:
             return
