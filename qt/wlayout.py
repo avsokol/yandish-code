@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wlayout.ui'
 #
-# Created: Tue Jul 14 22:30:42 2015
+# Created: Fri Jul 17 21:44:44 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -195,12 +195,14 @@ class Ui_MainWindow(object):
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 641, 27))
         self.menubar.setObjectName(_fromUtf8("menubar"))
-        self.menuAction = QtGui.QMenu(self.menubar)
-        self.menuAction.setObjectName(_fromUtf8("menuAction"))
+        self.menuService = QtGui.QMenu(self.menubar)
+        self.menuService.setObjectName(_fromUtf8("menuService"))
         self.menuCfg = QtGui.QMenu(self.menubar)
         self.menuCfg.setObjectName(_fromUtf8("menuCfg"))
         self.menuHelp = QtGui.QMenu(self.menubar)
         self.menuHelp.setObjectName(_fromUtf8("menuHelp"))
+        self.menuApplication = QtGui.QMenu(self.menubar)
+        self.menuApplication.setObjectName(_fromUtf8("menuApplication"))
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtGui.QStatusBar(MainWindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -232,15 +234,26 @@ class Ui_MainWindow(object):
         icon9.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/about.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.actionAbout.setIcon(icon9)
         self.actionAbout.setObjectName(_fromUtf8("actionAbout"))
-        self.menuAction.addAction(self.actionStart)
-        self.menuAction.addAction(self.actionStop)
-        self.menuAction.addAction(self.actionStatus)
-        self.menuAction.addSeparator()
-        self.menuAction.addAction(self.actionExit)
+        self.actionHide = QtGui.QAction(MainWindow)
+        self.actionHide.setObjectName(_fromUtf8("actionHide"))
+        self.actionSetup_Wizard = QtGui.QAction(MainWindow)
+        icon11 = QtGui.QIcon()
+        icon11.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/wizard.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.actionSetup_Wizard.setIcon(icon11)
+        self.actionSetup_Wizard.setObjectName(_fromUtf8("actionSetup_Wizard"))
+        self.menuService.addAction(self.actionStart)
+        self.menuService.addAction(self.actionStop)
+        self.menuService.addAction(self.actionStatus)
+        self.menuService.addSeparator()
         self.menuCfg.addAction(self.actionSaveCfg)
         self.menuCfg.addAction(self.actionReloadCfg)
         self.menuHelp.addAction(self.actionAbout)
-        self.menubar.addAction(self.menuAction.menuAction())
+        self.menuApplication.addAction(self.actionSetup_Wizard)
+        self.menuApplication.addSeparator()
+        self.menuApplication.addAction(self.actionHide)
+        self.menuApplication.addAction(self.actionExit)
+        self.menubar.addAction(self.menuApplication.menuAction())
+        self.menubar.addAction(self.menuService.menuAction())
         self.menubar.addAction(self.menuCfg.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
 
@@ -297,9 +310,10 @@ class Ui_MainWindow(object):
         self.btnExit.setToolTip(_translate("MainWindow", "Exit Application", None))
         self.btnExit.setStatusTip(_translate("MainWindow", "Exit Application", None))
         self.btnExit.setText(_translate("MainWindow", "Exit", None))
-        self.menuAction.setTitle(_translate("MainWindow", "&Service", None))
+        self.menuService.setTitle(_translate("MainWindow", "&Service", None))
         self.menuCfg.setTitle(_translate("MainWindow", "&Configuration", None))
         self.menuHelp.setTitle(_translate("MainWindow", "&Help", None))
+        self.menuApplication.setTitle(_translate("MainWindow", "&Application", None))
         self.actionStart.setText(_translate("MainWindow", "&Start", None))
         self.actionStart.setStatusTip(_translate("MainWindow", "Start Service", None))
         self.actionStop.setText(_translate("MainWindow", "Sto&p", None))
@@ -314,4 +328,6 @@ class Ui_MainWindow(object):
         self.actionReloadCfg.setStatusTip(_translate("MainWindow", "Reload Configuration From Config File(s)", None))
         self.actionAbout.setText(_translate("MainWindow", "&About", None))
         self.actionAbout.setStatusTip(_translate("MainWindow", "About Application", None))
+        self.actionHide.setText(_translate("MainWindow", "&Hide", None))
+        self.actionSetup_Wizard.setText(_translate("MainWindow", "Setup &Wizard", None))
 

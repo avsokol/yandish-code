@@ -8,7 +8,8 @@ import actions
 from about import Ui_Dialog
 from trayIcon import SystemTrayIcon
 from opts import AppOptions
-from yandish import getDefaultParams
+from yandish import getDefaultParams, tuneParams
+from runWiz import yaWizard
 
 import threading
 
@@ -32,19 +33,14 @@ class Window(QMainWindow, Ui_MainWindow):
 
     _prg = None
     _config = None
-    _dir = None
+    _rootdir = None
     _auth = None
     _exclude_dirs = None
     _proxy = None
 
     def __init__(self, params, parent = None):
 
-        self._prg = params["prg"]
-        self._config = params["config"]
-        self._dir = params["rootdir"]
-        self._auth = params["auth"]
-        self._exclude_dirs = params["exclude-dirs"]
-        self._proxy = params["proxy"]
+        self.paramsInit(params)
 
         QMainWindow.__init__(self, parent)
 
@@ -59,12 +55,20 @@ class Window(QMainWindow, Ui_MainWindow):
         #if is_running:
         self.startTimer()
 
+    def paramsInit(self,params):
+        self._prg = params["prg"]
+        self._config = params["config"]
+        self._rootdir = params["rootdir"]
+        self._auth = params["auth"]
+        self._exclude_dirs = params["exclude-dirs"]
+        self._proxy = params["proxy"]
+
     def getParams(self):
         return {"prg": self._prg,
                 "config": self._config,
                 "auth": self._auth,
                 "exclude-dirs": self._exclude_dirs,
-                "dir": self._dir}
+                "dir": self._rootdir}
 
     def startTimer(self):
         if self.refreshTimeout.value() > 0 and self.isTimerActive() == False:
@@ -126,8 +130,8 @@ class Window(QMainWindow, Ui_MainWindow):
         self.yandex_cfg.setText(self._config)
         self.yandex_cfg.setReadOnly(True)
 
-        #self._dir = actions.GetRootDirFromCfgFile(self._config,0)
-        self.yandex_root.setText(self._dir)
+        #self._rootdir = actions.GetRootDirFromCfgFile(self._config,0)
+        self.yandex_root.setText(self._rootdir)
         self.yandex_root.setReadOnly(True)
 
         #self_auth = actions.GetAuthFromCfgFile(self._config,0)
@@ -197,7 +201,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def chooseRootDir(self):
         dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory to be the root for Yandex Disk", self.yandex_root.text())
         if dirname != "":
-            self._dir = str(dirname.toUtf8())
+            self._rootdir = str(dirname.toUtf8())
             self.yandex_root.setText(dirname)
             self.refreshTree(1,1)
 
@@ -273,7 +277,7 @@ class Window(QMainWindow, Ui_MainWindow):
                 path = self.getPathFromItem(child)
             except:
                 continue
-            path = os.path.join(self._dir,path)
+            path = os.path.join(self._rootdir,path)
 
             if self.isChildToBeRemoved(path):
                 self._removeItems.append(path)
@@ -310,7 +314,7 @@ class Window(QMainWindow, Ui_MainWindow):
             else:
                 exists = 0
 
-        if path.lstrip(self._dir) in self._exclude_dirs:
+        if path.lstrip(self._rootdir) in self._exclude_dirs:
             state = Qt.Unchecked
 
         return exists,is_link,target,state
@@ -410,7 +414,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def addDirAsTreeItem(self,parentDir=""):
         if parentDir == "":
-            parentDir = self._dir
+            parentDir = self._rootdir
 
         c = threading.currentThread()
 
@@ -425,7 +429,7 @@ class Window(QMainWindow, Ui_MainWindow):
                     path = os.path.join(parentDir,d)
 
                     if os.path.isfile(path) == 0 and d != ".sync":
-                        lpath = path.lstrip(self._dir)
+                        lpath = path.lstrip(self._rootdir)
                         exists,is_link,target,state = self.getPathProperties(path)
                         properties = self.prepareItemProperties(lpath,d,exists,is_link,target,state)
 
@@ -528,8 +532,8 @@ class Window(QMainWindow, Ui_MainWindow):
         actions.SaveExcludeDirs(self._exclude_dirs,self._config)
 
     def refreshTree(self,force=0,clear=0):
-        if os.path.exists(self._dir) == False:
-            os.mkdir(self._dir)
+        if os.path.exists(self._rootdir) == False:
+            os.mkdir(self._rootdir)
 
         if self.isHidden() == False or force == 1:
 
@@ -553,7 +557,7 @@ class Window(QMainWindow, Ui_MainWindow):
             threadRm.join()
 
             for path in self._removeItems:
-                self.removeItem(path.lstrip(self._dir))
+                self.removeItem(path.lstrip(self._rootdir))
 
     def initApp(self):
         self.fillOptionsTab()
@@ -653,6 +657,37 @@ class Window(QMainWindow, Ui_MainWindow):
         else:
             pass
 
+    def runWizard(self):
+        params = {}
+        params["prg"] = self._prg
+        params["config"] = self._config
+        params["rootdir"] = self._rootdir
+        params["auth"] = self._auth
+        params["exclude-dirs"] = ""
+        params["proxy"] = self._proxy
+
+        yaWiz = yaWizard(params)
+
+        yaWiz.setWindowModality(Qt.ApplicationModal)
+        yaWiz.show()
+        yaWiz.button(yaWiz.NextButton).setEnabled(False)
+
+        wizResult = yaWiz.exec_()
+
+        if wizResult == 0:
+            return
+
+        params["prg"] = ""
+        params["config"] = ""
+        params["rootdir"] = ""
+        params["auth"] = ""
+        params["exclude-dirs"] = ""
+        params["proxy"] = ""
+
+        tuneParams(params)
+        self.paramsInit(params)
+        self.reloadOptions()
+
     def setSignals(self):
         QtCore.QObject.connect(self.btnExit, QtCore.SIGNAL("clicked()"), QtGui.qApp.quit)
 
@@ -663,6 +698,11 @@ class Window(QMainWindow, Ui_MainWindow):
         QtCore.QObject.connect(self.actionStart, QtCore.SIGNAL("activated()"), lambda: self.actService("start"))
         QtCore.QObject.connect(self.actionStop, QtCore.SIGNAL("activated()"), lambda: self.actService("stop"))
         QtCore.QObject.connect(self.actionStatus, QtCore.SIGNAL("activated()"), self.refreshStatus)
+
+        QtCore.QObject.connect(self.actionSetup_Wizard, QtCore.SIGNAL("activated()"), self.runWizard)
+
+        QtCore.QObject.connect(self.actionHide, QtCore.SIGNAL("activated()"), self.hide)
+        QtCore.QObject.connect(self.actionExit, QtCore.SIGNAL("activated()"), QtGui.qApp.quit)
 
         QtCore.QObject.connect(self.actionReloadCfg, QtCore.SIGNAL("activated()"), self.reloadOptions)
         QtCore.QObject.connect(self.actionSaveCfg, QtCore.SIGNAL("activated()"), self.saveOptions)
