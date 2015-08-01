@@ -65,11 +65,11 @@ def replaceParamsInCfgFile(pvalues,cfgfile):
             for line in fr:
                 elements = line.split("=")
 
-                el = elements[0].lstrip("#")
-
-                if el == "proxy":
+                if elements[0] == "#proxy":
                     fw.write(line)
                     continue
+
+                el = elements[0].lstrip("#")
 
                 if el in seen_elements:
                     continue
