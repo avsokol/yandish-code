@@ -145,6 +145,17 @@ def GetRootDirFromCfgFile(cfgfile,raiseExcept=1):
 
 #############################################################################
 
+def GetProxyFromCfgFile(cfgfile,raiseExcept=1):
+    if os.path.exists(os.path.expanduser(cfgfile)) == False:
+        if raiseExcept:
+            raise Exception("Couldn't find config file:\n%s" % cfgfile)
+        else:
+            return ""
+
+    return GetParamFromCfgFile("proxy",cfgfile)
+
+#############################################################################
+
 def GetExcludeDirsFromCfgFile(cfgfile,raiseExcept=1):
     if os.path.exists(os.path.expanduser(cfgfile)) == False:
         if raiseExcept:
