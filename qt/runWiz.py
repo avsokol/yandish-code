@@ -105,6 +105,27 @@ class yaWizard(QWizard,  Ui_Wizard):
     def saveAuthFile(self):
         shutil.move(self._default_auth,os.path.expanduser(self._auth))
 
+    def proxyEnable(self):
+        self.proxyManualWidget.setEnabled(True)
+
+    def proxyDisable(self):
+        self.proxyManualWidget.setEnabled(False)
+
+    def toggleProxyAuth(self):
+        if self.srvPasswordReq.isEnabled() and self.srvPasswordReq.isChecked():
+            self.srvLogin.setEnabled(True)
+            self.srvPassword.setEnabled(True)
+        else:
+            self.srvLogin.setEnabled(False)
+            self.srvPassword.setEnabled(False)
+
+    def toggleProxyAuthReq(self):
+        if self.proxyType.currentText() in [ "HTTPS", "SOCKS5" ]:
+            self.srvPasswordReq.setEnabled(True)
+        else:
+            self.srvPasswordReq.setEnabled(False)
+        self.toggleProxyAuth()
+
     def wizardFinish(self):
         yandex_cfg = str(self.yaCfg.text())
         yandex_root = str(self.yaRoot.text())
@@ -141,6 +162,13 @@ class yaWizard(QWizard,  Ui_Wizard):
     def setSignals(self):
         QtCore.QObject.connect(self.loginButton, QtCore.SIGNAL("clicked()"), self.loginToYandex)
         QtCore.QObject.connect(self.button(self.FinishButton), QtCore.SIGNAL("clicked()"), self.wizardFinish)
+
+        QtCore.QObject.connect(self.proxyNone, QtCore.SIGNAL("clicked()"), self.proxyDisable)
+        QtCore.QObject.connect(self.proxyAuto, QtCore.SIGNAL("clicked()"), self.proxyDisable)
+        QtCore.QObject.connect(self.proxyManual, QtCore.SIGNAL("clicked()"), self.proxyEnable)
+
+        QtCore.QObject.connect(self.srvPasswordReq, QtCore.SIGNAL("clicked()"), self.toggleProxyAuth)
+        QtCore.QObject.connect(self.proxyType, QtCore.SIGNAL("currentIndexChanged(QString)"), self.toggleProxyAuthReq)
 
 if __name__ == "__main__":
 
