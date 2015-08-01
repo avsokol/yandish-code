@@ -36,6 +36,206 @@
     <normaloff>../ico/yandex-disk_1.xpm</normaloff>../ico/yandex-disk_1.xpm</iconset>
   </property>
   <widget class="QWizardPage" name="wizardPage1">
+   <layout class="QVBoxLayout" name="verticalLayout_4">
+    <item>
+     <widget class="QFrame" name="frame">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_12">
+       <item>
+        <widget class="QLabel" name="label">
+         <property name="text">
+          <string/>
+         </property>
+         <property name="pixmap">
+          <pixmap>../ico/yandex_disk_logo_1.png</pixmap>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="proxyGroupBox">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string>Proxy configuration:</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_11">
+       <item>
+        <widget class="QRadioButton" name="proxyNone">
+         <property name="text">
+          <string>None</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="proxyAuto">
+         <property name="text">
+          <string>Auto</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QRadioButton" name="proxyManual">
+         <property name="text">
+          <string>Manual</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QWidget" name="proxyManualWidget" native="true">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="1" column="0">
+           <widget class="QLabel" name="srvLabel">
+            <property name="text">
+             <string>Server:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="0">
+           <widget class="QLabel" name="proxyTypeLabel">
+            <property name="text">
+             <string>Type:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="proxyType">
+            <item>
+             <property name="text">
+              <string>HTTPS</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SOCKS4</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>SOCKS5</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="portLabel">
+            <property name="text">
+             <string>Port:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="srvName"/>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="srvPasswordReq">
+            <property name="text">
+             <string>Server Credentials</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QLineEdit" name="portNumber">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>50</width>
+              <height>16777215</height>
+             </size>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="srvLoginLabel">
+            <property name="text">
+             <string>Login:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QLineEdit" name="srvLogin">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="srvPasswordLabel">
+            <property name="text">
+             <string>Password:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QLineEdit" name="srvPassword">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::Password</enum>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <spacer name="verticalSpacer_5">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
+     <widget class="QLabel" name="stepLabel_1">
+      <property name="text">
+       <string>Step 1 of 4</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QWizardPage" name="wizardPage2">
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <item>
      <widget class="QFrame" name="logoFrame_1">
@@ -272,6 +472,19 @@
      </widget>
     </item>
     <item>
+     <spacer name="verticalSpacer_4">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <property name="sizeHint" stdset="0">
+       <size>
+        <width>20</width>
+        <height>40</height>
+       </size>
+      </property>
+     </spacer>
+    </item>
+    <item>
      <widget class="QLabel" name="loginResult">
       <property name="text">
        <string/>
@@ -285,15 +498,15 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="stepLabel_1">
+     <widget class="QLabel" name="stepLabel_2">
       <property name="text">
-       <string>Step 1 of 4</string>
+       <string>Step 2 of 4</string>
       </property>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QWizardPage" name="wizardPage2">
+  <widget class="QWizardPage" name="wizardPage3">
    <layout class="QVBoxLayout" name="verticalLayout_5">
     <item>
      <widget class="QFrame" name="logoFrame_2">
@@ -387,19 +600,32 @@
          </layout>
         </widget>
        </item>
+       <item>
+        <spacer name="verticalSpacer_3">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
       </layout>
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="stepLabel_2">
+     <widget class="QLabel" name="stepLabel_3">
       <property name="text">
-       <string>Step 2 of 4</string>
+       <string>Step 3 of 4</string>
       </property>
      </widget>
     </item>
    </layout>
   </widget>
-  <widget class="QWizardPage" name="wizardPage">
+  <widget class="QWizardPage" name="wizardPage4">
    <layout class="QVBoxLayout" name="verticalLayout_7">
     <item>
      <widget class="QFrame" name="logoFrame_3">
@@ -530,215 +756,6 @@
      </spacer>
     </item>
     <item>
-     <widget class="QLabel" name="stepLabel_3">
-      <property name="text">
-       <string>Step 3 of 4</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
-  <widget class="QWizardPage" name="wizardPage_2">
-   <layout class="QVBoxLayout" name="verticalLayout_10">
-    <item>
-     <widget class="QFrame" name="logoFrame_4">
-      <property name="frameShape">
-       <enum>QFrame::StyledPanel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_10">
-       <item>
-        <widget class="QLabel" name="logoPixmap_4">
-         <property name="enabled">
-          <bool>true</bool>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="pixmap">
-          <pixmap>../ico/yandex_disk_logo_1.png</pixmap>
-         </property>
-         <property name="scaledContents">
-          <bool>false</bool>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignCenter</set>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <widget class="QGroupBox" name="proxyGroupBox">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="title">
-       <string>Proxy configuration:</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_11">
-       <item>
-        <widget class="QRadioButton" name="proxyNone">
-         <property name="text">
-          <string>None</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="proxyAuto">
-         <property name="text">
-          <string>Auto</string>
-         </property>
-         <property name="checked">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QRadioButton" name="proxyManual">
-         <property name="text">
-          <string>Manual</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QWidget" name="proxyManualWidget" native="true">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <layout class="QGridLayout" name="gridLayout">
-          <item row="1" column="0">
-           <widget class="QLabel" name="srvLabel">
-            <property name="text">
-             <string>Server:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QLabel" name="proxyTypeLabel">
-            <property name="text">
-             <string>Type:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="proxyType">
-            <item>
-             <property name="text">
-              <string>HTTPS</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>SOCKS4</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>SOCKS5</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="portLabel">
-            <property name="text">
-             <string>Port:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="srvName"/>
-          </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="srvPasswordReq">
-            <property name="text">
-             <string>Server Credentials</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QLineEdit" name="portNumber">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QLabel" name="srvLoginLabel">
-            <property name="text">
-             <string>Login:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QLineEdit" name="srvLogin">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="0">
-           <widget class="QLabel" name="srvPasswordLabel">
-            <property name="text">
-             <string>Password:</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <widget class="QLineEdit" name="srvPassword">
-            <property name="enabled">
-             <bool>false</bool>
-            </property>
-            <property name="echoMode">
-             <enum>QLineEdit::Password</enum>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-    <item>
-     <spacer name="verticalSpacer_3">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
-      </property>
-      <property name="sizeType">
-       <enum>QSizePolicy::Expanding</enum>
-      </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>20</width>
-        <height>40</height>
-       </size>
-      </property>
-     </spacer>
-    </item>
-    <item alignment="Qt::AlignBottom">
      <widget class="QLabel" name="stepLabel_4">
       <property name="text">
        <string>Step 4 of 4</string>

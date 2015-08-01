@@ -783,7 +783,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         yaWiz.setWindowModality(Qt.ApplicationModal)
         yaWiz.show()
-        yaWiz.button(yaWiz.NextButton).setEnabled(False)
+        #yaWiz.button(yaWiz.NextButton).setEnabled(False)
 
         wizResult = yaWiz.exec_()
 

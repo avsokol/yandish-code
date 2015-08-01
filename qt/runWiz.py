@@ -49,6 +49,9 @@ class yaWizard(QWizard,  Ui_Wizard):
         self.setSignals()
 
     def loginToYandex(self):
+
+        self.saveProxyCfg()
+
         login = str(self.yaLogin.text())
         login = login.rstrip("@yandex.ru")
         passw = self.yaPass.text()
@@ -200,6 +203,20 @@ class yaWizard(QWizard,  Ui_Wizard):
         else:
             raise Exception("Unexpected proxy configuration")
 
+    def saveProxyCfg(self):
+        self.getProxyCfg()
+
+        yandex_cfg = str(self.yaCfg.text())
+
+        yandex_proxy = self._proxy
+        params = {"proxy": yandex_proxy}
+
+        try:
+            actions.SaveParamsInCfgFile(params,yandex_cfg)
+        except IOError:
+            print("Couldn't write Yandex configuration file")
+            sys.exit(3)
+
     def wizardFinish(self):
         yandex_cfg = str(self.yaCfg.text())
         yandex_root = str(self.yaRoot.text())
@@ -255,6 +272,6 @@ if __name__ == "__main__":
     yaWiz = yaWizard(params)
 
     yaWiz.show()
-    yaWiz.button(yaWiz.NextButton).setEnabled(False)
+    #yaWiz.button(yaWiz.NextButton).setEnabled(False)
 
     sys.exit(yaWiz.exec_())
