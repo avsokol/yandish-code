@@ -43,7 +43,9 @@ class yaWizard(QWizard,  Ui_Wizard):
         self.yaRoot.setText(self._rootdir)
         self.yaCfg.setText(self._config)
         self.yaAuth.setText(self._auth)
-        
+
+        self.setProxy()
+
         self.setSignals()
 
     def loginToYandex(self):
@@ -126,11 +128,86 @@ class yaWizard(QWizard,  Ui_Wizard):
             self.srvPasswordReq.setEnabled(False)
         self.toggleProxyAuth()
 
+    def setProxy(self):
+        if self._proxy == "no":
+            self.proxyNone.setChecked(1)
+            self.proxyDisable()
+        elif self._proxy == "auto":
+            self.proxyAuto.setChecked(1)
+            self.proxyDisable()
+        else:
+            self.proxyManual.setChecked(1)
+            self.proxyEnable()
+            proxy_params = self._proxy.split(",")
+
+            pType = proxy_params[0].upper()
+            server = proxy_params[1]
+            port = proxy_params[2]
+
+            pTypes = [ self.proxyType.itemText(i) for i in range(self.proxyType.count()) ]
+            if pType in pTypes:
+                self.proxyType.setCurrentIndex(pTypes.index(pType))
+
+            self.srvName.setText(server)
+            self.portNumber.setText(port)
+
+            if pType in [ "HTTPS", "SOCKS5" ]:
+                self.srvPasswordReq.setEnabled(True)
+
+                login = ""
+                password = ""
+
+                if len(proxy_params) > 3:
+                    login = proxy_params[3]
+                if len(proxy_params) > 4:
+                    password = proxy_params[4]
+
+                if login == "" and password == "":
+                    self.srvPasswordReq.setChecked(0)
+                else:
+                    self.srvPasswordReq.setChecked(1)
+
+                self.srvLogin.setText(login)
+                self.srvPassword.setText(password)
+            else:
+                self.srvPasswordReq.setEnabled(False)
+
+            self.toggleProxyAuthReq()
+
+    def getProxyCfg(self):
+        if self.proxyNone.isChecked():
+            self._proxy="none"
+        elif self.proxyAuto.isChecked():
+            self._proxy="auto"
+        elif self.proxyManual.isChecked():
+            proxy_params = []
+            pType = str(self.proxyType.currentText()).lower()
+            proxy_params.append(pType)
+
+            server = str(self.srvName.text())
+            port = str(self.portNumber.text())
+
+            proxy_params.append(server)
+            proxy_params.append(port)
+
+            if self.srvPasswordReq.isEnabled() and self.srvPasswordReq.isChecked():
+                login = str(self.srvLogin.text())
+                password = str(self.srvPassword.text())
+                proxy_params.append(login)
+                proxy_params.append(password)
+
+            self._proxy = ",".join(proxy_params)
+        else:
+            raise Exception("Unexpected proxy configuration")
+
     def wizardFinish(self):
         yandex_cfg = str(self.yaCfg.text())
         yandex_root = str(self.yaRoot.text())
         yandex_auth = str(self.yaAuth.text())
-        #yandex_proxy = self._proxy
+
+        self.getProxyCfg()
+
+        yandex_proxy = self._proxy
 
         try:
             self.saveAuthFile()
@@ -138,7 +215,7 @@ class yaWizard(QWizard,  Ui_Wizard):
             print("Couldn't write Yandex authorization file")
             sys.exit(2)
 
-        params = {"auth": yandex_auth, "dir": yandex_root}
+        params = {"auth": yandex_auth, "dir": yandex_root, "proxy": yandex_proxy}
 
         try:
             actions.SaveParamsInCfgFile(params,yandex_cfg)
