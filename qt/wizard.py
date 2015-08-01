@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wizard.ui'
 #
-# Created: Sat Aug  1 23:30:56 2015
+# Created: Sat Aug  1 23:43:58 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -374,6 +374,7 @@ class Ui_Wizard(object):
         self.gridLayout.addWidget(self.srvPasswordLabel, 4, 0, 1, 1)
         self.srvPassword = QtGui.QLineEdit(self.proxyManualWidget)
         self.srvPassword.setEnabled(False)
+        self.srvPassword.setEchoMode(QtGui.QLineEdit.Password)
         self.srvPassword.setObjectName(_fromUtf8("srvPassword"))
         self.gridLayout.addWidget(self.srvPassword, 4, 1, 1, 1)
         self.verticalLayout_11.addWidget(self.proxyManualWidget)
