@@ -7,6 +7,9 @@ from subprocess import Popen, PIPE
 
 def CheckLinks(dir,rootdir,exclude_dirs,cfgfile):
 
+    if os.path.exists(dir) == 0:
+        return
+
     elements = os.listdir(dir)
 
     for element in elements:
@@ -62,9 +65,18 @@ def replaceParamsInCfgFile(pvalues,cfgfile):
             for line in fr:
                 elements = line.split("=")
 
-                if elements[0] in pvalues.keys():
-                    seen_elements.append(elements[0])
-                    new_line = elements[0] + "=\"" + pvalues[elements[0]] + "\"\n"
+                el = elements[0].lstrip("#")
+
+                if el == "proxy":
+                    fw.write(line)
+                    continue
+
+                if el in seen_elements:
+                    continue
+
+                if el in pvalues.keys():
+                    seen_elements.append(el)
+                    new_line = el + "=\"" + pvalues[el] + "\"\n"
                     fw.write(new_line)
 
                 else:
@@ -73,7 +85,10 @@ def replaceParamsInCfgFile(pvalues,cfgfile):
             for key in pvalues.keys():
                 if key in seen_elements:
                     continue
-                new_line = key + "=\"" + pvalues[key] + "\"\n"
+                if el == "proxy":
+                    new_line = key + "=" + pvalues[key] + "\n"
+                else:
+                    new_line = key + "=\"" + pvalues[key] + "\"\n"
                 fw.write(new_line)
 
     os.rename(os.path.expanduser(tmp_file),os.path.expanduser(cfgfile))
@@ -165,6 +180,13 @@ def DoAction(action,params):
 
     is_running,message = IsDaemonRunning(prg)
 
+    err_messages = ["Error: option 'dir' is missing",
+                    "Error: Indicated directory does not exist",
+                    "Error: file with OAuth token hasn't been found.\nUse 'token' command to authenticate and create this file"]
+
+    if message in err_messages :
+        return 3,message        
+
     if action == "status":
         return is_running,message
     elif action == "stop":
@@ -243,8 +265,15 @@ def ProcessResult(res,action,out,params,verbose=1):
             msg = "Yandex Disk is already running"
         elif action == "stop":
             msg = "Yandex Disk is not running"
-        elif action == status:
-            raise Exception("Unexpected code for status command")
+        elif action == "status":
+            msg = "Yandex Disk is not running\n\n" + out
+
+    elif res == 3:
+        type = "error"
+        title = "Error"
+        icon = "error"
+        msg = out
+
     else:
         raise Exception("Unexpected error code: '%s'" % res)
 

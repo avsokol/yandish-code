@@ -14,7 +14,7 @@ def getDefaultParams():
               "exclude-dirs": [],
               "rootdir": "~/Yandex.Disk",
               "prg": daemon,
-              "proxy": "no"}
+              "proxy": "auto"}
 
     return params
 
@@ -65,13 +65,6 @@ def ShowWidget(params):
     window = Window(params)
 
     window.initApp()
-
-    appOpts = AppOptions()
-    startMinimized = appOpts.getParam("StartMinimized")
-    if startMinimized == 0:
-        window.show()
-    window.updateTrayMenuState()
-    window.refreshStatus()
 
     sys.exit(app.exec_())
 

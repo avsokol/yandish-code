@@ -38,6 +38,8 @@ class Window(QMainWindow, Ui_MainWindow):
     _exclude_dirs = None
     _proxy = None
 
+    _service_err = 0
+
     def __init__(self, params, parent = None):
 
         self.paramsInit(params)
@@ -533,7 +535,10 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def refreshTree(self,force=0,clear=0):
         if os.path.exists(self._rootdir) == False:
-            os.mkdir(self._rootdir)
+            try:
+                os.mkdir(self._rootdir)
+            except:
+                return
 
         if self.isHidden() == False or force == 1:
 
@@ -563,9 +568,20 @@ class Window(QMainWindow, Ui_MainWindow):
         self.fillOptionsTab()
         self.refreshStatus(1)
 
-        self.treeWidget.expandToDepth(False)
-        self.treeWidget.itemChanged.connect(self.handleitemChanged)
-        self.updateActionButtons()
+        if self._service_err == 3:
+            self.runWizard()
+        else:
+            self.treeWidget.expandToDepth(False)
+            self.treeWidget.itemChanged.connect(self.handleitemChanged)
+            self.updateActionButtons()
+
+            appOpts = AppOptions()
+            startMinimized = appOpts.getParam("StartMinimized")
+            if startMinimized == 0:
+                self.show()
+
+            self.updateTrayMenuState()
+            self.refreshStatus()
 
     def actionWaitCursor(function):
         def new_function(self,action):
@@ -600,6 +616,9 @@ class Window(QMainWindow, Ui_MainWindow):
             self.saveTreeExcludeDirs()
         params = self.getParams()
         res,msg = actions.DoAction(action,params)
+
+        self._service_err = res
+
         text_msg = actions.ProcessResult(res,action,msg,params,0)
 
         cur_text = self.textEdit.toPlainText()
