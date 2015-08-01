@@ -6,9 +6,21 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>641</width>
-    <height>620</height>
+    <width>515</width>
+    <height>475</height>
    </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>515</width>
+    <height>475</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>515</width>
+    <height>475</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Yandex Disk Service Helper</string>
@@ -61,10 +73,10 @@
       <widget class="QWidget" name="tab_3">
        <attribute name="icon">
         <iconset>
-         <normaloff>../ico/tab_opts.png</normaloff>../ico/tab_opts.png</iconset>
+         <normaloff>../ico/tab_conf.png</normaloff>../ico/tab_conf.png</iconset>
        </attribute>
        <attribute name="title">
-        <string>Options</string>
+        <string>Configuration</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
@@ -194,13 +206,214 @@
           </layout>
          </widget>
         </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_4">
+       <attribute name="icon">
+        <iconset>
+         <normaloff>../ico/tab_proxy.png</normaloff>../ico/tab_proxy.png</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Proxy</string>
+       </attribute>
+       <layout class="QVBoxLayout" name="verticalLayout_4">
         <item>
          <widget class="QGroupBox" name="groupBox_5">
           <property name="title">
-           <string>Application Options</string>
+           <string/>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
+          <layout class="QVBoxLayout" name="verticalLayout_5">
            <item>
+            <widget class="QRadioButton" name="proxyNone">
+             <property name="text">
+              <string>None</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="proxyAuto">
+             <property name="text">
+              <string>Auto</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QRadioButton" name="proxyManual">
+             <property name="text">
+              <string>Manual</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QWidget" name="proxyManualWidget" native="true">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <layout class="QGridLayout" name="gridLayout">
+              <item row="4" column="2">
+               <widget class="QLineEdit" name="srvLogin">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Proxy server login</string>
+                </property>
+                <property name="statusTip">
+                 <string>Proxy server login</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QLabel" name="proxyTypeLabel">
+                <property name="text">
+                 <string>Type:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="2">
+               <widget class="QComboBox" name="proxyType">
+                <property name="toolTip">
+                 <string>Proxy type</string>
+                </property>
+                <property name="statusTip">
+                 <string>Choose proxy type</string>
+                </property>
+                <item>
+                 <property name="text">
+                  <string>HTTPS</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>SOCKS4</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>SOCKS5</string>
+                 </property>
+                </item>
+               </widget>
+              </item>
+              <item row="2" column="3">
+               <widget class="QLabel" name="portLabel">
+                <property name="text">
+                 <string>Port:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="4" column="0">
+               <widget class="QLabel" name="srvLoginLabel">
+                <property name="text">
+                 <string>Login:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <widget class="QLabel" name="srvLabel">
+                <property name="text">
+                 <string>Server:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="2">
+               <widget class="QLineEdit" name="srvName">
+                <property name="toolTip">
+                 <string>Proxy server</string>
+                </property>
+                <property name="statusTip">
+                 <string>Proxy server hostname or IP address</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="4">
+               <widget class="QLineEdit" name="portNumber">
+                <property name="minimumSize">
+                 <size>
+                  <width>50</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>50</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <property name="toolTip">
+                 <string>Proxy port</string>
+                </property>
+                <property name="statusTip">
+                 <string>Proxy port</string>
+                </property>
+               </widget>
+              </item>
+              <item row="3" column="2">
+               <widget class="QCheckBox" name="srvPasswordReq">
+                <property name="toolTip">
+                 <string>Proxy server authorization</string>
+                </property>
+                <property name="statusTip">
+                 <string>Proxy server authorization</string>
+                </property>
+                <property name="text">
+                 <string>Server Credentials</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="0">
+               <widget class="QLabel" name="srvPasswordLabel">
+                <property name="text">
+                 <string>Password:</string>
+                </property>
+               </widget>
+              </item>
+              <item row="5" column="2">
+               <widget class="QLineEdit" name="srvPassword">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="toolTip">
+                 <string>Proxy server password</string>
+                </property>
+                <property name="statusTip">
+                 <string>Proxy server password</string>
+                </property>
+                <property name="echoMode">
+                 <enum>QLineEdit::Password</enum>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="tab_5">
+       <attribute name="icon">
+        <iconset>
+         <normaloff>../ico/tab_opts.png</normaloff>../ico/tab_opts.png</iconset>
+       </attribute>
+       <attribute name="title">
+        <string>Options</string>
+       </attribute>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QGroupBox" name="groupBox_6">
+          <property name="title">
+           <string/>
+          </property>
+          <layout class="QFormLayout" name="formLayout">
+           <property name="fieldGrowthPolicy">
+            <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+           </property>
+           <item row="0" column="0">
             <widget class="QCheckBox" name="checkBox_1">
              <property name="toolTip">
               <string>Start Application Hidden in a System Tray</string>
@@ -213,7 +426,7 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="0" column="1">
             <widget class="QCheckBox" name="checkBox_2">
              <property name="toolTip">
               <string>Remove Application From TaskBar when minimized</string>
@@ -226,7 +439,7 @@
              </property>
             </widget>
            </item>
-           <item>
+           <item row="1" column="0">
             <widget class="QLabel" name="l_refresh_1">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -235,11 +448,11 @@
               </sizepolicy>
              </property>
              <property name="text">
-              <string>Status autorefresh</string>
+              <string>Status autorefresh in sec</string>
              </property>
             </widget>
            </item>
-           <item>
+           <item row="1" column="1">
             <widget class="QSpinBox" name="refreshTimeout">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -261,34 +474,8 @@
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QLabel" name="l_refresh_2">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>sec</string>
-             </property>
-            </widget>
-           </item>
           </layout>
          </widget>
-        </item>
-        <item>
-         <spacer name="spacerItem_1">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </widget>
@@ -415,7 +602,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>641</width>
+     <width>515</width>
      <height>27</height>
     </rect>
    </property>
