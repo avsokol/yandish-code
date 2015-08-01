@@ -3,7 +3,7 @@
 import sys, os, argparse
 from subprocess import Popen, PIPE
 from opts import AppOptions
-from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile, DoAction, ProcessResult
+from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile, GetProxyFromCfgFile, DoAction, ProcessResult
 
 #############################################################################
 
@@ -97,6 +97,8 @@ def tuneParams(params):
         params["rootdir"] = defParams["rootdir"]
     params["rootdir"] = os.path.expanduser(params["rootdir"])
 
+    if params["proxy"] == "":
+        params["proxy"] = GetProxyFromCfgFile(params["config"],0)
     if params["proxy"] == "":
         params["proxy"] = defParams["proxy"]
 
