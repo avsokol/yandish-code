@@ -126,19 +126,60 @@ class Window(QMainWindow, Ui_MainWindow):
     def updateTrayMenuState(self):
         self.tIcon.updateTrayMenuState()
 
-    def fillOptionsTab(self):
+    def fillOptions(self):
         self.yandex_exec.setText(self._prg)
         self.yandex_exec.setEnabled(False)
         self.yandex_cfg.setText(self._config)
         self.yandex_cfg.setReadOnly(True)
-
-        #self._rootdir = actions.GetRootDirFromCfgFile(self._config,0)
         self.yandex_root.setText(self._rootdir)
         self.yandex_root.setReadOnly(True)
-
-        #self_auth = actions.GetAuthFromCfgFile(self._config,0)
         self.yandex_auth.setText(self._auth)
         self.yandex_auth.setReadOnly(True)
+
+        if self._proxy == "no":
+            self.proxyNone.setChecked(1)
+            self.proxyDisable()
+        elif self._proxy == "auto":
+            self.proxyAuto.setChecked(1)
+            self.proxyDisable()
+        else:
+            self.proxyManual.setChecked(1)
+            self.proxyEnable()
+            proxy_params = self._proxy.split(",")
+
+            pType = proxy_params[0].upper()
+            server = proxy_params[1]
+            port = proxy_params[2]
+
+            pTypes = [ self.proxyType.itemText(i) for i in range(self.proxyType.count()) ]
+            if pType in pTypes:
+                self.proxyType.setCurrentIndex(pTypes.index(pType))
+
+            self.srvName.setText(server)
+            self.portNumber.setText(port)
+
+            if pType in [ "HTTPS", "SOCKS5" ]:
+                self.srvPasswordReq.setEnabled(True)
+
+                login = ""
+                password = ""
+
+                if len(proxy_params) > 3:
+                    login = proxy_params[3]
+                if len(proxy_params) > 4:
+                    password = proxy_params[4]
+
+                if login == "" and password == "":
+                    self.srvPasswordReq.setChecked(0)
+                else:
+                    self.srvPasswordReq.setChecked(1)
+
+                self.srvLogin.setText(login)
+                self.srvPassword.setText(password)
+            else:
+                self.srvPasswordReq.setEnabled(False)
+
+            self.toggleProxyAuthReq()
 
         appOpts = AppOptions()
         HideOnMinimize = int(appOpts.getParam("HideOnMinimize"))
@@ -149,7 +190,7 @@ class Window(QMainWindow, Ui_MainWindow):
         self.refreshTimeout.setProperty("value", refreshPeriod)
 
     def reloadOptions(self):
-        self.fillOptionsTab()
+        self.fillOptions()
 
         self.refreshTree(0,1)
 
@@ -158,7 +199,36 @@ class Window(QMainWindow, Ui_MainWindow):
         for path in self._exclude_dirs:
             self.uncheckPath(path, 0)
 
+    def getProxyCfg(self):
+        if self.proxyNone.isChecked():
+            self._proxy="none"
+        elif self.proxyAuto.isChecked():
+            self._proxy="auto"
+        elif self.proxyManual.isChecked():
+            proxy_params = []
+            pType = str(self.proxyType.currentText()).lower()
+            proxy_params.append(pType)
+
+            server = str(self.srvName.text())
+            port = str(self.portNumber.text())
+
+            proxy_params.append(server)
+            proxy_params.append(port)
+
+            if self.srvPasswordReq.isEnabled() and self.srvPasswordReq.isChecked():
+                login = str(self.srvLogin.text())
+                password = str(self.srvPassword.text())
+                proxy_params.append(login)
+                proxy_params.append(password)
+
+            self._proxy = ",".join(proxy_params)
+        else:
+            raise Exception("Unexpected proxy configuration")
+
     def saveYandexOptions(self):
+
+        self.getProxyCfg()
+
         yandex_cfg = self.yandex_cfg.text()
         yandex_root = self.yandex_root.text()
         yandex_auth = self.yandex_auth.text()
@@ -170,7 +240,7 @@ class Window(QMainWindow, Ui_MainWindow):
         params = {"auth": yandex_auth, "dir": yandex_root, "exclude-dirs": dirs, "proxy": yandex_proxy}
         actions.SaveParamsInCfgFile(params,self._config)
 
-    def saveWindowOptions(self):
+    def saveAppOptions(self):
         appOpts = AppOptions()
         if self.checkBox_1.isChecked():
             StartMinimized = "1"
@@ -198,7 +268,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def saveOptions(self):
         self.saveYandexOptions()
-        self.saveWindowOptions()
+        self.saveAppOptions()
 
     def chooseRootDir(self):
         dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory to be the root for Yandex Disk", self.yandex_root.text())
@@ -565,7 +635,7 @@ class Window(QMainWindow, Ui_MainWindow):
                 self.removeItem(path.lstrip(self._rootdir))
 
     def initApp(self):
-        self.fillOptionsTab()
+        self.fillOptions()
         self.refreshStatus(1)
 
         if self._service_err == 3:
@@ -644,6 +714,27 @@ class Window(QMainWindow, Ui_MainWindow):
     def handleSpinChange(self):
         self.refreshStatus()
         self.restartTimer()
+
+    def proxyEnable(self):
+        self.proxyManualWidget.setEnabled(True)
+
+    def proxyDisable(self):
+        self.proxyManualWidget.setEnabled(False)
+
+    def toggleProxyAuth(self):
+        if self.srvPasswordReq.isEnabled() and self.srvPasswordReq.isChecked():
+            self.srvLogin.setEnabled(True)
+            self.srvPassword.setEnabled(True)
+        else:
+            self.srvLogin.setEnabled(False)
+            self.srvPassword.setEnabled(False)
+
+    def toggleProxyAuthReq(self):
+        if self.proxyType.currentText() in [ "HTTPS", "SOCKS5" ]:
+            self.srvPasswordReq.setEnabled(True)
+        else:
+            self.srvPasswordReq.setEnabled(False)
+        self.toggleProxyAuth()
 
     #@waitCursor
     def showAbout(self):
@@ -738,3 +829,10 @@ class Window(QMainWindow, Ui_MainWindow):
         QtCore.QObject.connect(self.actionAbout, QtCore.SIGNAL("activated()"), self.showAbout)
 
         QtCore.QObject.connect(self.refreshTimeout, QtCore.SIGNAL("editingFinished()"), self.handleSpinChange)
+
+        QtCore.QObject.connect(self.proxyNone, QtCore.SIGNAL("clicked()"), self.proxyDisable)
+        QtCore.QObject.connect(self.proxyAuto, QtCore.SIGNAL("clicked()"), self.proxyDisable)
+        QtCore.QObject.connect(self.proxyManual, QtCore.SIGNAL("clicked()"), self.proxyEnable)
+
+        QtCore.QObject.connect(self.srvPasswordReq, QtCore.SIGNAL("clicked()"), self.toggleProxyAuth)
+        QtCore.QObject.connect(self.proxyType, QtCore.SIGNAL("currentIndexChanged(QString)"), self.toggleProxyAuthReq)
