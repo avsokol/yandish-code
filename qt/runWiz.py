@@ -28,6 +28,7 @@ class yaWizard(QWizard,  Ui_Wizard):
     _proxy = None
 
     _default_auth = "/tmp/yandish_auth.tmp"
+    _login_error = 1
 
     def __init__(self, params, parent = None):
 
@@ -85,6 +86,8 @@ class yaWizard(QWizard,  Ui_Wizard):
         self.setLoginStatus(return_code,hint)
 
     def setLoginStatus(self,status,hint=""):
+
+        self._login_error = status
 
         palette = QtGui.QPalette()
 
@@ -217,6 +220,13 @@ class yaWizard(QWizard,  Ui_Wizard):
             print("Couldn't write Yandex configuration file")
             sys.exit(3)
 
+    def setNextButtonState(self,id):
+        if id == 1 and self._login_error:
+            state = False
+        else:
+            state = True
+        self.button(self.NextButton).setEnabled(state)
+
     def wizardFinish(self):
         yandex_cfg = str(self.yaCfg.text())
         yandex_root = str(self.yaRoot.text())
@@ -263,6 +273,7 @@ class yaWizard(QWizard,  Ui_Wizard):
 
         QtCore.QObject.connect(self.srvPasswordReq, QtCore.SIGNAL("clicked()"), self.toggleProxyAuth)
         QtCore.QObject.connect(self.proxyType, QtCore.SIGNAL("currentIndexChanged(QString)"), self.toggleProxyAuthReq)
+        QtCore.QObject.connect(self, QtCore.SIGNAL("currentIdChanged(int)"),self.setNextButtonState)
 
 if __name__ == "__main__":
 
@@ -272,6 +283,5 @@ if __name__ == "__main__":
     yaWiz = yaWizard(params)
 
     yaWiz.show()
-    #yaWiz.button(yaWiz.NextButton).setEnabled(False)
 
     sys.exit(yaWiz.exec_())
