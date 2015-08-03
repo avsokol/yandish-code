@@ -31,7 +31,7 @@ def WhichPrg():
     if return_code == 0:
         PRG = proc.stdout.read()
         PRG = PRG.strip()
-        return PRG
+        return PRG.decode("utf8")
     else:
         raise Exception("Error %s: Couldn't find '%s' executable\n%s" % (return_code, executable, proc.stderr.read()))
 

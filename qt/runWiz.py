@@ -13,7 +13,7 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import *
 
-from wizard import Ui_Wizard
+from .wizard import Ui_Wizard
 from yandish import WhichPrg, getDefaultParams
 from opts import AppOptions
 import actions

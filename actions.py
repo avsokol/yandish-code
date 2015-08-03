@@ -220,6 +220,7 @@ def DoAction(action,params):
     if return_code == 0:
         OUT = proc.stdout.read()
         OUT = OUT.strip()
+        OUT = OUT.decode("utf8")
     else:
         raise Exception("Failure %s:\n'%s'\n'%s'" % (return_code, proc.stdout.read(), proc.stderr.read()))
 
@@ -300,6 +301,7 @@ def IsDaemonRunning(prg):
     if return_code == 0 or return_code == 1:
         RES = proc.stdout.read()
         RES = RES.strip()
+        RES = RES.decode("utf8")
     else:
         raise Exception("Failure %s:\n'%s'\n'%s'" % (return_code, proc.stdout.read(), proc.stderr.read()))
 

@@ -23,13 +23,13 @@ class AppOptions():
         return os.path.join(os.environ["HOME"],self.RCFILE_NAME)
 
     def getParam(self,param):
-        if self.params.has_key(param):
+        if param in self.params.keys():
             return self.params[param]
         else:
             return "-1"
 
     def setParam(self,param,value):
-        if self.params.has_key(param):
+        if param in self.params.keys:
             self.params[param] = value
 
     def printParams(self):
@@ -48,7 +48,7 @@ class AppOptions():
                 if len(elements) != 2:
                     continue
                 key,value = elements[0],elements[1]
-                if self.params.has_key(key):
+                if key in self.params.keys():
                     self.params[key] = value
 
     def saveParamsToRcFile(self):

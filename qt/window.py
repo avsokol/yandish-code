@@ -3,13 +3,13 @@ from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import *
 
-from wlayout import Ui_MainWindow
+from .wlayout import Ui_MainWindow
 import actions
-from about import Ui_Dialog
-from trayIcon import SystemTrayIcon
+from .about import Ui_Dialog
+from .trayIcon import SystemTrayIcon
 from opts import AppOptions
 from yandish import getDefaultParams, tuneParams
-from runWiz import yaWizard
+from .runWiz import yaWizard
 
 import threading
 
@@ -567,7 +567,7 @@ class Window(QMainWindow, Ui_MainWindow):
                     self.checkChildren(item.child(i))
         
     def checkParent(self,item):
-        if item.parent() <> None:
+        if item.parent() != None:
             item.parent().setCheckState(0, Qt.Checked)
             self.checkParent(item.parent())
 
