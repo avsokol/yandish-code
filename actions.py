@@ -207,7 +207,7 @@ def DoAction(action,params):
         if is_running:
             return 2,message
     else:
-        raise Exception("Unexpected action %s\n%s:\n'%s'" % (action, return_code, proc.stderr.read()))
+        raise Exception("Unexpected action %s\n%s" % (action, 1))
 
     proc = Popen([prg, action,
                   "--exclude-dirs", excludeOpt,
