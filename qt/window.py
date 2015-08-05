@@ -84,7 +84,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def isTimerActive(self):
         return self.uTimer.isActive()
 
-    def restartTimer():
+    def restartTimer(self):
         if self.isTimerActive():
             self.stopTimer()
         self.startTimer()
@@ -295,12 +295,10 @@ class Window(QMainWindow, Ui_MainWindow):
         path = []
 
         text = str(item.text(0).toUtf8())
-        text = re.sub(" ->.*","",text)
         path.insert(0, text)
 
         while item.parent() != None:
             text = str(item.parent().text(0).toUtf8())
-            text = re.sub(" ->.*","",text)
             path.insert(0, text)
             item = item.parent()
 
@@ -328,16 +326,17 @@ class Window(QMainWindow, Ui_MainWindow):
     def removeItem(self,path):
         item = self.findPathItem(path)
         if item == None:
-            pass
+            if path in self._removeItems:
+                self._removeItems.remove(path)
         else:
             parent = item.parent()
             if parent == None:
                 parent = self.treeWidget.invisibleRootItem()
-                parent.removeChild(item)
-                if path in self._removeItems:
-                    self._removeItems.remove(path)
-                if path in self._exclude_dirs:
-                    self._exclude_dirs.remove(path)
+            parent.removeChild(item)
+            if path in self._removeItems:
+                self._removeItems.remove(path)
+            if path in self._exclude_dirs:
+                self._exclude_dirs.remove(path)
 
     def checkAndRmUnusedTreeItem(self,parentItem=""):
         if parentItem == "" or parentItem == None:
@@ -352,13 +351,17 @@ class Window(QMainWindow, Ui_MainWindow):
             path = os.path.join(self._rootdir,path)
 
             if self.isChildToBeRemoved(path):
-                self._removeItems.append(path)
-                #self.emit(QtCore.SIGNAL("removeChild"),path)
+                path = path.lstrip(self._rootdir)
+                if path in self._removeItems:
+                    pass
+                else:
+                    self._removeItems.append(path)
+                    #self.emit(QtCore.SIGNAL("removeChild"),path)
             else:
                 self.checkAndRmUnusedTreeItem(child)
 
     def getItemProperties(self,item):
-        properties = {"itemText": item.text(0),
+        properties = {"itemText": [str(item.text(0).toUtf8()), str(item.text(1).toUtf8())],
                       "foreground": item.foreground(0),
                       "checkable": 1,
                       "state": item.checkState(0)}
@@ -393,7 +396,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def prepareItemProperties(self,path,text,exists,is_link,target,state):
 
-        properties = {"itemText": text.decode("utf8"),
+        properties = {"itemText": [text,""],
                       "foreground": Qt.black,
                       "checkable": 1,
                       "state": state}
@@ -404,9 +407,11 @@ class Window(QMainWindow, Ui_MainWindow):
                 break
             path = os.path.dirname(path)
 
+        text0 = text.decode("utf8")
+        text1 = ""
         if is_link:
-            text = text + " -> " + target
-        properties["itemText"] = text.decode("utf8")
+            text1 = " -> " + target
+        properties["itemText"] = [text0,text1.decode("utf8")]
 
         if is_link == 1 and exists == 0:
             properties["foreground"] = Qt.red
@@ -415,8 +420,10 @@ class Window(QMainWindow, Ui_MainWindow):
         return properties
 
     def setItemProperties(self,child,properties):
-        child.setText(0, properties["itemText"])
+        child.setText(0, properties["itemText"][0])
+        child.setText(1, properties["itemText"][1])
         child.setForeground(0, properties["foreground"])
+        child.setForeground(1, properties["foreground"])
         if properties["checkable"]:
             folderIcon = QtGui.QIcon()
             folderIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder_closed.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -459,8 +466,12 @@ class Window(QMainWindow, Ui_MainWindow):
         itemProp = self.getItemProperties(child)
 
         for key in properties.keys():
-            if properties[key] != itemProp[key]:
-                return 1
+            if key == "itemText":
+                if properties[key][0] != itemProp[key][0].decode("utf8") or properties[key][1] != itemProp[key][1].decode("utf8"):
+                    return 1
+            else:
+                if properties[key] != itemProp[key]:
+                    return 1
 
         return 0
 
@@ -531,7 +542,7 @@ class Window(QMainWindow, Ui_MainWindow):
             parentItem = self.treeWidget.invisibleRootItem()
 
         for i in range(parentItem.childCount()):
-            if re.search(re.escape(textToFind) + "( ->.)*", parentItem.child(i).text(column).toUtf8()):
+            if textToFind == parentItem.child(i).text(column).toUtf8():
                 return parentItem.child(i)
 
     def findPathItem(self, pathToFind, column = 0):
