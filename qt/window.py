@@ -700,10 +700,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
         self._service_err = res
 
-        text_msg = actions.ProcessResult(res,action,msg,params,0)
-
         cur_text = self.textEdit.toPlainText()
-        new_text = text_msg.decode("utf8")
+        new_text = actions.ProcessResult(res,action,msg,params,0)
 
         if new_text != cur_text:
             self.textEdit.clear()
