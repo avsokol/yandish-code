@@ -29,7 +29,7 @@ class AppOptions():
             return "-1"
 
     def setParam(self,param,value):
-        if param in self.params.keys:
+        if param in self.params.keys():
             self.params[param] = value
 
     def printParams(self):
