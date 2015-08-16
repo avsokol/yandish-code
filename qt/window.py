@@ -70,7 +70,7 @@ class Window(QMainWindow, Ui_MainWindow):
                 "config": self._config,
                 "auth": self._auth,
                 "exclude-dirs": self._exclude_dirs,
-                "dir": self._rootdir}
+                "rootdir": self._rootdir}
 
     def startTimer(self):
         if self.refreshTimeout.value() > 0 and self.isTimerActive() == False:

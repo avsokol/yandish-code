@@ -180,7 +180,7 @@ def DoAction(action,params):
     prg = params["prg"]
     cfgfile = params["config"]
     auth = params["auth"]
-    rootdir = params["dir"]
+    rootdir = params["rootdir"]
     exclude_dirs = params["exclude-dirs"]
 
     CheckLinks(rootdir,rootdir,exclude_dirs,cfgfile)
