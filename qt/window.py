@@ -75,6 +75,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def startTimer(self):
         if self.refreshTimeout.value() > 0 and self.isTimerActive() == False:
             self.uTimer.start(self.refreshTimeout.value() * 1000)
+
         if self.refreshTimeout.value() == 0 and self.isTimerActive():
             self.uTimer.stop()
 
@@ -87,6 +88,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def restartTimer(self):
         if self.isTimerActive():
             self.stopTimer()
+
         self.startTimer()
 
     def closeEvent(self, event):
@@ -99,6 +101,7 @@ class Window(QMainWindow, Ui_MainWindow):
             HideOnMinimize = appOpts.getParam("HideOnMinimize")
             if HideOnMinimize:
                 self.hide()
+
             return True
         else:
             return super(Window, self).event(event)
@@ -121,6 +124,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self.setGeometry(QtCore.QRect(x, y, w, h))
         else:
             self.restoreGeometry(self._geometry)
+
         super(Window, self).show()
 
     def updateTrayMenuState(self):
@@ -184,9 +188,11 @@ class Window(QMainWindow, Ui_MainWindow):
         appOpts = AppOptions()
         HideOnMinimize = int(appOpts.getParam("HideOnMinimize"))
         StartMinimized = int(appOpts.getParam("StartMinimized"))
+        startServiceAtStart = int(appOpts.getParam("startServiceAtStart"))
         refreshPeriod = int(appOpts.getParam("autorefresh"))
-        self.checkBox_1.setChecked(StartMinimized)
-        self.checkBox_2.setChecked(HideOnMinimize)
+        self.startHidden.setChecked(StartMinimized)
+        self.hideOnMinimize.setChecked(HideOnMinimize)
+        self.startServiceAtStart.setChecked(startServiceAtStart)
         self.refreshTimeout.setProperty("value", refreshPeriod)
 
     def reloadOptions(self):
@@ -242,14 +248,21 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def saveAppOptions(self):
         appOpts = AppOptions()
-        if self.checkBox_1.isChecked():
+        if self.startHidden.isChecked():
             StartMinimized = "1"
         else:
             StartMinimized = "0"
-        if self.checkBox_2.isChecked():
+
+        if self.hideOnMinimize.isChecked():
             HideOnMinimize = "1"
         else:
             HideOnMinimize = "0"
+
+        if self.startServiceAtStart.isChecked():
+            startServiceAtStart = "1"
+        else:
+            startServiceAtStart = "0"
+
         refreshPeriod =  str(self.refreshTimeout.value())
 
         yandex_cfg = self.yandex_cfg.text()
@@ -263,6 +276,7 @@ class Window(QMainWindow, Ui_MainWindow):
         appOpts.setParam("HideOnMinimize",HideOnMinimize)
         appOpts.setParam("StartMinimized",StartMinimized)
         appOpts.setParam("autorefresh",refreshPeriod)
+        appOpts.setParam("startServiceAtStart",startServiceAtStart)
         appOpts.setParam("yandex-cfg",yandexcfg)
         appOpts.saveParamsToRcFile()
 
@@ -495,7 +509,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         return child
 
-    def addDirAsTreeItem(self,parentDir=""):
+    def addDirAsTreeItem(self,parentDir="",startup=0):
         if parentDir == "":
             parentDir = self._rootdir
 
@@ -517,11 +531,14 @@ class Window(QMainWindow, Ui_MainWindow):
                         properties = self.prepareItemProperties(lpath,d,exists,is_link,target,state)
 
                         if self.isChildExists(lpath) == 0:
-                            self.emit(QtCore.SIGNAL("addChild"),lpath,properties)
+                            if startup:
+                                self.addItem(lpath,properties)
+                            else:
+                                self.emit(QtCore.SIGNAL("addChild"),lpath,properties)
                         elif self.isChildToBeModified(lpath,properties):
                             self.emit(QtCore.SIGNAL("modifyChild"),lpath,properties)
 
-                        self.addDirAsTreeItem(path)
+                        self.addDirAsTreeItem(path,startup)
 
         if c in self._threads:
             self._threads.remove(c)
@@ -647,7 +664,11 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def initApp(self):
         self.fillOptions()
-        self.refreshStatus(1)
+        if self.startServiceAtStart.isChecked():
+            self.addDirAsTreeItem("",1)
+            self.actService("start")
+        else:
+            self.refreshStatus(1)
 
         if self._service_err == 3:
             self.runWizard()

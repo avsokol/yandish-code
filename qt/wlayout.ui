@@ -428,7 +428,7 @@
             <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
            </property>
            <item row="0" column="0">
-            <widget class="QCheckBox" name="checkBox_1">
+            <widget class="QCheckBox" name="startHidden">
              <property name="toolTip">
               <string>Start Application Hidden in a System Tray</string>
              </property>
@@ -441,7 +441,7 @@
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QCheckBox" name="checkBox_2">
+            <widget class="QCheckBox" name="hideOnMinimize">
              <property name="toolTip">
               <string>Remove Application From TaskBar when minimized</string>
              </property>
@@ -485,6 +485,13 @@
              </property>
              <property name="value">
               <number>15</number>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <widget class="QCheckBox" name="startServiceAtStart">
+             <property name="text">
+              <string>Start Service At Application Start</string>
              </property>
             </widget>
            </item>

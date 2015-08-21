@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wlayout.ui'
 #
-# Created: Sat Aug  1 19:50:08 2015
+# Created: Fri Aug 21 20:36:05 2015
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -194,12 +194,12 @@ class Ui_MainWindow(object):
         self.formLayout = QtGui.QFormLayout(self.groupBox_6)
         self.formLayout.setFieldGrowthPolicy(QtGui.QFormLayout.AllNonFixedFieldsGrow)
         self.formLayout.setObjectName(_fromUtf8("formLayout"))
-        self.checkBox_1 = QtGui.QCheckBox(self.groupBox_6)
-        self.checkBox_1.setObjectName(_fromUtf8("checkBox_1"))
-        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.checkBox_1)
-        self.checkBox_2 = QtGui.QCheckBox(self.groupBox_6)
-        self.checkBox_2.setObjectName(_fromUtf8("checkBox_2"))
-        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.checkBox_2)
+        self.startHidden = QtGui.QCheckBox(self.groupBox_6)
+        self.startHidden.setObjectName(_fromUtf8("startHidden"))
+        self.formLayout.setWidget(0, QtGui.QFormLayout.LabelRole, self.startHidden)
+        self.hideOnMinimize = QtGui.QCheckBox(self.groupBox_6)
+        self.hideOnMinimize.setObjectName(_fromUtf8("hideOnMinimize"))
+        self.formLayout.setWidget(0, QtGui.QFormLayout.FieldRole, self.hideOnMinimize)
         self.l_refresh_1 = QtGui.QLabel(self.groupBox_6)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
@@ -218,6 +218,9 @@ class Ui_MainWindow(object):
         self.refreshTimeout.setProperty("value", 15)
         self.refreshTimeout.setObjectName(_fromUtf8("refreshTimeout"))
         self.formLayout.setWidget(1, QtGui.QFormLayout.FieldRole, self.refreshTimeout)
+        self.startServiceAtStart = QtGui.QCheckBox(self.groupBox_6)
+        self.startServiceAtStart.setObjectName(_fromUtf8("startServiceAtStart"))
+        self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.startServiceAtStart)
         self.gridLayout_2.addWidget(self.groupBox_6, 0, 0, 1, 1)
         icon5 = QtGui.QIcon()
         icon5.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/tab_opts.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -332,7 +335,6 @@ class Ui_MainWindow(object):
         self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(MainWindow)
-        self.tabWidget.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -388,15 +390,16 @@ class Ui_MainWindow(object):
         self.srvPassword.setToolTip(_translate("MainWindow", "Proxy server password", None))
         self.srvPassword.setStatusTip(_translate("MainWindow", "Proxy server password", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "Proxy", None))
-        self.checkBox_1.setToolTip(_translate("MainWindow", "Start Application Hidden in a System Tray", None))
-        self.checkBox_1.setStatusTip(_translate("MainWindow", "Start Application Hidden in a System Tray", None))
-        self.checkBox_1.setText(_translate("MainWindow", "Start Hidden", None))
-        self.checkBox_2.setToolTip(_translate("MainWindow", "Remove Application From TaskBar when minimized", None))
-        self.checkBox_2.setStatusTip(_translate("MainWindow", "Remove Application From TaskBar when minimized", None))
-        self.checkBox_2.setText(_translate("MainWindow", "Hide On Minimize", None))
+        self.startHidden.setToolTip(_translate("MainWindow", "Start Application Hidden in a System Tray", None))
+        self.startHidden.setStatusTip(_translate("MainWindow", "Start Application Hidden in a System Tray", None))
+        self.startHidden.setText(_translate("MainWindow", "Start Hidden", None))
+        self.hideOnMinimize.setToolTip(_translate("MainWindow", "Remove Application From TaskBar when minimized", None))
+        self.hideOnMinimize.setStatusTip(_translate("MainWindow", "Remove Application From TaskBar when minimized", None))
+        self.hideOnMinimize.setText(_translate("MainWindow", "Hide On Minimize", None))
         self.l_refresh_1.setText(_translate("MainWindow", "Status autorefresh in sec", None))
         self.refreshTimeout.setToolTip(_translate("MainWindow", "Timeout after which status will be autorefreshed. Zero - no autorefresh", None))
         self.refreshTimeout.setStatusTip(_translate("MainWindow", "Timeout after which status will be autorefreshed. Zero - no autorefresh", None))
+        self.startServiceAtStart.setText(_translate("MainWindow", "Start Service At Application Start", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "Options", None))
         self.btnStart.setToolTip(_translate("MainWindow", "Start Service", None))
         self.btnStart.setStatusTip(_translate("MainWindow", "Start Service", None))

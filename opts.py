@@ -8,6 +8,7 @@ class AppOptions():
     params = {"StartMinimized": "1",
               "HideOnMinimize": "1",
               "autorefresh": "15",
+              "startServiceAtStart": "1",
               "yandex-cfg": ""}
 
     def __init__(self):
