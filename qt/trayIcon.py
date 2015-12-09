@@ -6,6 +6,10 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
     _parent = None
 
+    __icon = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk_1.xpm")
+    __iconActive = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk_active.xpm")
+    __iconPaused = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk_paused.xpm")
+
     def setParent(self,parent):
         self._parent = parent
 
@@ -19,8 +23,8 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
         QtGui.QSystemTrayIcon.__init__(self, parent)
 
         if QtGui.QSystemTrayIcon.isSystemTrayAvailable():
-            icon = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk_1.xpm")
-            self.trayIcon = QtGui.QSystemTrayIcon(QtGui.QIcon(icon), parent)
+            self.trayIcon = QtGui.QSystemTrayIcon()
+            self.setIcon()
             menu = QtGui.QMenu(parent)
             self.showAction = menu.addAction("Show")
             self.hideAction = menu.addAction("Hide")
@@ -40,6 +44,16 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
             self.disambiguateTimer.timeout.connect(self.disambiguateTimerTimeout) 
 
             self.updateTrayMenuState()
+
+    def setIcon(self, status="Unknown"):
+        if status in [ "index", "sync" ]:
+            icon = QtGui.QIcon(self.__iconActive)
+        elif status in [ "paused" ]:
+            icon = QtGui.QIcon(self.__iconPaused)
+        else:
+            icon = QtGui.QIcon(self.__icon)
+
+        self.trayIcon.setIcon(icon)
 
     def updateTrayMenuState(self):
         parent = self.getParent()

@@ -317,3 +317,17 @@ def IsDaemonRunning(prg):
     return is_running,message
 
 #############################################################################
+
+def getStatusFromMsg(msg):
+
+    status = "Unknown"
+
+    pattern = "Synchronization core status: "
+
+    for line in msg.split("\n"):
+        if re.search(pattern, line):
+            status = re.sub(pattern, "", line)
+            break
+
+    return status
+

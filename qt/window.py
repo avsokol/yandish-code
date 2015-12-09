@@ -729,6 +729,9 @@ class Window(QMainWindow, Ui_MainWindow):
             self.textEdit.append(new_text)
             self.tIcon.updateToolTip(new_text)
 
+            yStatus = actions.getStatusFromMsg(new_text)
+            self.tIcon.setIcon(yStatus)
+
     def refreshStatus(self,force=0,clear=0):
 
         self.stopTimer()
