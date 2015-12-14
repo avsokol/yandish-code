@@ -6,7 +6,7 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
 
     _parent = None
 
-    __icon = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk_1.xpm")
+    __icon = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk.xpm")
     __iconActive = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk_active.xpm")
     __iconPaused = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk_paused.xpm")
 
