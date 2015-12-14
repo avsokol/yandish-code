@@ -33,7 +33,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>../ico/yandex-disk_1.xpm</normaloff>../ico/yandex-disk_1.xpm</iconset>
+    <normaloff>../ico/yandex-disk.xpm</normaloff>../ico/yandex-disk.xpm</iconset>
   </property>
   <widget class="QWizardPage" name="wizardPage1">
    <layout class="QVBoxLayout" name="verticalLayout_4">
