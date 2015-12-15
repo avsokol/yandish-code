@@ -46,7 +46,7 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
             self.updateTrayMenuState()
 
     def setIcon(self, status="Unknown"):
-        if status in [ "index", "sync" ]:
+        if status in [ "index", "sync", "busy" ]:
             icon = QtGui.QIcon(self.__iconActive)
         elif status in [ "paused" ]:
             icon = QtGui.QIcon(self.__iconPaused)
