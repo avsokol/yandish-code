@@ -7,8 +7,8 @@ from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsF
 
 #############################################################################
 
-def getDefaultParams():
-    daemon = WhichPrg()
+def getDefaultParams(action):
+    daemon = WhichPrg(action)
     params = {"config": "~/.config/yandex-disk/config.cfg",
               "auth": "~/.config/yandex-disk/passwd",
               "exclude-dirs": [],
@@ -20,7 +20,24 @@ def getDefaultParams():
 
 #############################################################################
 
-def WhichPrg():
+def showDlg(errMsg):
+
+    from PyQt4 import QtCore, QtGui
+
+    app = QtGui.QApplication(sys.argv)
+    msg = QtGui.QMessageBox()
+    msg.setIcon(QtGui.QMessageBox.Critical)
+
+    msg.setText("Couldn't find yandex-disk daemon")
+    msg.setInformativeText("You have to install yandex-disk daemon from Yandex site.")
+    msg.setWindowTitle("Error")
+    msg.setDetailedText(errMsg)
+    msg.setStandardButtons(QtGui.QMessageBox.Ok)
+    sys.exit(msg.exec_())
+
+#############################################################################
+
+def WhichPrg(action):
 
     PRG = ""
 
@@ -33,7 +50,10 @@ def WhichPrg():
         PRG = PRG.strip()
         return PRG.decode("utf8")
     else:
-        raise Exception("Error %s: Couldn't find '%s' executable\n%s" % (return_code, executable, proc.stderr.read()))
+        if action == "widget":
+            showDlg("Error " + str(return_code) + ":\nCouldn't find " + executable + " executable\n" + proc.stderr.read())
+        else:
+            raise Exception("Error %s: Couldn't find '%s' executable\n%s" % (return_code, executable, proc.stderr.read()))
 
 #############################################################################
 
@@ -70,9 +90,9 @@ def ShowWidget(params):
 
 #############################################################################
 
-def tuneParams(params):
+def tuneParams(params, action):
 
-    defParams = getDefaultParams()
+    defParams = getDefaultParams(action)
 
     if params["prg"] == "":
         params["prg"] = defParams["prg"]
@@ -129,7 +149,7 @@ def main(argv):
     params["exclude-dirs"] = pArgs.exclude_dirs
     params["proxy"] = pArgs.proxy
 
-    tuneParams(params)
+    tuneParams(params, action)
 
     if action == "widget":
         ShowWidget(params)
