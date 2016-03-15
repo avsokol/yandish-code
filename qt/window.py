@@ -832,7 +832,7 @@ class Window(QMainWindow, Ui_MainWindow):
         params["exclude-dirs"] = ""
         params["proxy"] = ""
 
-        tuneParams(params)
+        tuneParams(params,"widget")
         self.paramsInit(params)
         self.reloadOptions()
 

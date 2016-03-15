@@ -251,7 +251,7 @@ class yaWizard(QWizard,  Ui_Wizard):
             sys.exit(3)
 
         appOpts = AppOptions()
-        defParams = getDefaultParams()
+        defParams = getDefaultParams("widget")
         yandexcfg = yandex_cfg
         if yandex_cfg == os.path.expanduser(defParams["config"]):
             yandexcfg = ""
@@ -277,7 +277,7 @@ class yaWizard(QWizard,  Ui_Wizard):
 
 if __name__ == "__main__":
 
-    params = getDefaultParams()
+    params = getDefaultParams("widget")
 
     app = QtGui.QApplication(sys.argv)
     yaWiz = yaWizard(params)
