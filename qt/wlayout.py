@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wlayout.ui'
 #
-# Created: Fri Aug 21 20:36:05 2015
+# Created: Thu Mar 31 16:39:02 2016
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -399,6 +399,8 @@ class Ui_MainWindow(object):
         self.l_refresh_1.setText(_translate("MainWindow", "Status autorefresh in sec", None))
         self.refreshTimeout.setToolTip(_translate("MainWindow", "Timeout after which status will be autorefreshed. Zero - no autorefresh", None))
         self.refreshTimeout.setStatusTip(_translate("MainWindow", "Timeout after which status will be autorefreshed. Zero - no autorefresh", None))
+        self.startServiceAtStart.setToolTip(_translate("MainWindow", "Start yandex-disk daemon on application start", None))
+        self.startServiceAtStart.setStatusTip(_translate("MainWindow", "Start yandex-disk daemon on application start", None))
         self.startServiceAtStart.setText(_translate("MainWindow", "Start Service At Application Start", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "Options", None))
         self.btnStart.setToolTip(_translate("MainWindow", "Start Service", None))

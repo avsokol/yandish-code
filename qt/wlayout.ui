@@ -74,7 +74,7 @@
           </column>
           <column>
            <property name="text">
-            <string>  </string>
+            <string/>
            </property>
           </column>
          </widget>
@@ -490,6 +490,12 @@
            </item>
            <item row="2" column="0">
             <widget class="QCheckBox" name="startServiceAtStart">
+             <property name="toolTip">
+              <string>Start yandex-disk daemon on application start</string>
+             </property>
+             <property name="statusTip">
+              <string>Start yandex-disk daemon on application start</string>
+             </property>
              <property name="text">
               <string>Start Service At Application Start</string>
              </property>
