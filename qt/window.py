@@ -438,6 +438,9 @@ class Window(QMainWindow, Ui_MainWindow):
         child.setText(1, properties["itemText"][1])
         child.setForeground(0, properties["foreground"])
         child.setForeground(1, properties["foreground"])
+        child.setToolTip(0, properties["itemText"][0])
+        child.setToolTip(1, properties["itemText"][1])
+
         if properties["checkable"]:
             folderIcon = QtGui.QIcon()
             folderIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder_closed.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
