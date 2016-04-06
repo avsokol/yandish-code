@@ -98,7 +98,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def event(self, event):
         if (event.type() == QtCore.QEvent.WindowStateChange and self.isMinimized()):
             appOpts = AppOptions()
-            HideOnMinimize = appOpts.getParam("HideOnMinimize")
+            HideOnMinimize = int(appOpts.getParam("HideOnMinimize"))
             if HideOnMinimize:
                 self.hide()
 
@@ -267,7 +267,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         yandex_cfg = self.yandex_cfg.text()
 
-        defParams = getDefaultParams()
+        defParams = getDefaultParams("widget")
 
         yandexcfg = yandex_cfg
         if yandex_cfg == os.path.expanduser(defParams["config"]):
@@ -681,7 +681,8 @@ class Window(QMainWindow, Ui_MainWindow):
             self.updateActionButtons()
 
             appOpts = AppOptions()
-            startMinimized = appOpts.getParam("StartMinimized")
+            startMinimized = int(appOpts.getParam("StartMinimized"))
+
             if startMinimized == 0:
                 self.show()
 
