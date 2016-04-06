@@ -117,8 +117,8 @@ class Window(QMainWindow, Ui_MainWindow):
     def show(self):
         if self._geometry == None:
             X,Y = self.screenGeometry()
-            w = 640
-            h = 480
+            w = self.width()
+            h = self.height()
             x = (X-w)/2
             y = (Y-w)/2
             self.setGeometry(QtCore.QRect(x, y, w, h))
