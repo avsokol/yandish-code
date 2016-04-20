@@ -91,11 +91,13 @@ class yaWizard(QWizard,  Ui_Wizard):
 
         palette = QtGui.QPalette()
 
+        message = ""
+
         if status == 0:
             message = "Login Ok!"
             palette.setColor(QtGui.QPalette.Foreground,QtCore.Qt.darkGreen)
         elif status == 1:
-            message = "Login Failled!"
+            message = "Login Failed!"
             palette.setColor(QtGui.QPalette.Foreground,QtCore.Qt.red)
         elif status == 2:
             message = "Not enough credentials"
