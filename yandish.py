@@ -3,7 +3,7 @@
 import sys, os, argparse
 from subprocess import Popen, PIPE
 from opts import AppOptions
-from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile, GetProxyFromCfgFile, DoAction, ProcessResult
+from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile, GetProxyFromCfgFile, SaveParamsInCfgFile, DoAction, ProcessResult
 
 #############################################################################
 
@@ -92,7 +92,10 @@ def ShowWidget(params):
 
 def tuneParams(params, action):
 
+    #TODO: to be refactored
     defParams = getDefaultParams(action)
+
+    ya_params = {}
 
     if params["prg"] == "":
         params["prg"] = defParams["prg"]
@@ -110,25 +113,31 @@ def tuneParams(params, action):
     if params["auth"] == "":
         params["auth"] = defParams["auth"]
     params["auth"] = os.path.expanduser(params["auth"])
+    ya_params["auth"] = params["auth"]
 
     if params["rootdir"] == "":
         params["rootdir"] = GetRootDirFromCfgFile(params["config"],0)
     if params["rootdir"] == "":
         params["rootdir"] = defParams["rootdir"]
     params["rootdir"] = os.path.expanduser(params["rootdir"])
+    ya_params["dir"] = params["rootdir"]
 
     if params["proxy"] == "":
         params["proxy"] = GetProxyFromCfgFile(params["config"],0)
     if params["proxy"] == "":
         params["proxy"] = defParams["proxy"]
+    ya_params["proxy"] = params["proxy"]
 
     if len(params["exclude-dirs"]) == 0:
         params["exclude-dirs"] = GetExcludeDirsFromCfgFile(params["config"],0)
         if params["exclude-dirs"] == [""]:
             params["exclude-dirs"] = []
+            ya_params["exclude-dirs"] = ""
     else:
         params["exclude-dirs"] = ",".join(params["exclude-dirs"])
-    
+        ya_params["exclude-dirs"] = params["exclude-dirs"]
+
+    SaveParamsInCfgFile(ya_params, params["config"])
 
 #############################################################################
 
