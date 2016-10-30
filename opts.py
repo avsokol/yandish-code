@@ -57,8 +57,9 @@ class AppOptions():
         fnTmp = fn + ".tmp"
         with open(fnTmp, "w") as f:
             for k,v in self.params.items():
+                v=str(v)
                 v = v.strip()
-                line = k + "=" + str(v) + "\n"
+                line = k + "=" + v + "\n"
                 f.write(line)
 
         os.rename(fnTmp,fn)
