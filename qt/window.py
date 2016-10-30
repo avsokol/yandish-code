@@ -270,9 +270,7 @@ class Window(QMainWindow, Ui_MainWindow):
         defParams = getDefaultParams("widget")
 
         yandexcfg = yandex_cfg
-        if yandex_cfg == os.path.expanduser(defParams["config"]):
-            yandexcfg = ""
-        
+
         appOpts.setParam("HideOnMinimize",HideOnMinimize)
         appOpts.setParam("StartMinimized",StartMinimized)
         appOpts.setParam("autorefresh",refreshPeriod)
