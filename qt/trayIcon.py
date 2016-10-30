@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+
+import sys, os
 import sys, os
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import  QTimer
@@ -46,9 +49,9 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
             self.updateTrayMenuState()
 
     def setIcon(self, status="Unknown"):
-        if status in [ "index", "sync", "busy" ]:
+        if status in [ u"index", u"sync", u"busy", u"синхронизация", u"обработка данных" ]:
             icon = QtGui.QIcon(self.__iconActive)
-        elif status in [ "paused" ]:
+        elif status in [ u"paused", u"остановлен", u"демон не запущен" ]:
             icon = QtGui.QIcon(self.__iconPaused)
         else:
             icon = QtGui.QIcon(self.__icon)

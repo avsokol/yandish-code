@@ -320,14 +320,24 @@ def IsDaemonRunning(prg):
 
 def getStatusFromMsg(msg):
 
+    #TODO: to be refactored
     status = "Unknown"
 
-    pattern = "Synchronization core status: "
+    pattern = {}
+
+    pattern["english"] = "Synchronization core status: "
+    pattern["russian"] = u"Статус ядра синхронизации: "
+    pattern["russian_error"] = u"Ошибка: "
 
     for line in msg.split("\n"):
-        if re.search(pattern, line):
-            status = re.sub(pattern, "", line)
+        if re.search(pattern["english"], line):
+            status = re.sub(pattern["english"], "", line)
+            break
+        if re.search(pattern["russian"], line):
+            status = re.sub(pattern["russian"], "", line)
+            break
+        if re.search(pattern["russian_error"], line):
+            status = re.sub(pattern["russian_error"], "", line)
             break
 
     return status
-
