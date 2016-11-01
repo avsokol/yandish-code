@@ -329,7 +329,7 @@ class Window(QMainWindow, Ui_MainWindow):
         if item == None:
             pass
         else:
-            self.setItemProperties(item,properties)
+            self.setItemProperties(item,properties,modifyState=0)
             if properties["checkable"] == 0:
                 for i in range(item.childCount()):
                     child = item.child(i)
@@ -431,7 +431,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         return properties
 
-    def setItemProperties(self,child,properties):
+    def setItemProperties(self,child,properties,modifyState=1):
         child.setText(0, properties["itemText"][0])
         child.setText(1, properties["itemText"][1])
         child.setForeground(0, properties["foreground"])
@@ -450,7 +450,9 @@ class Window(QMainWindow, Ui_MainWindow):
             errIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder_error.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
             child.setIcon(0, errIcon)
             child.setFlags(child.flags()^Qt.ItemIsUserCheckable^Qt.ItemIsSelectable)
-        child.setCheckState(0, properties["state"])
+
+        if modifyState:
+            child.setCheckState(0, properties["state"])
 
     def isChildExists(self,path):
 
