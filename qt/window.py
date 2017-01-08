@@ -329,7 +329,6 @@ class Window(QMainWindow, Ui_MainWindow):
         if item == None:
             pass
         else:
-            print(properties)
             modifyState = 0
             if properties['checkable'] == 0:
                 modifyState = 1
