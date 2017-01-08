@@ -329,7 +329,12 @@ class Window(QMainWindow, Ui_MainWindow):
         if item == None:
             pass
         else:
-            self.setItemProperties(item,properties,modifyState=0)
+            print(properties)
+            modifyState = 0
+            if properties['checkable'] == 0:
+                modifyState = 1
+
+            self.setItemProperties(item,properties,modifyState=modifyState)
             if properties["checkable"] == 0:
                 for i in range(item.childCount()):
                     child = item.child(i)
@@ -439,6 +444,9 @@ class Window(QMainWindow, Ui_MainWindow):
         child.setToolTip(0, properties["itemText"][0])
         child.setToolTip(1, properties["itemText"][1])
 
+        if modifyState:
+            child.setCheckState(0, properties["state"])
+
         if properties["checkable"]:
             folderIcon = QtGui.QIcon()
             folderIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder_closed.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -450,9 +458,6 @@ class Window(QMainWindow, Ui_MainWindow):
             errIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder_error.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
             child.setIcon(0, errIcon)
             child.setFlags(child.flags()^Qt.ItemIsUserCheckable^Qt.ItemIsSelectable)
-
-        if modifyState:
-            child.setCheckState(0, properties["state"])
 
     def isChildExists(self,path):
 
