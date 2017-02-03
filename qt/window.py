@@ -1,4 +1,4 @@
-import os, re
+import os
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import *
@@ -19,10 +19,12 @@ except AttributeError:
     def _fromUtf8(s):
         return s
 
+
 class About(QDialog, Ui_Dialog):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
+
 
 class Window(QMainWindow, Ui_MainWindow):
 
@@ -40,7 +42,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     _service_err = 0
 
-    def __init__(self, params, parent = None):
+    def __init__(self, params, parent=None):
 
         self.paramsInit(params)
 
@@ -96,7 +98,7 @@ class Window(QMainWindow, Ui_MainWindow):
         event.ignore()
 
     def event(self, event):
-        if (event.type() == QtCore.QEvent.WindowStateChange and self.isMinimized()):
+        if event.type() == QtCore.QEvent.WindowStateChange and self.isMinimized():
             appOpts = AppOptions()
             HideOnMinimize = int(appOpts.getParam("HideOnMinimize"))
             if HideOnMinimize:
@@ -207,9 +209,9 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def getProxyCfg(self):
         if self.proxyNone.isChecked():
-            self._proxy="none"
+            self._proxy = "none"
         elif self.proxyAuto.isChecked():
-            self._proxy="auto"
+            self._proxy = "auto"
         elif self.proxyManual.isChecked():
             proxy_params = []
             pType = str(self.proxyType.currentText()).lower()
@@ -283,7 +285,8 @@ class Window(QMainWindow, Ui_MainWindow):
         self.saveAppOptions()
 
     def chooseRootDir(self):
-        dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory to be the root for Yandex Disk", self.yandex_root.text())
+        dirname = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory to be the root for Yandex Disk",
+                                                         self.yandex_root.text())
         if dirname != "":
             self._rootdir = str(dirname.toUtf8())
             self.yandex_root.setText(dirname)
@@ -309,7 +312,7 @@ class Window(QMainWindow, Ui_MainWindow):
         text = str(item.text(0).toUtf8())
         path.insert(0, text)
 
-        while item.parent() != None:
+        while item.parent() is not None:
             text = str(item.parent().text(0).toUtf8())
             path.insert(0, text)
             item = item.parent()
@@ -333,20 +336,20 @@ class Window(QMainWindow, Ui_MainWindow):
             if properties['checkable'] == 0:
                 modifyState = 1
 
-            self.setItemProperties(item,properties,modifyState=modifyState)
+            self.setItemProperties(item,properties, modifyState=modifyState)
             if properties["checkable"] == 0:
                 for i in range(item.childCount()):
                     child = item.child(i)
                     item.removeChild(child)
 
-    def removeItem(self,path):
+    def removeItem(self, path):
         item = self.findPathItem(path)
-        if item == None:
+        if item is None:
             if path in self._removeItems:
                 self._removeItems.remove(path)
         else:
             parent = item.parent()
-            if parent == None:
+            if parent is None:
                 parent = self.treeWidget.invisibleRootItem()
             parent.removeChild(item)
             if path in self._removeItems:
@@ -354,8 +357,8 @@ class Window(QMainWindow, Ui_MainWindow):
             if path in self._exclude_dirs:
                 self._exclude_dirs.remove(path)
 
-    def checkAndRmUnusedTreeItem(self,parentItem=""):
-        if parentItem == "" or parentItem == None:
+    def checkAndRmUnusedTreeItem(self, parentItem=""):
+        if parentItem == "" or parentItem is None:
             parentItem = self.treeWidget.invisibleRootItem()
 
         for i in range(parentItem.childCount()):
@@ -376,7 +379,7 @@ class Window(QMainWindow, Ui_MainWindow):
             else:
                 self.checkAndRmUnusedTreeItem(child)
 
-    def getItemProperties(self,item):
+    def getItemProperties(self, item):
         properties = {"itemText": [str(item.text(0).toUtf8()), str(item.text(1).toUtf8())],
                       "foreground": item.foreground(0),
                       "checkable": 1,
@@ -410,9 +413,9 @@ class Window(QMainWindow, Ui_MainWindow):
 
         return exists,is_link,target,state
 
-    def prepareItemProperties(self,path,text,exists,is_link,target,state):
+    def prepareItemProperties(self, path, text, exists, is_link, target, state):
 
-        properties = {"itemText": [text,""],
+        properties = {"itemText": [text, ""],
                       "foreground": Qt.black,
                       "checkable": 1,
                       "state": state}
@@ -435,7 +438,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         return properties
 
-    def setItemProperties(self,child,properties,modifyState=1):
+    def setItemProperties(self, child, properties, modifyState=1):
         child.setText(0, properties["itemText"][0])
         child.setText(1, properties["itemText"][1])
         child.setForeground(0, properties["foreground"])
@@ -448,21 +451,27 @@ class Window(QMainWindow, Ui_MainWindow):
 
         if properties["checkable"]:
             folderIcon = QtGui.QIcon()
-            folderIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder_closed.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-            folderIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder.png"))), QtGui.QIcon.Normal, QtGui.QIcon.On)
+            folderIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                                                      "../ico/folder_closed.png"))),
+                                 QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            folderIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                                                      "../ico/folder.png"))),
+                                 QtGui.QIcon.Normal, QtGui.QIcon.On)
             child.setIcon(0, folderIcon)
             child.setFlags(child.flags()|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
         else:
             errIcon = QtGui.QIcon()
-            errIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder_error.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+            errIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                                                   "../ico/folder_error.png"))),
+                              QtGui.QIcon.Normal, QtGui.QIcon.Off)
             child.setIcon(0, errIcon)
             child.setFlags(child.flags()^Qt.ItemIsUserCheckable^Qt.ItemIsSelectable)
 
-    def isChildExists(self,path):
+    def isChildExists(self, path):
 
         child = self.findPathItem(path)
 
-        if child == None:
+        if child is None:
             return 0
         else:
             return 1
@@ -474,12 +483,12 @@ class Window(QMainWindow, Ui_MainWindow):
         except:
             exists = 0
 
-        if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0 ):
+        if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0):
             return 1
         else:
             return 0
 
-    def isChildToBeModified(self,path,properties):
+    def isChildToBeModified(self, path, properties):
         child = self.findPathItem(path)
         if child == None:
             return 0
@@ -488,7 +497,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
         for key in properties.keys():
             if key == "itemText":
-                if properties[key][0] != itemProp[key][0].decode("utf8") or properties[key][1] != itemProp[key][1].decode("utf8"):
+                if properties[key][0] != itemProp[key][0].decode("utf8") or \
+                                properties[key][1] != itemProp[key][1].decode("utf8"):
                     return 1
             else:
                 if properties[key] != itemProp[key]:
@@ -496,7 +506,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         return 0
 
-    def createChild(self,path):
+    def createChild(self, path):
 
         updir = os.path.dirname(path)
 
@@ -508,7 +518,7 @@ class Window(QMainWindow, Ui_MainWindow):
         if parentItem == "root":
             child = QTreeWidgetItem(self.treeWidget)
             self.treeWidget.itemBelow(child)
-        elif parentItem == None:
+        elif parentItem is None:
             child = None
         else:
             child = QTreeWidgetItem(parentItem)
@@ -516,7 +526,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         return child
 
-    def addDirAsTreeItem(self,parentDir="",startup=0):
+    def addDirAsTreeItem(self, parentDir="", startup=0):
         if parentDir == "":
             parentDir = self._rootdir
 
@@ -535,15 +545,15 @@ class Window(QMainWindow, Ui_MainWindow):
                     if os.path.isfile(path) == 0 and d != ".sync":
                         lpath = path.lstrip(self._rootdir)
                         exists,is_link,target,state = self.getPathProperties(path)
-                        properties = self.prepareItemProperties(lpath,d,exists,is_link,target,state)
+                        properties = self.prepareItemProperties(lpath, d, exists, is_link, target,state)
 
                         if self.isChildExists(lpath) == 0:
                             if startup:
                                 self.addItem(lpath,properties)
                             else:
-                                self.emit(QtCore.SIGNAL("addChild"),lpath,properties)
+                                self.emit(QtCore.SIGNAL("addChild"), lpath, properties)
                         elif self.isChildToBeModified(lpath,properties):
-                            self.emit(QtCore.SIGNAL("modifyChild"),lpath,properties)
+                            self.emit(QtCore.SIGNAL("modifyChild"), lpath, properties)
 
                         self.addDirAsTreeItem(path,startup)
 
@@ -551,7 +561,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self._threads.remove(c)
 
     def findUncheckedItemsAmongChildren(self, items, parentItem, column=0):
-        if parentItem == "" or parentItem == None:
+        if parentItem == "" or parentItem is None:
             parentItem = self.treeWidget.invisibleRootItem()
 
         for i in range(parentItem.childCount()):
@@ -562,7 +572,7 @@ class Window(QMainWindow, Ui_MainWindow):
         return items
 
     def findItemAmongChildren(self, parentItem, textToFind, column=0):
-        if parentItem == "" or parentItem == None:
+        if parentItem == "" or parentItem is None:
             parentItem = self.treeWidget.invisibleRootItem()
 
         for i in range(parentItem.childCount()):
@@ -594,29 +604,29 @@ class Window(QMainWindow, Ui_MainWindow):
     def uncheckPath(self, pathToFind, column=0):
         self.changeCheckStateForPath(pathToFind, Qt.Unchecked, column=0)
 
-    def checkChildren(self,item):
+    def checkChildren(self, item):
         for i in range(item.childCount()):
             if item.child(i).flags() & QtCore.Qt.ItemIsUserCheckable:
                 item.child(i).setCheckState(0, Qt.Checked)
                 if item.child(i).childCount() > 0:
                     self.checkChildren(item.child(i))
         
-    def checkParent(self,item):
-        if item.parent() != None:
+    def checkParent(self, item):
+        if item.parent() is not None:
             item.parent().setCheckState(0, Qt.Checked)
             self.checkParent(item.parent())
 
-    def handleItemChecked(self,item):
+    def handleItemChecked(self, item):
         self.checkChildren(item)
         self.checkParent(item)
 
-    def handleItemUnchecked(self,item):
+    def handleItemUnchecked(self, item):
         for i in range(item.childCount()):
             item.child(i).setCheckState(0, Qt.Unchecked)
             if item.child(i).childCount() > 0:
                 self.handleItemUnchecked(item.child(i))
 
-    def handleitemChanged(self,item):
+    def handleitemChanged(self, item):
         self.treeWidget.blockSignals(True)
         if item.checkState(0) == QtCore.Qt.Checked:
             self.handleItemChecked(item)
@@ -627,7 +637,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def getExcludeDirsFromTree(self):
         paths = []
         items = []
-        items = self.findUncheckedItemsAmongChildren(items,"")
+        items = self.findUncheckedItemsAmongChildren(items, "")
         for item in items:
             path = self.getPathFromItem(item)
             paths.append(path)
@@ -639,13 +649,13 @@ class Window(QMainWindow, Ui_MainWindow):
         actions.SaveExcludeDirs(self._exclude_dirs,self._config)
 
     def refreshTree(self,force=0,clear=0):
-        if os.path.exists(self._rootdir) == False:
+        if not os.path.exists(self._rootdir):
             try:
                 os.mkdir(self._rootdir)
             except:
                 return
 
-        if self.isHidden() == False or force == 1:
+        if not self.isHidden() or force == 1:
 
             #for thread in self._threads:
             #    thread._Thread__stop()
@@ -672,7 +682,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def initApp(self):
         self.fillOptions()
         if self.startServiceAtStart.isChecked():
-            self.addDirAsTreeItem("",1)
+            self.addDirAsTreeItem("", 1)
             self.actService("start")
         else:
             self.refreshStatus(1)
@@ -694,16 +704,16 @@ class Window(QMainWindow, Ui_MainWindow):
             self.refreshStatus()
 
     def actionWaitCursor(function):
-        def new_function(self,action):
+        def new_function(self, action):
             QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-            self.setButtonInState(action,"disabled")
+            self.setButtonInState(action, "disabled")
 
             QtGui.QApplication.processEvents()
             QtGui.QApplication.processEvents()
 
-            function(self,action)
+            function(self, action)
 
-            self.setButtonInState(action,"enabled")
+            self.setButtonInState(action, "enabled")
             QApplication.restoreOverrideCursor()
             self.updateActionButtons()
         return new_function
@@ -721,16 +731,16 @@ class Window(QMainWindow, Ui_MainWindow):
         return new_function
 
     @actionWaitCursor
-    def actService(self,action):
+    def actService(self, action):
         if action == "start":
             self.saveTreeExcludeDirs()
         params = self.getParams()
-        res,msg = actions.DoAction(action,params)
+        res,msg = actions.DoAction(action, params)
 
         self._service_err = res
 
         cur_text = self.textEdit.toPlainText()
-        new_text = actions.ProcessResult(res,action,msg,params,0)
+        new_text = actions.ProcessResult(res, action, msg, params, 0)
 
         if new_text != cur_text:
             self.textEdit.clear()
@@ -740,7 +750,7 @@ class Window(QMainWindow, Ui_MainWindow):
             yStatus = actions.getStatusFromMsg(new_text)
             self.tIcon.setIcon(yStatus)
 
-    def refreshStatus(self,force=0,clear=0):
+    def refreshStatus(self, force=0, clear=0):
 
         self.stopTimer()
 
@@ -771,7 +781,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self.srvPassword.setEnabled(False)
 
     def toggleProxyAuthReq(self):
-        if self.proxyType.currentText() in [ "HTTPS", "SOCKS5" ]:
+        if self.proxyType.currentText() in ["HTTPS", "SOCKS5"]:
             self.srvPasswordReq.setEnabled(True)
         else:
             self.srvPasswordReq.setEnabled(False)
@@ -783,15 +793,15 @@ class Window(QMainWindow, Ui_MainWindow):
         about.exec_()
 
     def updateActionButtons(self):
-        is_running,message = actions.IsDaemonRunning(self._prg)
+        is_running, message = actions.IsDaemonRunning(self._prg)
         if is_running:
-            self.setButtonInState("start","disabled")
-            self.setButtonInState("stop","enabled")
+            self.setButtonInState("start", "disabled")
+            self.setButtonInState("stop", "enabled")
         else:
-            self.setButtonInState("stop","disabled")
-            self.setButtonInState("start","enabled")
+            self.setButtonInState("stop", "disabled")
+            self.setButtonInState("start", "enabled")
 
-    def setButtonInState(self,button,state):
+    def setButtonInState(self, button, state):
         if button == "start":
             btn = self.btnStart
         elif button == "stop":
