@@ -1,4 +1,4 @@
-import os, re
+import os
 from PyQt4 import QtCore, QtGui
 from PyQt4.QtCore import Qt, SIGNAL
 from PyQt4.QtGui import *
@@ -21,7 +21,7 @@ except AttributeError:
 
 
 class About(QDialog, Ui_Dialog):
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         QDialog.__init__(self, parent)
         self.setupUi(self)
 
@@ -103,12 +103,6 @@ class Window(QMainWindow, Ui_MainWindow):
 
         menu.exec_(self.treeWidget.viewport().mapToGlobal(position))
 
-    # def contextMenuEvent(self, event):
-    #     if event.reason() == event.Mouse:
-    #         pos = event.globalPos()
-    #         item = self.treeWidget.itemAt(event.pos())
-    #         text = str(item.text(0).toUtf8())
-    #         print(text)
 
     def paramsInit(self,params):
         self._prg = params["prg"]
@@ -126,7 +120,7 @@ class Window(QMainWindow, Ui_MainWindow):
                 "rootdir": self._rootdir}
 
     def startTimer(self):
-        if self.refreshTimeout.value() > 0 and self.isTimerActive() == False:
+        if not self.refreshTimeout.value() > 0 and self.isTimerActive():
             self.uTimer.start(self.refreshTimeout.value() * 1000)
 
         if self.refreshTimeout.value() == 0 and self.isTimerActive():
@@ -534,7 +528,7 @@ class Window(QMainWindow, Ui_MainWindow):
         except:
             exists = 0
 
-        if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0 ):
+        if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0):
             return 1
         else:
             return 0
@@ -698,13 +692,13 @@ class Window(QMainWindow, Ui_MainWindow):
         actions.SaveExcludeDirs(self._exclude_dirs,self._config)
 
     def refreshTree(self, force=0, clear=0):
-        if os.path.exists(self._rootdir) == False:
+        if not os.path.exists(self._rootdir):
             try:
                 os.mkdir(self._rootdir)
             except:
                 return
 
-        if self.isHidden() == False or force == 1:
+        if not self.isHidden() or force == 1:
 
             # for thread in self._threads:
             #     thread._Thread__stop()
@@ -830,7 +824,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self.srvPassword.setEnabled(False)
 
     def toggleProxyAuthReq(self):
-        if self.proxyType.currentText() in [ "HTTPS", "SOCKS5" ]:
+        if self.proxyType.currentText() in ["HTTPS", "SOCKS5"]:
             self.srvPasswordReq.setEnabled(True)
         else:
             self.srvPasswordReq.setEnabled(False)
@@ -844,11 +838,11 @@ class Window(QMainWindow, Ui_MainWindow):
     def updateActionButtons(self):
         is_running, message = actions.IsDaemonRunning(self._prg)
         if is_running:
-            self.setButtonInState("start","disabled")
-            self.setButtonInState("stop","enabled")
+            self.setButtonInState("start", "disabled")
+            self.setButtonInState("stop", "enabled")
         else:
-            self.setButtonInState("stop","disabled")
-            self.setButtonInState("start","enabled")
+            self.setButtonInState("stop", "disabled")
+            self.setButtonInState("start", "enabled")
 
     def setButtonInState(self, button, state):
         if button == "start":
