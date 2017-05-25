@@ -3,9 +3,9 @@
 import sys, os, argparse
 from subprocess import Popen, PIPE
 from opts import AppOptions
-from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile, GetProxyFromCfgFile, SaveParamsInCfgFile, DoAction, ProcessResult
+from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile,\
+    GetProxyFromCfgFile, SaveParamsInCfgFile, DoAction, ProcessResult
 
-#############################################################################
 
 def getDefaultParams(action):
     daemon = WhichPrg(action)
@@ -18,7 +18,6 @@ def getDefaultParams(action):
 
     return params
 
-#############################################################################
 
 def showDlg(errMsg):
 
@@ -35,7 +34,6 @@ def showDlg(errMsg):
     msg.setStandardButtons(QtGui.QMessageBox.Ok)
     sys.exit(msg.exec_())
 
-#############################################################################
 
 def WhichPrg(action):
 
@@ -55,7 +53,6 @@ def WhichPrg(action):
         else:
             raise Exception("Error %s: Couldn't find '%s' executable\n%s" % (return_code, executable, proc.stderr.read()))
 
-#############################################################################
 
 def ArgParser():
     parser = argparse.ArgumentParser()
@@ -69,15 +66,11 @@ def ArgParser():
 
     return parser
 
-#############################################################################
 
 def ShowWidget(params):
 
-    from PyQt4 import QtCore, QtGui
-    from PyQt4.QtGui import (QApplication, QFileSystemModel, QTreeView, QTreeWidgetItem, QDirModel)
-    from PyQt4.QtCore import pyqtSlot, QObject, QDir, Qt, QModelIndex
+    from PyQt4 import QtGui
     from qt.window import Window
-    from opts import AppOptions
 
     app = QtGui.QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.realpath(__file__)), "ico/yandex-disk.xpm")))
@@ -88,11 +81,10 @@ def ShowWidget(params):
 
     sys.exit(app.exec_())
 
-#############################################################################
 
 def tuneParams(params, action):
 
-    #TODO: to be refactored
+    # TODO: to be refactored
     defParams = getDefaultParams(action)
 
     ya_params = {}
@@ -103,33 +95,33 @@ def tuneParams(params, action):
     if params["config"] == "":
         appOpts = AppOptions()
         appCfg = appOpts.getRcPath()
-        params["config"] = GetYandexCfgFromCfgFile(appCfg,0)
+        params["config"] = GetYandexCfgFromCfgFile(appCfg, 0)
     if params["config"] == "":
         params["config"] = defParams["config"]
     params["config"] = os.path.expanduser(params["config"])
 
     if params["auth"] == "":
-        params["auth"] = GetAuthFromCfgFile(params["config"],0)
+        params["auth"] = GetAuthFromCfgFile(params["config"], 0)
     if params["auth"] == "":
         params["auth"] = defParams["auth"]
     params["auth"] = os.path.expanduser(params["auth"])
     ya_params["auth"] = params["auth"]
 
     if params["rootdir"] == "":
-        params["rootdir"] = GetRootDirFromCfgFile(params["config"],0)
+        params["rootdir"] = GetRootDirFromCfgFile(params["config"], 0)
     if params["rootdir"] == "":
         params["rootdir"] = defParams["rootdir"]
     params["rootdir"] = os.path.expanduser(params["rootdir"])
     ya_params["dir"] = params["rootdir"]
 
     if params["proxy"] == "":
-        params["proxy"] = GetProxyFromCfgFile(params["config"],0)
+        params["proxy"] = GetProxyFromCfgFile(params["config"], 0)
     if params["proxy"] == "":
         params["proxy"] = defParams["proxy"]
     ya_params["proxy"] = params["proxy"]
 
     if len(params["exclude-dirs"]) == 0:
-        params["exclude-dirs"] = GetExcludeDirsFromCfgFile(params["config"],0)
+        params["exclude-dirs"] = GetExcludeDirsFromCfgFile(params["config"], 0)
         if params["exclude-dirs"] == [""]:
             params["exclude-dirs"] = []
             ya_params["exclude-dirs"] = ""
@@ -139,7 +131,6 @@ def tuneParams(params, action):
 
     SaveParamsInCfgFile(ya_params, params["config"])
 
-#############################################################################
 
 def main(argv):
 
@@ -163,11 +154,10 @@ def main(argv):
     if action == "widget":
         ShowWidget(params)
     else:
-        res,msg = DoAction(action,params)
-        ProcessResult(res,action,msg,params)
+        res, msg = DoAction(action, params)
+        ProcessResult(res, action, msg, params)
         exit(res)
 
-#############################################################################   
 
 if __name__ == "__main__":
     main(sys.argv[1:])
