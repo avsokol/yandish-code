@@ -5,7 +5,8 @@ from subprocess import Popen, PIPE
 
 #############################################################################
 
-def CheckLinks(dir,rootdir,exclude_dirs,cfgfile):
+
+def CheckLinks(dir, rootdir, exclude_dirs, cfgfile):
 
     if os.path.exists(dir) == 0:
         return
@@ -33,12 +34,13 @@ def CheckLinks(dir,rootdir,exclude_dirs,cfgfile):
                         exclude_dirs.append(element)
 
         if os.path.isdir(element) and os.path.islink(element) == 0:
-            CheckLinks(element,rootdir,exclude_dirs,cfgfile)
+            CheckLinks(element, rootdir, exclude_dirs, cfgfile)
     return
 
 #############################################################################
 
-def GetParamFromCfgFile(param,cfgfile):
+
+def GetParamFromCfgFile(param, cfgfile):
 
     with open(os.path.expanduser(cfgfile), "r") as f:
         for line in f:
@@ -54,7 +56,8 @@ def GetParamFromCfgFile(param,cfgfile):
 
 #############################################################################
 
-def replaceParamsInCfgFile(pvalues,cfgfile):
+
+def replaceParamsInCfgFile(pvalues, cfgfile):
 
     tmp_file = cfgfile + ".tmp"
 
@@ -91,11 +94,16 @@ def replaceParamsInCfgFile(pvalues,cfgfile):
                     new_line = key + "=\"" + pvalues[key] + "\"\n"
                 fw.write(new_line)
 
-    os.rename(os.path.expanduser(tmp_file),os.path.expanduser(cfgfile))
+    os.rename(os.path.expanduser(tmp_file), os.path.expanduser(cfgfile))
 
 #############################################################################
 
-def writeCfgFile(pvalues,cfgfile):
+
+def writeCfgFile(pvalues, cfgfile):
+
+    cfgdir = os.path.dirname(cfgfile)
+    os.mkdir(cfgdir)
+
     with open(os.path.expanduser(cfgfile), "w") as fw:
         for key in pvalues.keys():
             new_line = key + "=\"" + pvalues[key] + "\"\n"
@@ -103,77 +111,85 @@ def writeCfgFile(pvalues,cfgfile):
 
 #############################################################################
 
+
 def SaveParamsInCfgFile(pvalues,cfgfile):
 
     if os.path.exists(os.path.expanduser(cfgfile)):
-        replaceParamsInCfgFile(pvalues,cfgfile)
+        replaceParamsInCfgFile(pvalues, cfgfile)
     else:
-        writeCfgFile(pvalues,cfgfile)
+        writeCfgFile(pvalues, cfgfile)
 
 #############################################################################
 
-def GetYandexCfgFromCfgFile(cfgfile,raiseExcept=1):
+
+def GetYandexCfgFromCfgFile(cfgfile, raiseExcept=1):
     if os.path.exists(os.path.expanduser(cfgfile)) == False:
         if raiseExcept:
             raise Exception("Couldn't find config file:\n%s" % cfgfile)
         else:
             return ""
 
-    return GetParamFromCfgFile("yandex-cfg",cfgfile)
+    return GetParamFromCfgFile("yandex-cfg", cfgfile)
 
 #############################################################################
 
-def GetAuthFromCfgFile(cfgfile,raiseExcept=1):
+
+def GetAuthFromCfgFile(cfgfile, raiseExcept=1):
     if os.path.exists(os.path.expanduser(cfgfile)) == False:
         if raiseExcept:
             raise Exception("Couldn't find config file:\n%s" % cfgfile)
         else:
             return ""
 
-    return GetParamFromCfgFile("auth",cfgfile)
+    return GetParamFromCfgFile("auth", cfgfile)
 
 #############################################################################
 
-def GetRootDirFromCfgFile(cfgfile,raiseExcept=1):
+
+def GetRootDirFromCfgFile(cfgfile, raiseExcept=1):
     if os.path.exists(os.path.expanduser(cfgfile)) == False:
         if raiseExcept:
             raise Exception("Couldn't find config file:\n%s" % cfgfile)
         else:
             return ""
 
-    return GetParamFromCfgFile("dir",cfgfile)
+    return GetParamFromCfgFile("dir", cfgfile)
 
 #############################################################################
 
-def GetProxyFromCfgFile(cfgfile,raiseExcept=1):
+
+def GetProxyFromCfgFile(cfgfile, raiseExcept=1):
     if os.path.exists(os.path.expanduser(cfgfile)) == False:
         if raiseExcept:
             raise Exception("Couldn't find config file:\n%s" % cfgfile)
         else:
             return ""
 
-    return GetParamFromCfgFile("proxy",cfgfile)
+    return GetParamFromCfgFile("proxy", cfgfile)
 
 #############################################################################
 
-def GetExcludeDirsFromCfgFile(cfgfile,raiseExcept=1):
+
+def GetExcludeDirsFromCfgFile(cfgfile, raiseExcept=1):
     if os.path.exists(os.path.expanduser(cfgfile)) == False:
         if raiseExcept:
             raise Exception("Couldn't find default config file:\n%s" % cfgfile)
         else:
             return []
 
-    return GetParamFromCfgFile("exclude-dirs",cfgfile).split(",")
+    return GetParamFromCfgFile("exclude-dirs", cfgfile).split(",")
 
 #############################################################################
+
 
 def SaveExcludeDirs(dirs,cfgfile):
 
     value = ",".join(dirs)
     params = {"exclude-dirs": value}
-    SaveParamsInCfgFile(params,cfgfile)
+    SaveParamsInCfgFile(params, cfgfile)
 
 #############################################################################
+
 
 def DoAction(action,params):
 
@@ -183,7 +199,7 @@ def DoAction(action,params):
     rootdir = params["rootdir"]
     exclude_dirs = params["exclude-dirs"]
 
-    CheckLinks(rootdir,rootdir,exclude_dirs,cfgfile)
+    CheckLinks(rootdir, rootdir, exclude_dirs, cfgfile)
     excludeOpt = ",".join(exclude_dirs)
 
     cfgOpt = os.path.expanduser(cfgfile)
@@ -228,7 +244,8 @@ def DoAction(action,params):
 
 #############################################################################
 
-def ShowMsg(msg,type,title,icon,verbose):
+
+def ShowMsg(msg, type, title, icon, verbose):
     if verbose == 0:
         return
 
@@ -236,7 +253,8 @@ def ShowMsg(msg,type,title,icon,verbose):
 
 #############################################################################
 
-def ProcessResult(res,action,out,params,verbose=1):
+
+def ProcessResult(res, action, out, params, verbose=1):
 
     exclude_dirs = params["exclude-dirs"]
     prg = params["prg"]
@@ -289,10 +307,11 @@ def ProcessResult(res,action,out,params,verbose=1):
     else:
         raise Exception("Unexpected error code: '%s'" % res)
 
-    ShowMsg(msg,type,title,icon,verbose)
+    ShowMsg(msg, type, title, icon, verbose)
     return msg
 
 #############################################################################
+
 
 def IsDaemonRunning(prg):
 
@@ -314,13 +333,14 @@ def IsDaemonRunning(prg):
     else:
         raise Exception("Unexpected error code: %s", return_code)
 
-    return is_running,message
+    return is_running, message
 
 #############################################################################
 
+
 def getStatusFromMsg(msg):
 
-    #TODO: to be refactored
+    # TODO: to be refactored
     status = "Unknown"
 
     pattern = {}
@@ -341,3 +361,5 @@ def getStatusFromMsg(msg):
             break
 
     return status
+
+#############################################################################
