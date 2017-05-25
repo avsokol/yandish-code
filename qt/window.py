@@ -42,7 +42,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     _service_err = 0
 
-    def __init__(self, params, parent = None):
+    def __init__(self, params, parent=None):
 
         self.paramsInit(params)
 
@@ -55,9 +55,60 @@ class Window(QMainWindow, Ui_MainWindow):
         self.uTimer = QtCore.QTimer()
         QtCore.QObject.connect(self.uTimer, QtCore.SIGNAL("timeout()"), self.refreshStatus)
 
-        # is_running,message = actions.IsDaemonRunning(self._prg)
+        self.treeWidget.setContextMenuPolicy(Qt.CustomContextMenu)
+        self.treeWidget.customContextMenuRequested.connect(self.treeContextMenu)
+
+        # is_running, message = actions.IsDaemonRunning(self._prg)
         # if is_running:
         self.startTimer()
+
+    def treeContextMenu(self, position):
+        item = self.treeWidget.itemAt(position)
+        if item is None:
+            return
+
+        itemProp = self.getItemProperties(item)
+        if not itemProp["checkable"]:
+            return
+
+        menu = QMenu()
+
+        if item.childCount():
+            expand = menu.addAction(self.tr("Expand"))
+            collapse = menu.addAction(self.tr("Collapse"))
+            menu.addSeparator()
+
+            if item.isExpanded():
+                expand.setEnabled(False)
+                collapse.setEnabled(True)
+                QtCore.QObject.connect(collapse, QtCore.SIGNAL("activated()"), lambda: item.setExpanded(False))
+
+            else:
+                expand.setEnabled(True)
+                collapse.setEnabled(False)
+                QtCore.QObject.connect(expand, QtCore.SIGNAL("activated()"), lambda: item.setExpanded(True))
+
+        check = menu.addAction(self.tr("Check"))
+        uncheck = menu.addAction(self.tr("UnCheck"))
+
+        if itemProp["state"] == Qt.Checked:
+            check.setEnabled(False)
+            uncheck.setEnabled(True)
+            QtCore.QObject.connect(uncheck, QtCore.SIGNAL("activated()"), lambda: item.setCheckState(0, Qt.Unchecked))
+
+        else:
+            check.setEnabled(True)
+            uncheck.setEnabled(False)
+            QtCore.QObject.connect(check, QtCore.SIGNAL("activated()"), lambda: item.setCheckState(0, Qt.Checked))
+
+        menu.exec_(self.treeWidget.viewport().mapToGlobal(position))
+
+    # def contextMenuEvent(self, event):
+    #     if event.reason() == event.Mouse:
+    #         pos = event.globalPos()
+    #         item = self.treeWidget.itemAt(event.pos())
+    #         text = str(item.text(0).toUtf8())
+    #         print(text)
 
     def paramsInit(self,params):
         self._prg = params["prg"]
@@ -157,14 +208,14 @@ class Window(QMainWindow, Ui_MainWindow):
             server = proxy_params[1]
             port = proxy_params[2]
 
-            pTypes = [ self.proxyType.itemText(i) for i in range(self.proxyType.count()) ]
+            pTypes = [self.proxyType.itemText(i) for i in range(self.proxyType.count())]
             if pType in pTypes:
                 self.proxyType.setCurrentIndex(pTypes.index(pType))
 
             self.srvName.setText(server)
             self.portNumber.setText(port)
 
-            if pType in [ "HTTPS", "SOCKS5" ]:
+            if pType in ["HTTPS", "SOCKS5"]:
                 self.srvPasswordReq.setEnabled(True)
 
                 login = ""
@@ -336,7 +387,7 @@ class Window(QMainWindow, Ui_MainWindow):
             if properties['checkable'] == 0:
                 modifyState = 1
 
-            self.setItemProperties(item,properties, modifyState=modifyState)
+            self.setItemProperties(item, properties, modifyState=modifyState)
             if properties["checkable"] == 0:
                 for i in range(item.childCount()):
                     child = item.child(i)
@@ -458,14 +509,14 @@ class Window(QMainWindow, Ui_MainWindow):
                                                                       "../ico/folder.png"))),
                                  QtGui.QIcon.Normal, QtGui.QIcon.On)
             child.setIcon(0, folderIcon)
-            child.setFlags(child.flags()|Qt.ItemIsUserCheckable|Qt.ItemIsSelectable)
+            child.setFlags(child.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsSelectable)
         else:
             errIcon = QtGui.QIcon()
             errIcon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                                                    "../ico/folder_error.png"))),
                               QtGui.QIcon.Normal, QtGui.QIcon.Off)
             child.setIcon(0, errIcon)
-            child.setFlags(child.flags()^Qt.ItemIsUserCheckable^Qt.ItemIsSelectable)
+            child.setFlags(child.flags() ^ Qt.ItemIsUserCheckable ^ Qt.ItemIsSelectable)
 
     def isChildExists(self, path):
 
@@ -544,7 +595,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
                     if os.path.isfile(path) == 0 and d != ".sync":
                         lpath = path.lstrip(self._rootdir)
-                        exists,is_link,target,state = self.getPathProperties(path)
+                        exists, is_link, target, state = self.getPathProperties(path)
                         properties = self.prepareItemProperties(lpath, d, exists, is_link, target, state)
 
                         if self.isChildExists(lpath) == 0:
@@ -624,7 +675,7 @@ class Window(QMainWindow, Ui_MainWindow):
             if item.child(i).childCount() > 0:
                 self.handleItemUnchecked(item.child(i))
 
-    def handleitemChanged(self, item):
+    def handleItemChanged(self, item):
         self.treeWidget.blockSignals(True)
         if item.checkState(0) == QtCore.Qt.Checked:
             self.handleItemChecked(item)
@@ -689,7 +740,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self.runWizard()
         else:
             self.treeWidget.expandToDepth(False)
-            self.treeWidget.itemChanged.connect(self.handleitemChanged)
+            self.treeWidget.itemChanged.connect(self.handleItemChanged)
             self.updateActionButtons()
 
             appOpts = AppOptions()
@@ -853,35 +904,35 @@ class Window(QMainWindow, Ui_MainWindow):
         self.reloadOptions()
 
     def setSignals(self):
-        QtCore.QObject.connect(self.btnExit, QtCore.SIGNAL("clicked()"), QtGui.qApp.quit)
+        QtCore.QObject.connect(self.btnExit, SIGNAL("clicked()"), QtGui.qApp.quit)
 
-        QtCore.QObject.connect(self.btnStart, QtCore.SIGNAL("clicked()"), lambda: self.actService("start"))
-        QtCore.QObject.connect(self.btnStop, QtCore.SIGNAL("clicked()"), lambda: self.actService("stop"))
-        QtCore.QObject.connect(self.btnStatus, QtCore.SIGNAL("clicked()"), self.refreshStatus)
+        QtCore.QObject.connect(self.btnStart, SIGNAL("clicked()"), lambda: self.actService("start"))
+        QtCore.QObject.connect(self.btnStop, SIGNAL("clicked()"), lambda: self.actService("stop"))
+        QtCore.QObject.connect(self.btnStatus, SIGNAL("clicked()"), self.refreshStatus)
 
-        QtCore.QObject.connect(self.actionStart, QtCore.SIGNAL("activated()"), lambda: self.actService("start"))
-        QtCore.QObject.connect(self.actionStop, QtCore.SIGNAL("activated()"), lambda: self.actService("stop"))
-        QtCore.QObject.connect(self.actionStatus, QtCore.SIGNAL("activated()"), self.refreshStatus)
+        QtCore.QObject.connect(self.actionStart, SIGNAL("activated()"), lambda: self.actService("start"))
+        QtCore.QObject.connect(self.actionStop, SIGNAL("activated()"), lambda: self.actService("stop"))
+        QtCore.QObject.connect(self.actionStatus, SIGNAL("activated()"), self.refreshStatus)
 
-        QtCore.QObject.connect(self.actionSetup_Wizard, QtCore.SIGNAL("activated()"), self.runWizard)
+        QtCore.QObject.connect(self.actionSetup_Wizard, SIGNAL("activated()"), self.runWizard)
 
-        QtCore.QObject.connect(self.actionHide, QtCore.SIGNAL("activated()"), self.hide)
-        QtCore.QObject.connect(self.actionExit, QtCore.SIGNAL("activated()"), QtGui.qApp.quit)
+        QtCore.QObject.connect(self.actionHide, SIGNAL("activated()"), self.hide)
+        QtCore.QObject.connect(self.actionExit, SIGNAL("activated()"), QtGui.qApp.quit)
 
-        QtCore.QObject.connect(self.actionReloadCfg, QtCore.SIGNAL("activated()"), self.reloadOptions)
-        QtCore.QObject.connect(self.actionSaveCfg, QtCore.SIGNAL("activated()"), self.saveOptions)
+        QtCore.QObject.connect(self.actionReloadCfg, SIGNAL("activated()"), self.reloadOptions)
+        QtCore.QObject.connect(self.actionSaveCfg, SIGNAL("activated()"), self.saveOptions)
 
-        QtCore.QObject.connect(self.ch_yandex_root, QtCore.SIGNAL("clicked()"), self.chooseRootDir)
-        QtCore.QObject.connect(self.ch_yandex_auth, QtCore.SIGNAL("clicked()"), self.chooseAuthFile)
-        QtCore.QObject.connect(self.ch_yandex_cfg, QtCore.SIGNAL("clicked()"), self.chooseCfgFile)
+        QtCore.QObject.connect(self.ch_yandex_root, SIGNAL("clicked()"), self.chooseRootDir)
+        QtCore.QObject.connect(self.ch_yandex_auth, SIGNAL("clicked()"), self.chooseAuthFile)
+        QtCore.QObject.connect(self.ch_yandex_cfg, SIGNAL("clicked()"), self.chooseCfgFile)
 
-        QtCore.QObject.connect(self.actionAbout, QtCore.SIGNAL("activated()"), self.showAbout)
+        QtCore.QObject.connect(self.actionAbout, SIGNAL("activated()"), self.showAbout)
 
-        QtCore.QObject.connect(self.refreshTimeout, QtCore.SIGNAL("editingFinished()"), self.handleSpinChange)
+        QtCore.QObject.connect(self.refreshTimeout, SIGNAL("editingFinished()"), self.handleSpinChange)
 
-        QtCore.QObject.connect(self.proxyNone, QtCore.SIGNAL("clicked()"), self.proxyDisable)
-        QtCore.QObject.connect(self.proxyAuto, QtCore.SIGNAL("clicked()"), self.proxyDisable)
-        QtCore.QObject.connect(self.proxyManual, QtCore.SIGNAL("clicked()"), self.proxyEnable)
+        QtCore.QObject.connect(self.proxyNone, SIGNAL("clicked()"), self.proxyDisable)
+        QtCore.QObject.connect(self.proxyAuto, SIGNAL("clicked()"), self.proxyDisable)
+        QtCore.QObject.connect(self.proxyManual, SIGNAL("clicked()"), self.proxyEnable)
 
-        QtCore.QObject.connect(self.srvPasswordReq, QtCore.SIGNAL("clicked()"), self.toggleProxyAuth)
-        QtCore.QObject.connect(self.proxyType, QtCore.SIGNAL("currentIndexChanged(QString)"), self.toggleProxyAuthReq)
+        QtCore.QObject.connect(self.srvPasswordReq, SIGNAL("clicked()"), self.toggleProxyAuth)
+        QtCore.QObject.connect(self.proxyType, SIGNAL("currentIndexChanged(QString)"), self.toggleProxyAuthReq)
