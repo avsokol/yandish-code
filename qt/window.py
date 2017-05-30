@@ -72,11 +72,24 @@ class Window(QMainWindow, Ui_MainWindow):
         if not itemProp["checkable"]:
             return
 
+        expand_pict = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/expand.xpm")
+        collapse_pict = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/collapse.xpm")
+
+        check_pict = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/check.xpm")
+        uncheck_pict = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/uncheck.xpm")
+
+        expand_icon = QtGui.QIcon(expand_pict)
+        collapse_icon = QtGui.QIcon(collapse_pict)
+        check_icon = QtGui.QIcon(check_pict)
+        uncheck_icon = QtGui.QIcon(uncheck_pict)
+
         menu = QMenu()
 
         if item.childCount():
             expand = menu.addAction(self.tr("Expand"))
             collapse = menu.addAction(self.tr("Collapse"))
+            expand.setIcon(expand_icon)
+            collapse.setIcon(collapse_icon)
             menu.addSeparator()
 
             if item.isExpanded():
@@ -91,6 +104,9 @@ class Window(QMainWindow, Ui_MainWindow):
 
         check = menu.addAction(self.tr("Check"))
         uncheck = menu.addAction(self.tr("UnCheck"))
+
+        check.setIcon(check_icon)
+        uncheck.setIcon(uncheck_icon)
 
         if itemProp["state"] == Qt.Checked:
             check.setEnabled(False)
