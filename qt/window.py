@@ -52,11 +52,12 @@ class Window(QMainWindow, Ui_MainWindow):
         self.setSignals()
         self.tIcon = SystemTrayIcon(self)
 
-        self.uTimer = QtCore.QTimer()
-        QtCore.QObject.connect(self.uTimer, QtCore.SIGNAL("timeout()"), self.refreshStatus)
-
         self.treeWidget.setContextMenuPolicy(Qt.CustomContextMenu)
         self.treeWidget.customContextMenuRequested.connect(self.treeContextMenu)
+
+        self.uTimer = QtCore.QTimer()
+        # QtCore.QObject.connect(self.uTimer, SIGNAL("timeout()"), self.refreshStatus)
+        self.uTimer.timeout.connect(self.refreshStatus)
 
         # is_running, message = actions.IsDaemonRunning(self._prg)
         # if is_running:
@@ -81,12 +82,12 @@ class Window(QMainWindow, Ui_MainWindow):
             if item.isExpanded():
                 expand.setEnabled(False)
                 collapse.setEnabled(True)
-                QtCore.QObject.connect(collapse, QtCore.SIGNAL("activated()"), lambda: item.setExpanded(False))
+                QtCore.QObject.connect(collapse, SIGNAL("activated()"), lambda: item.setExpanded(False))
 
             else:
                 expand.setEnabled(True)
                 collapse.setEnabled(False)
-                QtCore.QObject.connect(expand, QtCore.SIGNAL("activated()"), lambda: item.setExpanded(True))
+                QtCore.QObject.connect(expand, SIGNAL("activated()"), lambda: item.setExpanded(True))
 
         check = menu.addAction(self.tr("Check"))
         uncheck = menu.addAction(self.tr("UnCheck"))
@@ -94,12 +95,12 @@ class Window(QMainWindow, Ui_MainWindow):
         if itemProp["state"] == Qt.Checked:
             check.setEnabled(False)
             uncheck.setEnabled(True)
-            QtCore.QObject.connect(uncheck, QtCore.SIGNAL("activated()"), lambda: item.setCheckState(0, Qt.Unchecked))
+            QtCore.QObject.connect(uncheck, SIGNAL("activated()"), lambda: item.setCheckState(0, Qt.Unchecked))
 
         else:
             check.setEnabled(True)
             uncheck.setEnabled(False)
-            QtCore.QObject.connect(check, QtCore.SIGNAL("activated()"), lambda: item.setCheckState(0, Qt.Checked))
+            QtCore.QObject.connect(check, SIGNAL("activated()"), lambda: item.setCheckState(0, Qt.Checked))
 
         menu.exec_(self.treeWidget.viewport().mapToGlobal(position))
 
@@ -120,7 +121,7 @@ class Window(QMainWindow, Ui_MainWindow):
                 "rootdir": self._rootdir}
 
     def startTimer(self):
-        if not self.refreshTimeout.value() > 0 and self.isTimerActive():
+        if self.refreshTimeout.value() > 0 and not self.isTimerActive():
             self.uTimer.start(self.refreshTimeout.value() * 1000)
 
         if self.refreshTimeout.value() == 0 and self.isTimerActive():
@@ -419,7 +420,7 @@ class Window(QMainWindow, Ui_MainWindow):
                 path = path.lstrip(self._rootdir)
                 if path not in self._removeItems:
                     self._removeItems.append(path)
-                    # self.emit(QtCore.SIGNAL("removeChild"), path)
+                    # self.emit(SIGNAL("removeChild"), path)
 
             else:
                 self.checkAndRmUnusedTreeItem(child)
@@ -596,9 +597,9 @@ class Window(QMainWindow, Ui_MainWindow):
                             if startup:
                                 self.addItem(lpath,properties)
                             else:
-                                self.emit(QtCore.SIGNAL("addChild"), lpath, properties)
+                                self.emit(SIGNAL("addChild"), lpath, properties)
                         elif self.isChildToBeModified(lpath, properties):
-                            self.emit(QtCore.SIGNAL("modifyChild"), lpath, properties)
+                            self.emit(SIGNAL("modifyChild"), lpath, properties)
 
                         self.addDirAsTreeItem(path, startup)
 
@@ -706,9 +707,9 @@ class Window(QMainWindow, Ui_MainWindow):
             if clear:
                 self.treeWidget.clear()
 
-            self.connect(self, QtCore.SIGNAL("addChild"), self.addItem)
-            self.connect(self, QtCore.SIGNAL("modifyChild"), self.modifyItem)
-            # self.connect(self, QtCore.SIGNAL("removeChild"), self.removeItem)
+            self.connect(self, SIGNAL("addChild"), self.addItem)
+            self.connect(self, SIGNAL("modifyChild"), self.modifyItem)
+            # self.connect(self, SIGNAL("removeChild"), self.removeItem)
 
             threadAdd = threading.Thread(target=self.addDirAsTreeItem)
             threadAdd.daemon = True
@@ -794,7 +795,6 @@ class Window(QMainWindow, Ui_MainWindow):
             self.tIcon.setIcon(yStatus)
 
     def refreshStatus(self, force=0, clear=0):
-
         self.stopTimer()
 
         for thread in self._threads:
