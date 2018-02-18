@@ -19,9 +19,12 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
+
 except AttributeError:
+
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
 
@@ -37,7 +40,7 @@ class Ui_Wizard(object):
         Wizard.setMinimumSize(QtCore.QSize(417, 520))
         Wizard.setMaximumSize(QtCore.QSize(417, 520))
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/yandex-disk.xpm"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk.xpm"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         Wizard.setWindowIcon(icon)
         self.wizardPage1 = QtGui.QWizardPage()
         self.wizardPage1.setObjectName(_fromUtf8("wizardPage1"))
@@ -51,7 +54,7 @@ class Ui_Wizard(object):
         self.horizontalLayout_12.setObjectName(_fromUtf8("horizontalLayout_12"))
         self.label = QtGui.QLabel(self.frame)
         self.label.setText(_fromUtf8(""))
-        self.label.setPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/yandex_disk_logo.png"))))
+        self.label.setPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex_disk_logo.png"))))
         self.label.setAlignment(QtCore.Qt.AlignCenter)
         self.label.setObjectName(_fromUtf8("label"))
         self.horizontalLayout_12.addWidget(self.label)
@@ -148,7 +151,7 @@ class Ui_Wizard(object):
         self.logoPixmap_1 = QtGui.QLabel(self.logoFrame_1)
         self.logoPixmap_1.setEnabled(True)
         self.logoPixmap_1.setText(_fromUtf8(""))
-        self.logoPixmap_1.setPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/yandex_disk_logo.png"))))
+        self.logoPixmap_1.setPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex_disk_logo.png"))))
         self.logoPixmap_1.setScaledContents(False)
         self.logoPixmap_1.setAlignment(QtCore.Qt.AlignCenter)
         self.logoPixmap_1.setObjectName(_fromUtf8("logoPixmap_1"))
@@ -181,7 +184,7 @@ class Ui_Wizard(object):
         font.setItalic(True)
         font.setWeight(75)
         self.loginLabel.setFont(font)
-        self.loginLabel.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.loginLabel.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.loginLabel.setObjectName(_fromUtf8("loginLabel"))
         self.verticalLayout.addWidget(self.loginLabel)
         self.passLabel = QtGui.QLabel(self.loginLabelsFrame)
@@ -233,7 +236,7 @@ class Ui_Wizard(object):
         sizePolicy.setHeightForWidth(self.yaPass.sizePolicy().hasHeightForWidth())
         self.yaPass.setSizePolicy(sizePolicy)
         self.yaPass.setMinimumSize(QtCore.QSize(119, 0))
-        self.yaPass.setInputMethodHints(QtCore.Qt.ImhHiddenText|QtCore.Qt.ImhNoAutoUppercase|QtCore.Qt.ImhNoPredictiveText)
+        self.yaPass.setInputMethodHints(QtCore.Qt.ImhHiddenText | QtCore.Qt.ImhNoAutoUppercase | QtCore.Qt.ImhNoPredictiveText)
         self.yaPass.setEchoMode(QtGui.QLineEdit.Password)
         self.yaPass.setObjectName(_fromUtf8("yaPass"))
         self.horizontalLayout_11.addWidget(self.yaPass)
@@ -274,7 +277,7 @@ class Ui_Wizard(object):
         self.logoPixmap_2 = QtGui.QLabel(self.logoFrame_2)
         self.logoPixmap_2.setEnabled(True)
         self.logoPixmap_2.setText(_fromUtf8(""))
-        self.logoPixmap_2.setPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/yandex_disk_logo.png"))))
+        self.logoPixmap_2.setPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex_disk_logo.png"))))
         self.logoPixmap_2.setScaledContents(False)
         self.logoPixmap_2.setAlignment(QtCore.Qt.AlignCenter)
         self.logoPixmap_2.setObjectName(_fromUtf8("logoPixmap_2"))
@@ -292,7 +295,7 @@ class Ui_Wizard(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.defRootLabel.sizePolicy().hasHeightForWidth())
         self.defRootLabel.setSizePolicy(sizePolicy)
-        self.defRootLabel.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignVCenter)
+        self.defRootLabel.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
         self.defRootLabel.setObjectName(_fromUtf8("defRootLabel"))
         self.verticalLayout_6.addWidget(self.defRootLabel)
         self.yaRootFrame = QtGui.QFrame(self.yaRootGroupBox)
@@ -306,7 +309,7 @@ class Ui_Wizard(object):
         self.horizontalLayout_6.addWidget(self.yaRoot)
         self.yaRootCh = QtGui.QToolButton(self.yaRootFrame)
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/folder_edit.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon1.addPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/folder_edit.png"))), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.yaRootCh.setIcon(icon1)
         self.yaRootCh.setObjectName(_fromUtf8("yaRootCh"))
         self.horizontalLayout_6.addWidget(self.yaRootCh)
@@ -331,7 +334,7 @@ class Ui_Wizard(object):
         self.logoPixmap_3 = QtGui.QLabel(self.logoFrame_3)
         self.logoPixmap_3.setEnabled(True)
         self.logoPixmap_3.setText(_fromUtf8(""))
-        self.logoPixmap_3.setPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)),"../ico/yandex_disk_logo.png"))))
+        self.logoPixmap_3.setPixmap(QtGui.QPixmap(_fromUtf8(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex_disk_logo.png"))))
         self.logoPixmap_3.setScaledContents(False)
         self.logoPixmap_3.setAlignment(QtCore.Qt.AlignCenter)
         self.logoPixmap_3.setObjectName(_fromUtf8("logoPixmap_3"))

@@ -21,7 +21,7 @@ def getDefaultParams(action):
 
 def showDlg(errMsg):
 
-    from PyQt4 import QtCore, QtGui
+    from PyQt4 import QtGui
 
     app = QtGui.QApplication(sys.argv)
     msg = QtGui.QMessageBox()
@@ -36,8 +36,6 @@ def showDlg(errMsg):
 
 
 def WhichPrg(action):
-
-    PRG = ""
 
     executable = "yandex-disk"
 
@@ -61,8 +59,8 @@ def ArgParser():
     parser.add_argument("-d", "--dir", default="")
     parser.add_argument("-a", "--auth", default="")
     parser.add_argument("--proxy", default="")
-    parser.add_argument("-x","--exclude-dirs",default=[])
-    parser.add_argument("--action",choices=["start","stop","status","widget"],default="widget")
+    parser.add_argument("-x", "--exclude-dirs", default=[])
+    parser.add_argument("--action", choices=["start", "stop", "status", "widget"], default="widget")
 
     return parser
 

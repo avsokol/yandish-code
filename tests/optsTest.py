@@ -4,7 +4,7 @@
 
 import sys, os
 curdir = os.path.dirname(os.path.realpath(__file__))
-sys.path.insert(0,os.path.dirname(curdir))
+sys.path.insert(0, os.path.dirname(curdir))
 
 from opts import AppOptions
 
@@ -14,8 +14,8 @@ appOpts.setRcFileName(".yadisktest")
 
 print("Test cfg file: '%s'" % appOpts.getRcFileName())
 
-#ya.saveParamsToRcFile()
-#ya.readParamsFromRcFile()
+# ya.saveParamsToRcFile()
+# ya.readParamsFromRcFile()
 
 appOpts.printParams()
 
