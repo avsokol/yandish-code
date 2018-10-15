@@ -1,20 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import sys, os, re
+import os, re
 from subprocess import Popen, PIPE
 
-#############################################################################
 
+def CheckLinks(directory, rootdir, exclude_dirs, cfgfile):
 
-def CheckLinks(dir, rootdir, exclude_dirs, cfgfile):
-
-    if os.path.exists(dir) == 0:
+    if os.path.exists(directory) == 0:
         return
 
-    elements = os.listdir(dir)
+    elements = os.listdir(directory)
 
     for element in elements:
-        element = os.path.join(dir,element)
+        element = os.path.join(directory, element)
 
         if os.path.isfile(element):
             continue
@@ -37,8 +35,6 @@ def CheckLinks(dir, rootdir, exclude_dirs, cfgfile):
             CheckLinks(element, rootdir, exclude_dirs, cfgfile)
     return
 
-#############################################################################
-
 
 def GetParamFromCfgFile(param, cfgfile):
 
@@ -53,8 +49,6 @@ def GetParamFromCfgFile(param, cfgfile):
             return elements[1].strip().strip('"')
     
     return ""
-
-#############################################################################
 
 
 def replaceParamsInCfgFile(pvalues, cfgfile):
@@ -88,15 +82,15 @@ def replaceParamsInCfgFile(pvalues, cfgfile):
             for key in pvalues.keys():
                 if key in seen_elements:
                     continue
+
                 if el == "proxy":
                     new_line = key + "=" + pvalues[key] + "\n"
+
                 else:
                     new_line = key + "=\"" + pvalues[key] + "\"\n"
                 fw.write(new_line)
 
     os.rename(os.path.expanduser(tmp_file), os.path.expanduser(cfgfile))
-
-#############################################################################
 
 
 def writeCfgFile(pvalues, cfgfile):
@@ -109,90 +103,77 @@ def writeCfgFile(pvalues, cfgfile):
             new_line = key + "=\"" + pvalues[key] + "\"\n"
             fw.write(new_line)
 
-#############################################################################
 
-
-def SaveParamsInCfgFile(pvalues,cfgfile):
+def SaveParamsInCfgFile(pvalues, cfgfile):
 
     if os.path.exists(os.path.expanduser(cfgfile)):
         replaceParamsInCfgFile(pvalues, cfgfile)
     else:
         writeCfgFile(pvalues, cfgfile)
 
-#############################################################################
-
 
 def GetYandexCfgFromCfgFile(cfgfile, raiseExcept=1):
-    if os.path.exists(os.path.expanduser(cfgfile)) == False:
+    if not os.path.exists(os.path.expanduser(cfgfile)):
         if raiseExcept:
             raise Exception("Couldn't find config file:\n%s" % cfgfile)
+
         else:
             return ""
 
     return GetParamFromCfgFile("yandex-cfg", cfgfile)
 
-#############################################################################
-
 
 def GetAuthFromCfgFile(cfgfile, raiseExcept=1):
-    if os.path.exists(os.path.expanduser(cfgfile)) == False:
+    if not os.path.exists(os.path.expanduser(cfgfile)):
         if raiseExcept:
             raise Exception("Couldn't find config file:\n%s" % cfgfile)
+
         else:
             return ""
 
     return GetParamFromCfgFile("auth", cfgfile)
 
-#############################################################################
-
 
 def GetRootDirFromCfgFile(cfgfile, raiseExcept=1):
-    if os.path.exists(os.path.expanduser(cfgfile)) == False:
+    if not os.path.exists(os.path.expanduser(cfgfile)):
         if raiseExcept:
             raise Exception("Couldn't find config file:\n%s" % cfgfile)
+
         else:
             return ""
 
     return GetParamFromCfgFile("dir", cfgfile)
 
-#############################################################################
-
 
 def GetProxyFromCfgFile(cfgfile, raiseExcept=1):
-    if os.path.exists(os.path.expanduser(cfgfile)) == False:
+    if not os.path.exists(os.path.expanduser(cfgfile)):
         if raiseExcept:
             raise Exception("Couldn't find config file:\n%s" % cfgfile)
+
         else:
             return ""
 
     return GetParamFromCfgFile("proxy", cfgfile)
 
-#############################################################################
-
 
 def GetExcludeDirsFromCfgFile(cfgfile, raiseExcept=1):
-    if os.path.exists(os.path.expanduser(cfgfile)) == False:
+    if not os.path.exists(os.path.expanduser(cfgfile)):
         if raiseExcept:
             raise Exception("Couldn't find default config file:\n%s" % cfgfile)
+
         else:
             return []
 
     return GetParamFromCfgFile("exclude-dirs", cfgfile).split(",")
 
-#############################################################################
 
-
-def SaveExcludeDirs(dirs,cfgfile):
-
+def SaveExcludeDirs(dirs, cfgfile):
     value = ",".join(dirs)
     params = {"exclude-dirs": value}
     SaveParamsInCfgFile(params, cfgfile)
 
-#############################################################################
 
-
-def DoAction(action,params):
-
+def DoAction(action, params):
     prg = params["prg"]
     cfgfile = params["config"]
     auth = params["auth"]
@@ -205,101 +186,120 @@ def DoAction(action,params):
     cfgOpt = os.path.expanduser(cfgfile)
     authParam = os.path.expanduser(auth)
 
-    is_running,message = IsDaemonRunning(prg)
+    is_running, message = IsDaemonRunning(prg)
 
-    err_messages = ["Error: option 'dir' is missing",
-                    "Error: Indicated directory does not exist",
-                    "Error: file with OAuth token hasn't been found.\nUse 'token' command to authenticate and create this file"]
+    err_messages = [
+        "Error: option 'dir' is missing",
+        "Error: Indicated directory does not exist",
+        "Error: file with OAuth token hasn't been found.\nUse 'token' command to authenticate and create this file"
+    ]
 
-    if message in err_messages :
-        return 3,message        
+    if message in err_messages:
+        return 3, message
 
     if action == "status":
-        return is_running,message
+        return is_running, message
+
     elif action == "stop":
         if is_running == 0:
-            return 2,message
+            return 2, message
+
     elif action == "start":
         if is_running:
-            return 2,message
+            return 2, message
     else:
         raise Exception("Unexpected action %s\n%s" % (action, 1))
 
-    proc = Popen([prg, action,
-                  "--exclude-dirs", excludeOpt,
-                  "--config", cfgOpt,
-                  "--auth", authParam,
-                  "--dir", rootdir],
-                 stdout=PIPE, stderr=PIPE)
+    proc = Popen(
+        [
+            prg,
+            action,
+            "--exclude-dirs", excludeOpt,
+            "--config", cfgOpt,
+            "--auth", authParam,
+            "--dir", rootdir
+        ],
+        stdout=PIPE,
+        stderr=PIPE
+    )
 
     return_code = proc.wait()
     if return_code == 0:
         OUT = proc.stdout.read()
         OUT = OUT.strip()
         OUT = OUT.decode("utf8")
+
     else:
         raise Exception("Failure %s:\n'%s'\n'%s'" % (return_code, proc.stdout.read(), proc.stderr.read()))
 
-    return return_code,OUT
-
-#############################################################################
+    return return_code, OUT
 
 
-def ShowMsg(msg, type, title, icon, verbose):
+def ShowMsg(msg, msg_type, title, icon, verbose):
     if verbose == 0:
         return
 
     print("%s" % msg)
 
-#############################################################################
-
 
 def ProcessResult(res, action, out, params, verbose=1):
 
     exclude_dirs = params["exclude-dirs"]
-    prg = params["prg"]
+
+    msg = msg_type = title = ""
+    icon = "info"
 
     if res == 0:
-        type = "ok"
+        msg_type = "ok"
         title = "Done"
         icon = "info"
         if action == "start":
             msg = "Yandex Disk service is started"
             if len(exclude_dirs):
-                msg = msg + "\nDirectories excluded:\n" + "\n".join(exclude_dirs)
+                msg += "\nDirectories excluded:\n"
+                for exclude_dir in exclude_dirs:
+                    msg += exclude_dir.decode("utf8") + "\n"
+
         elif action == "stop":
             msg = "Yandex Disk service is stopped"
+
         elif action == "status":
             msg = "Yandex Disk service is not running\n\n" + out
 
     elif res == 1:
         if action == "start" or action == "stop":
             msg = "Error: " + out
-            type = "ok"
+            msg_type = "ok"
             title = "Error"
             icon = "error"
+
         elif action == "status":
             msg = "Yandex Disk service is running"
             if len(exclude_dirs):
-                msg = msg + "\nDirectories excluded:\n" + "\n".join(exclude_dirs)
+                msg += "\nDirectories excluded:\n"
+                for exclude_dir in exclude_dirs:
+                    msg += exclude_dir.decode("utf8") + "\n"
+
             msg = msg + "\n\n" + out
-            type = "ok"
+            msg_type = "ok"
             title = "Info"
             icon = "info"
 
     elif res == 2:
-        type = "ok"
+        msg_type = "ok"
         title = "Done"
         icon = "info"
         if action == "start":
             msg = "Yandex Disk is already running"
+
         elif action == "stop":
             msg = "Yandex Disk is not running"
+
         elif action == "status":
             msg = "Yandex Disk is not running\n\n" + out
 
     elif res == 3:
-        type = "error"
+        msg_type = "error"
         title = "Error"
         icon = "error"
         msg = out
@@ -307,10 +307,8 @@ def ProcessResult(res, action, out, params, verbose=1):
     else:
         raise Exception("Unexpected error code: '%s'" % res)
 
-    ShowMsg(msg, type, title, icon, verbose)
+    ShowMsg(msg, msg_type, title, icon, verbose)
     return msg
-
-#############################################################################
 
 
 def IsDaemonRunning(prg):
@@ -321,6 +319,7 @@ def IsDaemonRunning(prg):
         RES = proc.stdout.read()
         RES = RES.strip()
         RES = RES.decode("utf8")
+
     else:
         raise Exception("Failure %s:\n'%s'\n'%s'" % (return_code, proc.stdout.read(), proc.stderr.read()))
 
@@ -328,14 +327,14 @@ def IsDaemonRunning(prg):
 
     if return_code == 0:
         is_running = 1
+
     elif return_code == 1:
         is_running = 0
+
     else:
         raise Exception("Unexpected error code: %s", return_code)
 
     return is_running, message
-
-#############################################################################
 
 
 def getStatusFromMsg(msg):
@@ -343,7 +342,7 @@ def getStatusFromMsg(msg):
     # TODO: to be refactored
     status = "Unknown"
 
-    pattern = {}
+    pattern = dict()
 
     pattern["english"] = "Synchronization core status: "
     pattern["russian"] = u"Статус ядра синхронизации: "
@@ -353,13 +352,13 @@ def getStatusFromMsg(msg):
         if re.search(pattern["english"], line):
             status = re.sub(pattern["english"], "", line)
             break
+
         if re.search(pattern["russian"], line):
             status = re.sub(pattern["russian"], "", line)
             break
+
         if re.search(pattern["russian_error"], line):
             status = re.sub(pattern["russian_error"], "", line)
             break
 
     return status
-
-#############################################################################

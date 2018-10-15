@@ -120,8 +120,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         menu.exec_(self.treeWidget.viewport().mapToGlobal(position))
 
-
-    def paramsInit(self,params):
+    def paramsInit(self, params):
         self._prg = params["prg"]
         self._config = params["config"]
         self._rootdir = params["rootdir"]
@@ -170,7 +169,8 @@ class Window(QMainWindow, Ui_MainWindow):
         else:
             return super(Window, self).event(event)
 
-    def screenGeometry(self):
+    @staticmethod
+    def screenGeometry():
         g = QApplication.desktop().screenGeometry()
         return g.width(), g.height()
 
@@ -179,7 +179,7 @@ class Window(QMainWindow, Ui_MainWindow):
         super(Window, self).hide()
 
     def show(self):
-        if self._geometry == None:
+        if self._geometry is None:
             X, Y = self.screenGeometry()
             w = self.width()
             h = self.height()
@@ -262,7 +262,7 @@ class Window(QMainWindow, Ui_MainWindow):
     def reloadOptions(self):
         self.fillOptions()
 
-        self.refreshTree(0,1)
+        self.refreshTree(0, 1)
 
         root = self.treeWidget.invisibleRootItem()
         self.checkChildren(root)
@@ -308,7 +308,7 @@ class Window(QMainWindow, Ui_MainWindow):
         dirs = ",".join(self._exclude_dirs)
 
         params = {"auth": yandex_auth, "dir": yandex_root, "exclude-dirs": dirs, "proxy": yandex_proxy}
-        actions.SaveParamsInCfgFile(params,self._config)
+        actions.SaveParamsInCfgFile(params, self._config)
 
     def saveAppOptions(self):
         appOpts = AppOptions()
@@ -327,7 +327,7 @@ class Window(QMainWindow, Ui_MainWindow):
         else:
             startServiceAtStart = "0"
 
-        refreshPeriod =  str(self.refreshTimeout.value())
+        refreshPeriod = str(self.refreshTimeout.value())
 
         yandex_cfg = self.yandex_cfg.text()
 
@@ -353,7 +353,7 @@ class Window(QMainWindow, Ui_MainWindow):
         if dirname != "":
             self._rootdir = str(dirname.toUtf8())
             self.yandex_root.setText(dirname)
-            self.refreshTree(1,1)
+            self.refreshTree(1, 1)
 
     def chooseAuthFile(self):
         filename = QtGui.QFileDialog.getOpenFileName(self, "Select Yandex Auth File", os.environ["HOME"])
@@ -369,7 +369,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
             self.saveOptions()
 
-    def getPathFromItem(self,item):
+    @staticmethod
+    def getPathFromItem(item):
         path = []
 
         text = str(item.text(0).toUtf8())
@@ -428,8 +429,10 @@ class Window(QMainWindow, Ui_MainWindow):
             child = parentItem.child(i)
             try:
                 path = self.getPathFromItem(child)
+
             except:
                 continue
+
             path = os.path.join(self._rootdir, path)
 
             if self.isChildToBeRemoved(path):
@@ -441,7 +444,8 @@ class Window(QMainWindow, Ui_MainWindow):
             else:
                 self.checkAndRmUnusedTreeItem(child)
 
-    def getItemProperties(self, item):
+    @staticmethod
+    def getItemProperties(item):
         properties = {"itemText": [str(item.text(0).toUtf8()), str(item.text(1).toUtf8())],
                       "foreground": item.foreground(0),
                       "checkable": 1,
@@ -477,7 +481,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def prepareItemProperties(self, path, text, exists, is_link, target, state):
 
-        properties = {"itemText": [text,""],
+        properties = {"itemText": [text, ""],
                       "foreground": Qt.black,
                       "checkable": 1,
                       "state": state}
@@ -492,7 +496,7 @@ class Window(QMainWindow, Ui_MainWindow):
         text1 = ""
         if is_link:
             text1 = " -> " + target
-        properties["itemText"] = [text0,text1.decode("utf8")]
+        properties["itemText"] = [text0, text1.decode("utf8")]
 
         if is_link == 1 and exists == 0:
             properties["foreground"] = Qt.red
@@ -500,7 +504,8 @@ class Window(QMainWindow, Ui_MainWindow):
 
         return properties
 
-    def setItemProperties(self, child, properties, modifyState=1):
+    @staticmethod
+    def setItemProperties(child, properties, modifyState=1):
         child.setText(0, properties["itemText"][0])
         child.setText(1, properties["itemText"][1])
         child.setForeground(0, properties["foreground"])
@@ -538,15 +543,18 @@ class Window(QMainWindow, Ui_MainWindow):
         else:
             return 1
 
-    def isChildToBeRemoved(self, path):
+    @staticmethod
+    def isChildToBeRemoved(path):
         try:
             os.lstat(path)
             exists = 1
+
         except:
             exists = 0
 
         if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0):
             return 1
+
         else:
             return 0
 
@@ -602,7 +610,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
             if len(dirs):
                 for d in sorted(dirs):
-                    path = os.path.join(parentDir,d)
+                    path = os.path.join(parentDir, d)
 
                     if os.path.isfile(path) == 0 and d != ".sync":
                         lpath = path.lstrip(self._rootdir)
@@ -611,7 +619,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
                         if self.isChildExists(lpath) == 0:
                             if startup:
-                                self.addItem(lpath,properties)
+                                self.addItem(lpath, properties)
                             else:
                                 self.emit(SIGNAL("addChild"), lpath, properties)
                         elif self.isChildToBeModified(lpath, properties):
@@ -648,6 +656,7 @@ class Window(QMainWindow, Ui_MainWindow):
         for i in path:
             try:
                 index = self.findItemAmongChildren(index, i, column)
+
             except:
                 return None
 
@@ -706,12 +715,13 @@ class Window(QMainWindow, Ui_MainWindow):
 
     def saveTreeExcludeDirs(self):
         self._exclude_dirs = self.getExcludeDirsFromTree()
-        actions.SaveExcludeDirs(self._exclude_dirs,self._config)
+        actions.SaveExcludeDirs(self._exclude_dirs, self._config)
 
     def refreshTree(self, force=0, clear=0):
         if not os.path.exists(self._rootdir):
             try:
                 os.mkdir(self._rootdir)
+
             except:
                 return
 
@@ -794,8 +804,9 @@ class Window(QMainWindow, Ui_MainWindow):
     def actService(self, action):
         if action == "start":
             self.saveTreeExcludeDirs()
+
         params = self.getParams()
-        res,msg = actions.DoAction(action, params)
+        res, msg = actions.DoAction(action, params)
 
         self._service_err = res
 
@@ -847,7 +858,8 @@ class Window(QMainWindow, Ui_MainWindow):
         self.toggleProxyAuth()
 
     # @waitCursor
-    def showAbout(self):
+    @staticmethod
+    def showAbout():
         about = About()
         about.exec_()
 
@@ -881,7 +893,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
         self.hide()
 
-        params = {}
+        params = dict()
         params["prg"] = self._prg
         params["config"] = self._config
         params["rootdir"] = self._rootdir
@@ -909,7 +921,7 @@ class Window(QMainWindow, Ui_MainWindow):
         params["exclude-dirs"] = ""
         params["proxy"] = ""
 
-        tuneParams(params,"widget")
+        tuneParams(params, "widget")
         self.paramsInit(params)
         self.reloadOptions()
 
