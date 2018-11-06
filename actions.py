@@ -96,7 +96,8 @@ def replaceParamsInCfgFile(pvalues, cfgfile):
 def writeCfgFile(pvalues, cfgfile):
 
     cfgdir = os.path.dirname(cfgfile)
-    os.mkdir(cfgdir)
+    if not os.path.exists(cfgdir):
+        os.mkdir(cfgdir)
 
     with open(os.path.expanduser(cfgfile), "w") as fw:
         for key in pvalues.keys():
