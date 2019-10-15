@@ -32,9 +32,9 @@ class SystemTrayIcon(QSystemTrayIcon):
             self.hideAction = menu.addAction("Hide")
             menu.addSeparator()
             exit_action = menu.addAction("Exit")
-            QObject.connect(self.showAction, SIGNAL("activated()"), self.toggle_window)
-            QObject.connect(self.hideAction, SIGNAL("activated()"), self.toggle_window)
-            QObject.connect(exit_action, SIGNAL("activated()"), QApplication.quit)
+            QObject.connect(self.showAction, SIGNAL("triggered()"), self.toggle_window)
+            QObject.connect(self.hideAction, SIGNAL("triggered()"), self.toggle_window)
+            QObject.connect(exit_action, SIGNAL("triggered()"), QApplication.quit)
 
             self.update_tool_tip("Yandex Disk")
             self.trayIcon.activated.connect(self.on_tray_icon_activated)

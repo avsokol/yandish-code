@@ -3,6 +3,8 @@ from PySide2 import QtCore, QtGui
 from PySide2.QtCore import Qt, SIGNAL, SignalInstance
 from PySide2.QtGui import *
 from PySide2.QtWidgets import QDialog, QMainWindow, QMenu, QApplication, QFileDialog, QTreeWidgetItem
+from lib.decorators.action_wait_cursor import ActionWaitCursor
+from lib.decorators.wait_cursor import WaitCursor
 from .wlayout import UiMainWindow
 from lib import actions
 from .about import UiDialog
@@ -92,12 +94,12 @@ class Window(QMainWindow, UiMainWindow):
             if item.isExpanded():
                 expand.setEnabled(False)
                 collapse.setEnabled(True)
-                QtCore.QObject.connect(collapse, SIGNAL("activated()"), lambda: item.setExpanded(False))
+                QtCore.QObject.connect(collapse, SIGNAL("triggered()"), lambda: item.setExpanded(False))
 
             else:
                 expand.setEnabled(True)
                 collapse.setEnabled(False)
-                QtCore.QObject.connect(expand, SIGNAL("activated()"), lambda: item.setExpanded(True))
+                QtCore.QObject.connect(expand, SIGNAL("triggered()"), lambda: item.setExpanded(True))
 
         check = menu.addAction(self.tr("Check"))
         uncheck = menu.addAction(self.tr("UnCheck"))
@@ -108,12 +110,12 @@ class Window(QMainWindow, UiMainWindow):
         if item_prop["state"] == Qt.Checked:
             check.setEnabled(False)
             uncheck.setEnabled(True)
-            QtCore.QObject.connect(uncheck, SIGNAL("activated()"), lambda: item.setCheckState(0, Qt.Unchecked))
+            QtCore.QObject.connect(uncheck, SIGNAL("triggered()"), lambda: item.setCheckState(0, Qt.Unchecked))
 
         else:
             check.setEnabled(True)
             uncheck.setEnabled(False)
-            QtCore.QObject.connect(check, SIGNAL("activated()"), lambda: item.setCheckState(0, Qt.Checked))
+            QtCore.QObject.connect(check, SIGNAL("triggered()"), lambda: item.setCheckState(0, Qt.Checked))
 
         menu.exec_(self.treeWidget.viewport().mapToGlobal(position))
 
@@ -424,7 +426,7 @@ class Window(QMainWindow, UiMainWindow):
                 self._exclude_dirs.remove(path)
 
     def check_and_rm_unused_tree_item(self, parent_item=""):
-        if parent_item == "" or parent_item is None:
+        if not isinstance(parent_item, QTreeWidgetItem):
             parent_item = self.treeWidget.invisibleRootItem()
 
         for i in range(parent_item.childCount()):
@@ -575,8 +577,8 @@ class Window(QMainWindow, UiMainWindow):
 
         for key in properties.keys():
             if key == "itemText":
-                if properties[key][0] != item_prop[key][0].decode("utf8") or \
-                                properties[key][1] != item_prop[key][1].decode("utf8"):
+                if properties[key][0] != item_prop[key][0] or \
+                                properties[key][1] != item_prop[key][1]:
                     return 1
             else:
                 if properties[key] != item_prop[key]:
@@ -589,14 +591,17 @@ class Window(QMainWindow, UiMainWindow):
 
         if updir == "":
             parent_item = "root"
+
         else:
             parent_item = self.find_path_item(updir)
 
-        if parent_item == "root":
+        if not isinstance(parent_item, QTreeWidgetItem):
             child = QTreeWidgetItem(self.treeWidget)
             self.treeWidget.itemBelow(child)
+
         elif parent_item is None:
             child = None
+
         else:
             child = QTreeWidgetItem(parent_item)
             parent_item.addChild(child)
@@ -631,7 +636,7 @@ class Window(QMainWindow, UiMainWindow):
                                 self.add_item(lpath, properties)
                                 # self.emit(SIGNAL("addChild"), lpath, properties)
                         elif self.is_child_to_be_modified(lpath, properties):
-                            self.self.modify_item(lpathm, properties)
+                            self.modify_item(lpath, properties)
                             # self.emit(SIGNAL("modifyChild"), lpath, properties)
 
                         self.add_dir_as_tree_item(path, startup)
@@ -640,7 +645,7 @@ class Window(QMainWindow, UiMainWindow):
             self._threads.remove(c)
 
     def find_unchecked_items_among_children(self, items, parent_item, column=0):
-        if parent_item == "" or parent_item is None:
+        if not isinstance(parent_item, QTreeWidgetItem):
             parent_item = self.treeWidget.invisibleRootItem()
 
         for i in range(parent_item.childCount()):
@@ -651,11 +656,11 @@ class Window(QMainWindow, UiMainWindow):
         return items
 
     def find_item_among_children(self, parent_item, text_to_find, column=0):
-        if parent_item == "" or parent_item is None:
+        if not isinstance(parent_item, QTreeWidgetItem):
             parent_item = self.treeWidget.invisibleRootItem()
 
         for i in range(parent_item.childCount()):
-            if text_to_find == parent_item.child(i).text(column).toUtf8():
+            if text_to_find == parent_item.child(i).text(column):
                 return parent_item.child(i)
 
     def find_path_item(self, path_to_find, column=0):
@@ -741,9 +746,9 @@ class Window(QMainWindow, UiMainWindow):
             if clear:
                 self.treeWidget.clear()
 
-            self.connect(self, SIGNAL("addChild"), self.add_item)
-            self.connect(self, SIGNAL("modifyChild"), self.modify_item)
-            # self.connect(self, SIGNAL("removeChild"), self.remove_item)
+            # self.connect(self, SIGNAL("addChild"), self.add_item)
+            # self.connect(self, SIGNAL("modifyChild"), self.modify_item)
+            ## self.connect(self, SIGNAL("removeChild"), self.remove_item)
 
             thread_add = threading.Thread(target=self.add_dir_as_tree_item)
             thread_add.daemon = True
@@ -761,7 +766,7 @@ class Window(QMainWindow, UiMainWindow):
         self.fill_options()
         if self.startServiceAtStart.isChecked():
             self.add_dir_as_tree_item("", 1)
-            # self.act_service("start")
+            self.act_service("start")
         else:
             self.refresh_status(1)
 
@@ -782,35 +787,7 @@ class Window(QMainWindow, UiMainWindow):
             self.update_tray_menu_state()
             self.refresh_status()
 
-    def action_wait_cursor(self, target_func):
-        def new_function(cls, action):
-            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-            self.set_button_in_state(action, "disabled")
-
-            QApplication.processEvents()
-            QApplication.processEvents()
-
-            target_func(cls, action)
-
-            self.set_button_in_state(action, "enabled")
-            QApplication.restoreOverrideCursor()
-            self.update_action_buttons()
-        return new_function
-
-    @staticmethod
-    def wait_cursor(target_func):
-        def new_function(*args, **kwargs):
-            QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-
-            QApplication.processEvents()
-            QApplication.processEvents()
-
-            target_func(*args, **kwargs)
-
-            QApplication.restoreOverrideCursor()
-        return new_function
-
-    @action_wait_cursor
+    @ActionWaitCursor()
     def act_service(self, action):
         if action == "start":
             self.save_tree_exclude_dirs()
@@ -835,9 +812,10 @@ class Window(QMainWindow, UiMainWindow):
         self.stop_timer()
 
         for thread in self._threads:
-            thread._Thread__stop()
+            thread._shutdown()
+            # thread._Thread__stop()
 
-        # self.act_service("status")
+        self.act_service("status")
         self.refresh_tree(force, clear)
 
         self.start_timer()
@@ -867,36 +845,66 @@ class Window(QMainWindow, UiMainWindow):
             self.srvPasswordReq.setEnabled(False)
         self.toggle_proxy_auth()
 
-    # @wait_cursor
+    # @WaitCursor()
     @staticmethod
     def show_about():
         about = About()
         about.exec_()
 
     def update_action_buttons(self):
-        # is_running, message = actions.is_daemon_running(self._prg)
-        is_running = 0
+        is_running, message = actions.is_daemon_running(self._prg)
         if is_running:
             self.set_button_in_state("start", "disabled")
+            self.set_action_in_state("start", "disabled")
             self.set_button_in_state("stop", "enabled")
+            self.set_action_in_state("stop", "enabled")
         else:
             self.set_button_in_state("stop", "disabled")
+            self.set_action_in_state("stop", "disabled")
             self.set_button_in_state("start", "enabled")
+            self.set_action_in_state("start", "enabled")
 
     def set_button_in_state(self, button, state):
         if button == "start":
             btn = self.btnStart
+
         elif button == "stop":
             btn = self.btnStop
+
         elif button == "status":
             return
+
         else:
             raise Exception("Unknown button '%s'" % button)
 
         if state == "disabled":
             btn.setEnabled(False)
+
         elif state == "enabled":
             btn.setEnabled(True)
+
+        else:
+            pass
+
+    def set_action_in_state(self, action, state):
+        if action == "start":
+            act = self.actionStart
+
+        elif action == "stop":
+            act = self.actionStop
+
+        elif action == "status":
+            act = self.actionStatus
+
+        else:
+            raise Exception("Unknown action '%s'" % action)
+
+        if state == "disabled":
+            act.setEnabled(False)
+
+        elif state == "enabled":
+            act.setEnabled(True)
+
         else:
             pass
 
