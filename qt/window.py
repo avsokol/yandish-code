@@ -565,6 +565,7 @@ class Window(QMainWindow, UiMainWindow):
 
         if exists == 0 or (exists == 1 and os.path.isdir(path) and os.path.exists(path) == 0):
             return 1
+
         else:
             return 0
 

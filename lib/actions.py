@@ -81,6 +81,7 @@ def replace_params_in_cfg_file(p_values, cfg_file):
             for key in p_values.keys():
                 if key in seen_elements:
                     continue
+
                 if el == "proxy":
                     new_line = key + "=" + p_values[key] + "\n"
                 else:
@@ -257,6 +258,7 @@ def process_result(res, action, out, params, verbose=1):
                 msg = msg + "\nDirectories excluded:\n" + "\n".join(exclude_dirs)
         elif action == "stop":
             msg = "Yandex Disk service is stopped"
+
         elif action == "status":
             msg = "Yandex Disk service is not running\n\n" + out
 
@@ -266,6 +268,7 @@ def process_result(res, action, out, params, verbose=1):
             type = "ok"
             title = "Error"
             icon = "error"
+
         elif action == "status":
             msg = "Yandex Disk service is running"
             if len(exclude_dirs):
@@ -281,8 +284,10 @@ def process_result(res, action, out, params, verbose=1):
         icon = "info"
         if action == "start":
             msg = "Yandex Disk is already running"
+
         elif action == "stop":
             msg = "Yandex Disk is not running"
+
         elif action == "status":
             msg = "Yandex Disk is not running\n\n" + out
 
@@ -313,8 +318,10 @@ def is_daemon_running(prg):
 
     if return_code == 0:
         is_running = 1
+
     elif return_code == 1:
         is_running = 0
+
     else:
         raise Exception("Unexpected error code: %s", return_code)
 
