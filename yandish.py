@@ -1,14 +1,19 @@
 #!/usr/bin/python
 
-import sys, os, argparse
+import sys
+import os
+import argparse
 from subprocess import Popen, PIPE
-from opts import AppOptions
-from actions import GetAuthFromCfgFile, GetYandexCfgFromCfgFile, GetExcludeDirsFromCfgFile, GetRootDirFromCfgFile,\
-    GetProxyFromCfgFile, SaveParamsInCfgFile, DoAction, ProcessResult
+
+from PySide2.QtWidgets import QMessageBox
+
+from lib.opts import AppOptions
+from lib.actions import get_auth_from_cfg_file, get_yandex_cfg_from_cfg_file, get_exclude_dirs_from_cfg_file, get_root_dir_from_cfg_file,\
+    get_proxy_from_cfg_file, save_params_in_cfg_file, do_action, process_result
 
 
-def getDefaultParams(action):
-    daemon = WhichPrg(action)
+def get_default_params(action):
+    daemon = which_prg(action)
     params = {"config": "~/.config/yandex-disk/config.cfg",
               "auth": "~/.config/yandex-disk/passwd",
               "exclude-dirs": [],
@@ -19,40 +24,44 @@ def getDefaultParams(action):
     return params
 
 
-def showDlg(errMsg):
+def show_dlg(err_msg):
+    from PySide2.QtWidgets import QApplication
 
-    from PyQt4 import QtGui
-
-    app = QtGui.QApplication(sys.argv)
-    msg = QtGui.QMessageBox()
-    msg.setIcon(QtGui.QMessageBox.Critical)
+    app = QApplication(sys.argv)
+    msg = QMessageBox()
+    msg.setIcon(QMessageBox.Critical)
 
     msg.setText("Couldn't find yandex-disk daemon")
     msg.setInformativeText("You have to install yandex-disk daemon from Yandex site.")
     msg.setWindowTitle("Error")
-    msg.setDetailedText(errMsg)
-    msg.setStandardButtons(QtGui.QMessageBox.Ok)
+    msg.setDetailedText(err_msg)
+    msg.setStandardButtons(QMessageBox.Ok)
     sys.exit(msg.exec_())
 
 
-def WhichPrg(action):
+def which_prg(action):
 
     executable = "yandex-disk"
 
     proc = Popen(["which", executable], stdout=PIPE, stderr=PIPE)
     return_code = proc.wait()
     if return_code == 0:
-        PRG = proc.stdout.read()
-        PRG = PRG.strip()
-        return PRG.decode("utf8")
+        prg = proc.stdout.read()
+        prg = prg.strip()
+        prg = prg.decode("UTF-8")
+        return prg
+
     else:
+        err_output = proc.stderr.read()
+        err_output = err_output.strip()
+        err_output = err_output.decode("UTF-8")
         if action == "widget":
-            showDlg("Error " + str(return_code) + ":\nCouldn't find " + executable + " executable\n" + proc.stderr.read())
+            show_dlg("Error " + str(return_code) + ":\nCouldn't find " + executable + " executable\n" + err_output)
         else:
-            raise Exception("Error %s: Couldn't find '%s' executable\n%s" % (return_code, executable, proc.stderr.read()))
+            raise Exception("Error %s: Couldn't find '%s' executable\n%s" % (return_code, executable, err_output))
 
 
-def ArgParser():
+def arg_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument("--program", default="")
     parser.add_argument("-c", "--config", default="")
@@ -65,95 +74,104 @@ def ArgParser():
     return parser
 
 
-def ShowWidget(params):
+def show_widget(params):
 
-    from PyQt4 import QtGui
+    from PySide2 import QtGui
     from qt.window import Window
+    from PySide2.QtWidgets import QApplication
 
-    app = QtGui.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.realpath(__file__)), "ico/yandex-disk.xpm")))
 
     window = Window(params)
 
-    window.initApp()
+    window.init_app()
 
     sys.exit(app.exec_())
 
 
-def tuneParams(params, action):
+def tune_params(params, action):
 
     # TODO: to be refactored
-    defParams = getDefaultParams(action)
+    def_params = get_default_params(action)
 
     ya_params = {}
 
     if params["prg"] == "":
-        params["prg"] = defParams["prg"]
+        params["prg"] = def_params["prg"]
 
     if params["config"] == "":
-        appOpts = AppOptions()
-        appCfg = appOpts.getRcPath()
-        params["config"] = GetYandexCfgFromCfgFile(appCfg, 0)
+        app_opts = AppOptions()
+        app_cfg = app_opts.get_rc_path()
+        params["config"] = get_yandex_cfg_from_cfg_file(app_cfg, 0)
+
     if params["config"] == "":
-        params["config"] = defParams["config"]
+        params["config"] = def_params["config"]
+
     params["config"] = os.path.expanduser(params["config"])
 
     if params["auth"] == "":
-        params["auth"] = GetAuthFromCfgFile(params["config"], 0)
+        params["auth"] = get_auth_from_cfg_file(params["config"], 0)
+
     if params["auth"] == "":
-        params["auth"] = defParams["auth"]
+        params["auth"] = def_params["auth"]
+
     params["auth"] = os.path.expanduser(params["auth"])
     ya_params["auth"] = params["auth"]
 
     if params["rootdir"] == "":
-        params["rootdir"] = GetRootDirFromCfgFile(params["config"], 0)
+        params["rootdir"] = get_root_dir_from_cfg_file(params["config"], 0)
+
     if params["rootdir"] == "":
-        params["rootdir"] = defParams["rootdir"]
+        params["rootdir"] = def_params["rootdir"]
+
     params["rootdir"] = os.path.expanduser(params["rootdir"])
     ya_params["dir"] = params["rootdir"]
 
     if params["proxy"] == "":
-        params["proxy"] = GetProxyFromCfgFile(params["config"], 0)
+        params["proxy"] = get_proxy_from_cfg_file(params["config"], 0)
+
     if params["proxy"] == "":
-        params["proxy"] = defParams["proxy"]
+        params["proxy"] = def_params["proxy"]
+
     ya_params["proxy"] = params["proxy"]
 
     if len(params["exclude-dirs"]) == 0:
-        params["exclude-dirs"] = GetExcludeDirsFromCfgFile(params["config"], 0)
+        params["exclude-dirs"] = get_exclude_dirs_from_cfg_file(params["config"], 0)
         if params["exclude-dirs"] == [""]:
             params["exclude-dirs"] = []
             ya_params["exclude-dirs"] = ""
+
     else:
         params["exclude-dirs"] = ",".join(params["exclude-dirs"])
         ya_params["exclude-dirs"] = params["exclude-dirs"]
 
-    SaveParamsInCfgFile(ya_params, params["config"])
+    save_params_in_cfg_file(ya_params, params["config"])
 
 
 def main(argv):
-
     params = {}
 
-    parser = ArgParser()
-    pArgs = parser.parse_args(argv[0:])
+    parser = arg_parser()
+    p_args = parser.parse_args(argv[0:])
 
-    action = pArgs.action
+    action = p_args.action
  
-    params["prg"] = pArgs.program
+    params["prg"] = p_args.program
 
-    params["config"] = pArgs.config
-    params["rootdir"] = pArgs.dir
-    params["auth"] = pArgs.auth
-    params["exclude-dirs"] = pArgs.exclude_dirs
-    params["proxy"] = pArgs.proxy
+    params["config"] = p_args.config
+    params["rootdir"] = p_args.dir
+    params["auth"] = p_args.auth
+    params["exclude-dirs"] = p_args.exclude_dirs
+    params["proxy"] = p_args.proxy
 
-    tuneParams(params, action)
+    tune_params(params, action)
 
     if action == "widget":
-        ShowWidget(params)
+        show_widget(params)
     else:
-        res, msg = DoAction(action, params)
-        ProcessResult(res, action, msg, params)
+        res, msg = do_action(action, params)
+        process_result(res, action, msg, params)
         exit(res)
 
 

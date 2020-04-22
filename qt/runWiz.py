@@ -1,6 +1,7 @@
-# -*- coding: utf-8 -*-
-
-import sys, os, shutil
+import sys
+import os
+import shutil
+from PySide2.QtGui import QPalette
 
 rpath = os.path.realpath(__file__)
 dirname = os.path.dirname(rpath)
@@ -8,16 +9,15 @@ rjoin = os.path.join(dirname, "../")
 sys.path.append(rjoin)
 
 from subprocess import Popen, PIPE
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtGui import *
+from PySide2.QtWidgets import QWizard, QApplication
+from PySide2.QtCore import Qt, SIGNAL, QObject
+from .wizard import UiWizard
+from yandish import get_default_params
+from lib.opts import AppOptions
+from lib import actions
 
-from .wizard import Ui_Wizard
-from yandish import getDefaultParams
-from opts import AppOptions
-import actions
 
-
-class yaWizard(QWizard,  Ui_Wizard):
+class YaWizard(QWizard, UiWizard):
 
     _prg = None
     _config = None
@@ -38,19 +38,19 @@ class yaWizard(QWizard,  Ui_Wizard):
         self._proxy = params["proxy"]
 
         QWizard.__init__(self, parent)
-        self.setupUi(self)
+        self.setup_ui(self)
 
         self.yaRoot.setText(self._rootdir)
         self.yaCfg.setText(self._config)
         self.yaAuth.setText(self._auth)
 
-        self.setProxy()
+        self.set_proxy()
 
-        self.setSignals()
+        self.set_signals()
 
-    def loginToYandex(self):
+    def login_to_yandex(self):
 
-        self.saveProxyCfg()
+        self.save_proxy_cfg()
 
         login = str(self.yaLogin.text())
         login = login.rstrip("@yandex.ru")
@@ -69,7 +69,7 @@ class yaWizard(QWizard,  Ui_Wizard):
                     hint = hint + "\n"
                 hint = hint + "Password is empty"
 
-            self.setLoginStatus(2, hint)
+            self.set_login_status(2, hint)
             return
 
         proc = Popen([self._prg, "token",
@@ -82,25 +82,25 @@ class yaWizard(QWizard,  Ui_Wizard):
         if return_code != 0:
             hint = hint.strip(proc.stdout.read())
 
-        self.setLoginStatus(return_code, hint)
+        self.set_login_status(return_code, hint)
 
-    def setLoginStatus(self, status, hint=""):
+    def set_login_status(self, status, hint=""):
 
         self._login_error = status
 
-        palette = QtGui.QPalette()
+        palette = QPalette()
 
         message = ""
 
         if status == 0:
             message = "Login Ok!"
-            palette.setColor(QtGui.QPalette.Foreground, QtCore.Qt.darkGreen)
+            palette.setColor(QPalette.Foreground, Qt.darkGreen)
         elif status == 1:
             message = "Login Failed!"
-            palette.setColor(QtGui.QPalette.Foreground, QtCore.Qt.red)
+            palette.setColor(QPalette.Foreground, Qt.red)
         elif status == 2:
             message = "Not enough credentials"
-            palette.setColor(QtGui.QPalette.Foreground, QtCore.Qt.red)
+            palette.setColor(QPalette.Foreground, Qt.red)
 
         self.loginResult.setPalette(palette)
         self.loginResult.setText(message)
@@ -111,16 +111,16 @@ class yaWizard(QWizard,  Ui_Wizard):
         else:
             self.button(self.NextButton).setEnabled(False)
 
-    def saveAuthFile(self):
+    def save_auth_file(self):
         shutil.move(self._default_auth, os.path.expanduser(self._auth))
 
-    def proxyEnable(self):
+    def proxy_enable(self):
         self.proxyManualWidget.setEnabled(True)
 
-    def proxyDisable(self):
+    def proxy_disable(self):
         self.proxyManualWidget.setEnabled(False)
 
-    def toggleProxyAuth(self):
+    def toggle_proxy_auth(self):
         if self.srvPasswordReq.isEnabled() and self.srvPasswordReq.isChecked():
             self.srvLogin.setEnabled(True)
             self.srvPassword.setEnabled(True)
@@ -128,37 +128,39 @@ class yaWizard(QWizard,  Ui_Wizard):
             self.srvLogin.setEnabled(False)
             self.srvPassword.setEnabled(False)
 
-    def toggleProxyAuthReq(self):
+    def toggle_proxy_auth_req(self):
         if self.proxyType.currentText() in ["HTTPS", "SOCKS5"]:
             self.srvPasswordReq.setEnabled(True)
         else:
             self.srvPasswordReq.setEnabled(False)
-        self.toggleProxyAuth()
+        self.toggle_proxy_auth()
 
-    def setProxy(self):
+    def set_proxy(self):
         if self._proxy == "no":
             self.proxyNone.setChecked(1)
-            self.proxyDisable()
+            self.proxy_disable()
+
         elif self._proxy == "auto":
             self.proxyAuto.setChecked(1)
-            self.proxyDisable()
+            self.proxy_disable()
+
         else:
             self.proxyManual.setChecked(1)
-            self.proxyEnable()
+            self.proxy_enable()
             proxy_params = self._proxy.split(",")
 
-            pType = proxy_params[0].upper()
+            p_type = proxy_params[0].upper()
             server = proxy_params[1]
             port = proxy_params[2]
 
-            pTypes = [self.proxyType.itemText(i) for i in range(self.proxyType.count())]
-            if pType in pTypes:
-                self.proxyType.setCurrentIndex(pTypes.index(pType))
+            p_types = [self.proxyType.itemText(i) for i in range(self.proxyType.count())]
+            if p_type in p_types:
+                self.proxyType.setCurrentIndex(p_types.index(p_type))
 
             self.srvName.setText(server)
             self.portNumber.setText(port)
 
-            if pType in ["HTTPS", "SOCKS5"]:
+            if p_type in ["HTTPS", "SOCKS5"]:
                 self.srvPasswordReq.setEnabled(True)
 
                 login = ""
@@ -179,17 +181,19 @@ class yaWizard(QWizard,  Ui_Wizard):
             else:
                 self.srvPasswordReq.setEnabled(False)
 
-            self.toggleProxyAuthReq()
+            self.toggle_proxy_auth_req()
 
-    def getProxyCfg(self):
+    def get_proxy_cfg(self):
         if self.proxyNone.isChecked():
             self._proxy = "none"
+
         elif self.proxyAuto.isChecked():
             self._proxy = "auto"
+
         elif self.proxyManual.isChecked():
             proxy_params = []
-            pType = str(self.proxyType.currentText()).lower()
-            proxy_params.append(pType)
+            p_type = str(self.proxyType.currentText()).lower()
+            proxy_params.append(p_type)
 
             server = str(self.srvName.text())
             port = str(self.portNumber.text())
@@ -207,8 +211,8 @@ class yaWizard(QWizard,  Ui_Wizard):
         else:
             raise Exception("Unexpected proxy configuration")
 
-    def saveProxyCfg(self):
-        self.getProxyCfg()
+    def save_proxy_cfg(self):
+        self.get_proxy_cfg()
 
         yandex_cfg = str(self.yaCfg.text())
 
@@ -216,29 +220,30 @@ class yaWizard(QWizard,  Ui_Wizard):
         params = {"proxy": yandex_proxy}
 
         try:
-            actions.SaveParamsInCfgFile(params, yandex_cfg)
+            actions.save_params_in_cfg_file(params, yandex_cfg)
         except IOError:
             print("Couldn't write Yandex configuration file")
             sys.exit(3)
 
-    def setNextButtonState(self, b_id):
-        if b_id == 1 and self._login_error:
+    def set_next_button_state(self, id):
+        if id == 1 and self._login_error:
             state = False
         else:
             state = True
         self.button(self.NextButton).setEnabled(state)
 
-    def wizardFinish(self):
+    def wizard_finish(self):
         yandex_cfg = str(self.yaCfg.text())
         yandex_root = str(self.yaRoot.text())
         yandex_auth = str(self.yaAuth.text())
 
-        self.getProxyCfg()
+        self.get_proxy_cfg()
 
         yandex_proxy = self._proxy
 
         try:
-            self.saveAuthFile()
+            self.save_auth_file()
+
         except IOError:
             print("Couldn't write Yandex authorization file")
             sys.exit(2)
@@ -246,43 +251,45 @@ class yaWizard(QWizard,  Ui_Wizard):
         params = {"auth": yandex_auth, "dir": yandex_root, "proxy": yandex_proxy}
 
         try:
-            actions.SaveParamsInCfgFile(params, yandex_cfg)
+            actions.save_params_in_cfg_file(params, yandex_cfg)
+
         except IOError:
             print("Couldn't write Yandex configuration file")
             sys.exit(3)
 
-        appOpts = AppOptions()
-        defParams = getDefaultParams("widget")
+        app_opts = AppOptions()
+        def_params = get_default_params("widget")
         yandexcfg = yandex_cfg
-        if yandex_cfg == os.path.expanduser(defParams["config"]):
+        if yandex_cfg == os.path.expanduser(def_params["config"]):
             yandexcfg = ""
-        appOpts.setParam("yandex-cfg", yandexcfg)
+        app_opts.set_param("yandex-cfg", yandexcfg)
 
         try:
-            appOpts.saveParamsToRcFile()
+            app_opts.save_params_to_rc_file()
+
         except IOError:
             print("Couldn't write App configuration file")
             sys.exit(4)
 
-    def setSignals(self):
-        QtCore.QObject.connect(self.loginButton, QtCore.SIGNAL("clicked()"), self.loginToYandex)
-        QtCore.QObject.connect(self.button(self.FinishButton), QtCore.SIGNAL("clicked()"), self.wizardFinish)
+    def set_signals(self):
+        QObject.connect(self.loginButton, SIGNAL("clicked()"), self.login_to_yandex)
+        QObject.connect(self.button(self.FinishButton), SIGNAL("clicked()"), self.wizard_finish)
 
-        QtCore.QObject.connect(self.proxyNone, QtCore.SIGNAL("clicked()"), self.proxyDisable)
-        QtCore.QObject.connect(self.proxyAuto, QtCore.SIGNAL("clicked()"), self.proxyDisable)
-        QtCore.QObject.connect(self.proxyManual, QtCore.SIGNAL("clicked()"), self.proxyEnable)
+        QObject.connect(self.proxyNone, SIGNAL("clicked()"), self.proxy_disable)
+        QObject.connect(self.proxyAuto, SIGNAL("clicked()"), self.proxy_disable)
+        QObject.connect(self.proxyManual, SIGNAL("clicked()"), self.proxy_enable)
 
-        QtCore.QObject.connect(self.srvPasswordReq, QtCore.SIGNAL("clicked()"), self.toggleProxyAuth)
-        QtCore.QObject.connect(self.proxyType, QtCore.SIGNAL("currentIndexChanged(QString)"), self.toggleProxyAuthReq)
-        QtCore.QObject.connect(self, QtCore.SIGNAL("currentIdChanged(int)"), self.setNextButtonState)
+        QObject.connect(self.srvPasswordReq, SIGNAL("clicked()"), self.toggle_proxy_auth)
+        QObject.connect(self.proxyType, SIGNAL("currentIndexChanged(QString)"), self.toggle_proxy_auth_req)
+        QObject.connect(self, SIGNAL("currentIdChanged(int)"), self.set_next_button_state)
 
 
 if __name__ == "__main__":
 
-    params = getDefaultParams("widget")
+    params = get_default_params("widget")
 
-    app = QtGui.QApplication(sys.argv)
-    yaWiz = yaWizard(params)
+    app = QApplication(sys.argv)
+    yaWiz = YaWizard(params)
 
     yaWiz.show()
 

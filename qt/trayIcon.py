@@ -1,11 +1,10 @@
-# -*- coding: utf-8 -*-
-
 import os
-from PyQt4 import QtCore, QtGui
-from PyQt4.QtCore import QTimer
+from PySide2.QtCore import QObject, SIGNAL, QTimer
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QSystemTrayIcon, QMenu, QApplication
 
 
-class SystemTrayIcon(QtGui.QSystemTrayIcon):
+class SystemTrayIcon(QSystemTrayIcon):
 
     _parent = None
 
@@ -16,50 +15,50 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
     def setParent(self, parent):
         self._parent = parent
 
-    def getParent(self):
+    def get_parent(self):
         return self._parent
 
     def __init__(self, parent=None):
 
         self.setParent(parent)
 
-        QtGui.QSystemTrayIcon.__init__(self, parent)
+        QSystemTrayIcon.__init__(self, parent)
 
-        if QtGui.QSystemTrayIcon.isSystemTrayAvailable():
-            self.trayIcon = QtGui.QSystemTrayIcon()
+        if QSystemTrayIcon.isSystemTrayAvailable():
+            self.trayIcon = QSystemTrayIcon()
             self.setIcon()
-            menu = QtGui.QMenu(parent)
+            menu = QMenu(parent)
             self.showAction = menu.addAction("Show")
             self.hideAction = menu.addAction("Hide")
             menu.addSeparator()
-            exitAction = menu.addAction("Exit")
-            QtCore.QObject.connect(self.showAction, QtCore.SIGNAL("activated()"), self.toggleWindow)
-            QtCore.QObject.connect(self.hideAction, QtCore.SIGNAL("activated()"), self.toggleWindow)
-            QtCore.QObject.connect(exitAction, QtCore.SIGNAL("activated()"), QtGui.qApp.quit)
+            exit_action = menu.addAction("Exit")
+            QObject.connect(self.showAction, SIGNAL("triggered()"), self.toggle_window)
+            QObject.connect(self.hideAction, SIGNAL("triggered()"), self.toggle_window)
+            QObject.connect(exit_action, SIGNAL("triggered()"), QApplication.quit)
 
-            self.updateToolTip("Yandex Disk")
-            self.trayIcon.activated.connect(self.onTrayIconActivated) 
+            self.update_tool_tip("Yandex Disk")
+            self.trayIcon.activated.connect(self.on_tray_icon_activated)
             self.trayIcon.setContextMenu(menu)
             self.trayIcon.show()
 
             self.disambiguateTimer = QTimer(self)
             self.disambiguateTimer.setSingleShot(True)
-            self.disambiguateTimer.timeout.connect(self.disambiguateTimerTimeout) 
+            self.disambiguateTimer.timeout.connect(self.disambiguate_timer_timeout)
 
-            self.updateTrayMenuState()
+            self.update_tray_menu_state()
 
     def setIcon(self, status="Unknown"):
         if status in [u"index", u"sync", u"busy", u"синхронизация", u"обработка данных"]:
-            icon = QtGui.QIcon(self.__iconActive)
+            icon = QIcon(self.__iconActive)
         elif status in [u"paused", u"остановлен", u"демон не запущен"]:
-            icon = QtGui.QIcon(self.__iconPaused)
+            icon = QIcon(self.__iconPaused)
         else:
-            icon = QtGui.QIcon(self.__icon)
+            icon = QIcon(self.__icon)
 
         self.trayIcon.setIcon(icon)
 
-    def updateTrayMenuState(self):
-        parent = self.getParent()
+    def update_tray_menu_state(self):
+        parent = self.get_parent()
         if parent.isVisible():
             self.showAction.setEnabled(False)
             self.hideAction.setEnabled(True)
@@ -67,26 +66,27 @@ class SystemTrayIcon(QtGui.QSystemTrayIcon):
             self.showAction.setEnabled(True)
             self.hideAction.setEnabled(False)
 
-    def updateToolTip(self, msg):
+    def update_tool_tip(self, msg):
         self.trayIcon.setToolTip(msg)
 
-    def onTrayIconActivated(self, reason):
-        if reason == QtGui.QSystemTrayIcon.Trigger:
+    def on_tray_icon_activated(self, reason):
+        if reason == QSystemTrayIcon.Trigger:
             # self.disambiguateTimer.start(QtGui.qApp.doubleClickInterval())
             self.disambiguateTimer.start(0)
-        elif reason == QtGui.QSystemTrayIcon.DoubleClick:
+        elif reason == QSystemTrayIcon.DoubleClick:
             self.disambiguateTimer.stop()
-            # self.toggleWindow()
+            # self.toggle_window()
 
-    def disambiguateTimerTimeout(self):
-        self.toggleWindow()
+    def disambiguate_timer_timeout(self):
+        self.toggle_window()
 
-    def toggleWindow(self):
-        parent = self.getParent()
+    def toggle_window(self):
+        parent = self.get_parent()
         if parent.isVisible():
             parent.hide()
+
         elif parent.isHidden():
             parent.show()
             parent.showNormal()
 
-        self.updateTrayMenuState()
+        self.update_tray_menu_state()
