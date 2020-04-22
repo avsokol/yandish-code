@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import os
 
 
 class AppOptions(object):
-    RCFILE_NAME = ".yandishrc"
+    rc_file_name = ".yandishrc"
 
     params = {
         "StartMinimized": "1",
@@ -15,36 +13,36 @@ class AppOptions(object):
     }
 
     def __init__(self):
-        self.readParamsFromRcFile()
+        self.read_params_from_rc_file()
 
-    def getRcFileName(self):
-        return self.RCFILE_NAME
+    def get_rc_file_name(self):
+        return self.rc_file_name
 
-    def setRcFileName(self, fn):
-        self.RCFILE_NAME = fn
+    def set_rc_file_name(self, fn):
+        self.rc_file_name = fn
 
-    def getRcPath(self):
-        return os.path.join(os.environ["HOME"], self.RCFILE_NAME)
+    def get_rc_path(self):
+        return os.path.join(os.environ["HOME"], self.rc_file_name)
 
-    def getParam(self, param):
+    def get_param(self, param):
         if param in self.params.keys():
             return self.params[param]
         else:
             return "-1"
 
-    def setParam(self, param, value):
+    def set_param(self, param, value):
         if param in self.params.keys():
             self.params[param] = value
 
-    def printParams(self):
+    def print_params(self):
         for k, v in self.params.items():
             print("'%s' -> '%s'" % (k, v))
 
-    def readParamsFromRcFile(self):
-        if os.path.exists(self.getRcPath()) == 0:
-            self.saveParamsToRcFile()
+    def read_params_from_rc_file(self):
+        if os.path.exists(self.get_rc_path()) == 0:
+            self.save_params_to_rc_file()
 
-        with open(self.getRcPath(), "r") as f:
+        with open(self.get_rc_path(), "r") as f:
             for line in f:
                 if line.strip() == "":
                     continue
@@ -55,14 +53,15 @@ class AppOptions(object):
                 if key in self.params.keys():
                     self.params[key] = value
 
-    def saveParamsToRcFile(self):
-        fn = self.getRcPath()
-        fnTmp = fn + ".tmp"
-        with open(fnTmp, "w") as f:
+    def save_params_to_rc_file(self):
+        fn = self.get_rc_path()
+        fn_tmp = fn + ".tmp"
+        with open(fn_tmp, "w") as f:
             for k, v in self.params.items():
                 v = str(v)
                 v = v.strip()
                 line = k + "=" + v + "\n"
                 f.write(line)
 
-        os.rename(fnTmp, fn)
+        os.remove(fn)
+        os.rename(fn_tmp, fn)
