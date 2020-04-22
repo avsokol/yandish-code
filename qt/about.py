@@ -49,7 +49,11 @@ class UiDialog(object):
                 "<p align=\"center\"><a href=\"https://sourceforge.net/projects/yandish/\">"
                 "<span style=\" text-decoration: underline; color:#0000ff;\">"
                 "https://sourceforge.net/projects/yandish/"
-                "</span></a></p><p align=\"center\">Alexander Sokolov</p></body></html>",
+                "</span>"
+                "<p align=\"center\"><a href=\"https://github.com/avsokol/yandish-code\">"
+                "<span style=\" text-decoration: underline; color:#0000ff;\">"
+                "https://github.com/avsokol/yandish-code"
+                "</span></a></p><p align=\"center\">Aleksandr Sokolov</p></body></html>",
                 None
             )
         )
