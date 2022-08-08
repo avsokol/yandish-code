@@ -185,7 +185,7 @@ class YaWizard(QWizard, UiWizard):
 
     def get_proxy_cfg(self):
         if self.proxyNone.isChecked():
-            self._proxy = "none"
+            self._proxy = "no"
 
         elif self.proxyAuto.isChecked():
             self._proxy = "auto"

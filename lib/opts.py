@@ -63,5 +63,7 @@ class AppOptions(object):
                 line = k + "=" + v + "\n"
                 f.write(line)
 
-        os.remove(fn)
+        if os.path.exists(fn):
+            os.remove(fn)
+
         os.rename(fn_tmp, fn)
