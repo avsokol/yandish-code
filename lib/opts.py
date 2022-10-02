@@ -39,7 +39,7 @@ class AppOptions(object):
             print("'%s' -> '%s'" % (k, v))
 
     def read_params_from_rc_file(self):
-        if os.path.exists(self.get_rc_path()) == 0:
+        if not os.path.exists(self.get_rc_path()):
             self.save_params_to_rc_file()
 
         with open(self.get_rc_path(), "r") as f:
@@ -63,5 +63,7 @@ class AppOptions(object):
                 line = k + "=" + v + "\n"
                 f.write(line)
 
-        os.remove(fn)
+        if os.path.exists(fn):
+            os.remove(fn)
+
         os.rename(fn_tmp, fn)

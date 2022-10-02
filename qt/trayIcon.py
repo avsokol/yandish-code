@@ -1,7 +1,7 @@
 import os
-from PySide2.QtCore import QObject, SIGNAL, QTimer
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QSystemTrayIcon, QMenu, QApplication
+from PySide6.QtCore import QObject, SIGNAL, QTimer
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QSystemTrayIcon, QMenu, QApplication
 
 
 class SystemTrayIcon(QSystemTrayIcon):

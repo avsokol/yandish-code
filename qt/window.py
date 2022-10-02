@@ -1,8 +1,8 @@
 import os
-from PySide2 import QtCore, QtGui
-from PySide2.QtCore import Qt, SIGNAL, SignalInstance
-from PySide2.QtGui import *
-from PySide2.QtWidgets import QDialog, QMainWindow, QMenu, QApplication, QFileDialog, QTreeWidgetItem
+from PySide6 import QtCore, QtGui
+from PySide6.QtCore import Qt, SIGNAL, SignalInstance
+from PySide6.QtGui import *
+from PySide6.QtWidgets import QDialog, QMainWindow, QMenu, QApplication, QFileDialog, QTreeWidgetItem
 from lib.decorators.action_wait_cursor import ActionWaitCursor
 from lib.decorators.wait_cursor import WaitCursor
 from .wlayout import UiMainWindow
@@ -58,9 +58,9 @@ class Window(QMainWindow, UiMainWindow):
         # QtCore.QObject.connect(self.uTimer, SIGNAL("timeout()"), self.refresh_status)
         self.uTimer.timeout.connect(self.refresh_status)
 
-        # is_running, message = actions.is_daemon_running(self._prg)
-        # if is_running:
-        self.start_timer()
+        is_running, message = actions.is_daemon_running(self._prg)
+        if is_running:
+            self.start_timer()
 
     def tree_context_menu(self, position):
         item = self.treeWidget.itemAt(position)
@@ -101,8 +101,8 @@ class Window(QMainWindow, UiMainWindow):
                 collapse.setEnabled(False)
                 QtCore.QObject.connect(expand, SIGNAL("triggered()"), lambda: item.setExpanded(True))
 
-        check = menu.addAction(self.tr("Check"))
-        uncheck = menu.addAction(self.tr("UnCheck"))
+        check = menu.addAction("Check")
+        uncheck = menu.addAction("UnCheck")
 
         check.setIcon(check_icon)
         uncheck.setIcon(uncheck_icon)
@@ -170,8 +170,7 @@ class Window(QMainWindow, UiMainWindow):
 
     @staticmethod
     def screen_geometry():
-        g = QApplication.desktop().screenGeometry()
-        return g.width(), g.height()
+        return QApplication.screens()[0].size().width(), QApplication.screens()[0].size().height()
 
     def hide(self):
         self._geometry = self.saveGeometry()

@@ -1,7 +1,7 @@
 import sys
 import os
 import shutil
-from PySide2.QtGui import QPalette
+from PySide6.QtGui import QPalette
 
 rpath = os.path.realpath(__file__)
 dirname = os.path.dirname(rpath)
@@ -9,8 +9,8 @@ rjoin = os.path.join(dirname, "../")
 sys.path.append(rjoin)
 
 from subprocess import Popen, PIPE
-from PySide2.QtWidgets import QWizard, QApplication
-from PySide2.QtCore import Qt, SIGNAL, QObject
+from PySide6.QtWidgets import QWizard, QApplication
+from PySide6.QtCore import Qt, SIGNAL, QObject
 from .wizard import UiWizard
 from yandish import get_default_params
 from lib.opts import AppOptions

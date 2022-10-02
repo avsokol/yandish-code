@@ -5,7 +5,7 @@ import os
 import argparse
 from subprocess import Popen, PIPE
 
-from PySide2.QtWidgets import QMessageBox
+from PySide6.QtWidgets import QMessageBox
 
 from lib.opts import AppOptions
 from lib.actions import get_auth_from_cfg_file, get_yandex_cfg_from_cfg_file, get_exclude_dirs_from_cfg_file, get_root_dir_from_cfg_file,\
@@ -76,9 +76,9 @@ def arg_parser():
 
 def show_widget(params):
 
-    from PySide2 import QtGui
+    from PySide6 import QtGui
     from qt.window import Window
-    from PySide2.QtWidgets import QApplication
+    from PySide6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     app.setWindowIcon(QtGui.QIcon(os.path.join(os.path.dirname(os.path.realpath(__file__)), "ico/yandex-disk.xpm")))
@@ -87,7 +87,7 @@ def show_widget(params):
 
     window.init_app()
 
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
 
 
 def tune_params(params, action):

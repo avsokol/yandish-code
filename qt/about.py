@@ -4,10 +4,10 @@
 #      by: PyQt4 UI code generator 4.10.4
 #
 # WARNING! All changes made in this file will be lost!
-from PySide2 import QtCore
-from PySide2.QtCore import QObject, SIGNAL, QCoreApplication
-from PySide2.QtGui import Qt
-from PySide2.QtWidgets import QSizePolicy, QVBoxLayout, QLabel, QPushButton
+from PySide6 import QtCore
+from PySide6.QtCore import QObject, SIGNAL, QCoreApplication
+from PySide6.QtGui import Qt
+from PySide6.QtWidgets import QSizePolicy, QVBoxLayout, QLabel, QPushButton
 
 
 class UiDialog(object):
@@ -57,4 +57,4 @@ class UiDialog(object):
                 None
             )
         )
-        self.pushButton.setText(_translate("dialog", "Ok", None))
+        self.pushButton.setText("dialog", "Ok", None)

@@ -6,10 +6,10 @@
 # WARNING! All changes made in this file will be lost!
 
 import os
-from PySide2 import QtCore
-from PySide2.QtCore import QSize, QMetaObject
-from PySide2.QtGui import QIcon, QPixmap, Qt, QFont
-from PySide2.QtWidgets import QSizePolicy, QWizardPage, QVBoxLayout, QFrame, QHBoxLayout, QLabel, QGroupBox, \
+from PySide6 import QtCore
+from PySide6.QtCore import QSize, QMetaObject
+from PySide6.QtGui import QIcon, QPixmap, Qt, QFont
+from PySide6.QtWidgets import QSizePolicy, QWizardPage, QVBoxLayout, QFrame, QHBoxLayout, QLabel, QGroupBox, \
     QRadioButton, QWidget, QGridLayout, QComboBox, QLineEdit, QCheckBox, QSpacerItem, QToolButton, \
     QPushButton
 

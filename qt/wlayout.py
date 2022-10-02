@@ -8,11 +8,12 @@
 # WARNING! All changes made in this file will be lost!
 
 import os
-from PySide2 import QtCore
-from PySide2.QtGui import QIcon, QPixmap
-from PySide2.QtWidgets import QSizePolicy, QWidget, QVBoxLayout, QTabWidget, QTextEdit, QTreeWidget, QGroupBox, \
+from PySide6 import QtCore
+from PySide6.QtGui import QIcon, QPixmap
+from PySide6.QtWidgets import QSizePolicy, QWidget, QVBoxLayout, QTabWidget, QTextEdit, QTreeWidget, QGroupBox, \
     QHBoxLayout, QLineEdit, QToolButton, QRadioButton, QGridLayout, QLabel, QComboBox, QCheckBox, QFormLayout, \
-    QSpinBox, QFrame, QPushButton, QSpacerItem, QMenuBar, QMenu, QStatusBar, QAction
+    QSpinBox, QFrame, QPushButton, QSpacerItem, QMenuBar, QMenu, QStatusBar
+from PySide6.QtGui import QAction
 
 
 class UiMainWindow(object):
@@ -147,7 +148,7 @@ class UiMainWindow(object):
         self.proxyManualWidget.setEnabled(False)
         self.proxyManualWidget.setObjectName("proxyManualWidget")
         self.gridLayout = QGridLayout(self.proxyManualWidget)
-        self.gridLayout.setMargin(0)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
         self.srvLogin = QLineEdit(self.proxyManualWidget)
         self.srvLogin.setEnabled(False)

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>417</width>
-    <height>520</height>
+    <width>420</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -18,14 +18,14 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>417</width>
-    <height>520</height>
+    <width>420</width>
+    <height>600</height>
    </size>
   </property>
   <property name="maximumSize">
    <size>
-    <width>417</width>
-    <height>520</height>
+    <width>420</width>
+    <height>600</height>
    </size>
   </property>
   <property name="windowTitle">
@@ -35,10 +35,16 @@
    <iconset>
     <normaloff>../ico/yandex-disk.xpm</normaloff>../ico/yandex-disk.xpm</iconset>
   </property>
+  <property name="wizardStyle">
+   <enum>QWizard::ClassicStyle</enum>
+  </property>
   <widget class="QWizardPage" name="wizardPage1">
    <layout class="QVBoxLayout" name="verticalLayout_4">
     <item>
      <widget class="QFrame" name="frame">
+      <property name="enabled">
+       <bool>true</bool>
+      </property>
       <property name="frameShape">
        <enum>QFrame::StyledPanel</enum>
       </property>
@@ -52,7 +58,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../ico/yandex_disk_logo_1.png</pixmap>
+          <pixmap>../ico/yandex_disk_logo.png</pixmap>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
@@ -65,7 +71,7 @@
     <item>
      <widget class="QGroupBox" name="proxyGroupBox">
       <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
@@ -255,7 +261,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../ico/yandex_disk_logo_1.png</pixmap>
+          <pixmap>../ico/yandex_disk_logo.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>false</bool>
@@ -283,11 +289,10 @@
     </item>
     <item>
      <widget class="QGroupBox" name="accountGroupBox">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>176</height>
-       </size>
+      <property name="font">
+       <font>
+        <kerning>false</kerning>
+       </font>
       </property>
       <property name="title">
        <string>Yandex Account:</string>
@@ -295,12 +300,6 @@
       <layout class="QHBoxLayout" name="horizontalLayout_2">
        <item>
         <widget class="QFrame" name="loginFfame">
-         <property name="maximumSize">
-          <size>
-           <width>464</width>
-           <height>140</height>
-          </size>
-         </property>
          <property name="frameShape">
           <enum>QFrame::StyledPanel</enum>
          </property>
@@ -310,12 +309,6 @@
          <layout class="QHBoxLayout" name="horizontalLayout_3">
           <item>
            <widget class="QFrame" name="loginLabelsFrame">
-            <property name="maximumSize">
-             <size>
-              <width>79</width>
-              <height>120</height>
-             </size>
-            </property>
             <property name="frameShape">
              <enum>QFrame::StyledPanel</enum>
             </property>
@@ -327,9 +320,8 @@
               <widget class="QLabel" name="loginLabel">
                <property name="font">
                 <font>
-                 <weight>75</weight>
-                 <italic>true</italic>
-                 <bold>true</bold>
+                 <pointsize>13</pointsize>
+                 <kerning>false</kerning>
                 </font>
                </property>
                <property name="text">
@@ -342,13 +334,6 @@
              </item>
              <item>
               <widget class="QLabel" name="passLabel">
-               <property name="font">
-                <font>
-                 <weight>75</weight>
-                 <italic>true</italic>
-                 <bold>true</bold>
-                </font>
-               </property>
                <property name="text">
                 <string>Password:</string>
                </property>
@@ -382,30 +367,10 @@
                </property>
                <layout class="QHBoxLayout" name="horizontalLayout">
                 <item>
-                 <widget class="QLineEdit" name="yaLogin">
-                  <property name="minimumSize">
-                   <size>
-                    <width>119</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>119</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                 </widget>
+                 <widget class="QLineEdit" name="yaLogin"/>
                 </item>
                 <item>
                  <widget class="QLabel" name="yandexRu">
-                  <property name="font">
-                   <font>
-                    <weight>75</weight>
-                    <italic>true</italic>
-                    <bold>true</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>@yandex.ru</string>
                   </property>
@@ -425,20 +390,8 @@
                <layout class="QHBoxLayout" name="horizontalLayout_11">
                 <item>
                  <widget class="QLineEdit" name="yaPass">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>119</width>
-                    <height>0</height>
-                   </size>
-                  </property>
                   <property name="inputMethodHints">
-                   <set>Qt::ImhHiddenText|Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText</set>
+                   <set>Qt::ImhHiddenText|Qt::ImhNoAutoUppercase|Qt::ImhNoPredictiveText|Qt::ImhSensitiveData</set>
                   </property>
                   <property name="echoMode">
                    <enum>QLineEdit::Password</enum>
@@ -447,13 +400,6 @@
                 </item>
                 <item>
                  <widget class="QPushButton" name="loginButton">
-                  <property name="font">
-                   <font>
-                    <weight>75</weight>
-                    <italic>true</italic>
-                    <bold>true</bold>
-                   </font>
-                  </property>
                   <property name="text">
                    <string>Login</string>
                   </property>
@@ -526,7 +472,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../ico/yandex_disk_logo_1.png</pixmap>
+          <pixmap>../ico/yandex_disk_logo.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>false</bool>
@@ -645,7 +591,7 @@
           <string/>
          </property>
          <property name="pixmap">
-          <pixmap>../ico/yandex_disk_logo_1.png</pixmap>
+          <pixmap>../ico/yandex_disk_logo.png</pixmap>
          </property>
          <property name="scaledContents">
           <bool>false</bool>

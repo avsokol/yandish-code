@@ -187,7 +187,9 @@ def do_action(action, params):
     cfg_opt = os.path.expanduser(cfg_file)
     auth_param = os.path.expanduser(auth)
 
-    is_running, message = is_daemon_running(prg)
+    is_running = False
+    message = ""
+    # is_running, message = is_daemon_running(prg)
 
     err_messages = [
         "Error: option 'dir' is missing",
