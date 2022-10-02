@@ -189,7 +189,7 @@ def do_action(action, params):
 
     is_running = False
     message = ""
-    # is_running, message = is_daemon_running(prg)
+    is_running, message = is_daemon_running(prg)
 
     err_messages = [
         "Error: option 'dir' is missing",
