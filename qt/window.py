@@ -2,7 +2,7 @@ import os
 from PySide6 import QtCore, QtGui
 from PySide6.QtCore import Qt, SIGNAL, SignalInstance
 from PySide6.QtGui import *
-from PySide6.QtWidgets import QDialog, QMainWindow, QMenu, QApplication, QFileDialog, QTreeWidgetItem
+from PySide6.QtWidgets import QDialog, QMainWindow, QMenu, QApplication, QFileDialog, QTreeWidgetItem, QTreeWidget
 from lib.decorators.action_wait_cursor import ActionWaitCursor
 from lib.decorators.wait_cursor import WaitCursor
 from .wlayout import UiMainWindow
@@ -45,6 +45,8 @@ class Window(QMainWindow, UiMainWindow):
         self.params_init(params)
 
         QMainWindow.__init__(self, parent)
+        self.window = QMainWindow()
+        self.tree = QTreeWidget()
 
         self.setup_ui(self)
 

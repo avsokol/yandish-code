@@ -25,7 +25,7 @@ def get_default_params(action):
 
 
 def show_dlg(err_msg):
-    from PySide2.QtWidgets import QApplication
+    from PySide6.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
     msg = QMessageBox()
@@ -36,7 +36,7 @@ def show_dlg(err_msg):
     msg.setWindowTitle("Error")
     msg.setDetailedText(err_msg)
     msg.setStandardButtons(QMessageBox.Ok)
-    sys.exit(msg.exec_())
+    sys.exit(msg.exec())
 
 
 def which_prg(action):

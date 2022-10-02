@@ -27,7 +27,7 @@ class UiWizard(object):
         wizard.setMaximumSize(QSize(417, 520))
         icon = QIcon()
         icon.addPixmap(
-            QPixmap(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk.xpm")),
+            QPixmap(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex-disk.png")),
             QIcon.Normal,
             QIcon.Off
         )
@@ -79,7 +79,7 @@ class UiWizard(object):
         self.proxyManualWidget.setSizePolicy(size_policy)
         self.proxyManualWidget.setObjectName("proxyManualWidget")
         self.gridLayout = QGridLayout(self.proxyManualWidget)
-        self.gridLayout.setMargin(0)
+        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
         self.srvLabel = QLabel(self.proxyManualWidget)
         self.srvLabel.setObjectName("srvLabel")
@@ -144,7 +144,7 @@ class UiWizard(object):
         self.logoPixmap_1.setEnabled(True)
         self.logoPixmap_1.setText("")
         self.logoPixmap_1.setPixmap(
-            QPixmap((os.path.join(os.path.dirname(os.path.realpath(__file__))), "../ico/yandex_disk_logo.png"))
+            QPixmap(os.path.join(os.path.dirname(os.path.realpath(__file__)), "../ico/yandex_disk_logo.png"))
         )
         self.logoPixmap_1.setScaledContents(False)
         self.logoPixmap_1.setAlignment(Qt.AlignCenter)
@@ -176,7 +176,7 @@ class UiWizard(object):
         font = QFont()
         font.setBold(True)
         font.setItalic(True)
-        font.setWeight(75)
+        font.setWeight(QFont.Bold)
         self.loginLabel.setFont(font)
         self.loginLabel.setAlignment(Qt.AlignRight | Qt.AlignTrailing | Qt.AlignVCenter)
         self.loginLabel.setObjectName("loginLabel")
@@ -185,7 +185,7 @@ class UiWizard(object):
         font = QFont()
         font.setBold(True)
         font.setItalic(True)
-        font.setWeight(75)
+        font.setWeight(QFont.Bold)
         self.passLabel.setFont(font)
         self.passLabel.setObjectName("passLabel")
         self.verticalLayout.addWidget(self.passLabel)
@@ -212,7 +212,7 @@ class UiWizard(object):
         font = QFont()
         font.setBold(True)
         font.setItalic(True)
-        font.setWeight(75)
+        font.setWeight(QFont.Bold)
         self.yandexRu.setFont(font)
         self.yandexRu.setObjectName("yandexRu")
         self.horizontalLayout.addWidget(self.yandexRu)
@@ -238,7 +238,7 @@ class UiWizard(object):
         font = QFont()
         font.setBold(True)
         font.setItalic(True)
-        font.setWeight(75)
+        font.setWeight(QFont.Bold)
         self.loginButton.setFont(font)
         self.loginButton.setObjectName("loginButton")
         self.horizontalLayout_11.addWidget(self.loginButton)
