@@ -27,6 +27,7 @@ class AppOptions(object):
     def get_param(self, param):
         if param in self.params.keys():
             return self.params[param]
+
         else:
             return "-1"
 
@@ -46,9 +47,11 @@ class AppOptions(object):
             for line in f:
                 if line.strip() == "":
                     continue
+
                 elements = line.split("=")
                 if len(elements) != 2:
                     continue
+
                 key, value = elements[0], elements[1]
                 if key in self.params.keys():
                     self.params[key] = value

@@ -36,15 +36,13 @@ class UiDialog(object):
         self.verticalLayout_2.addWidget(self.pushButton, 0, Qt.AlignHCenter | Qt.AlignVCenter)
 
         self.retranslate_ui(dialog)
-        QObject.connect(self.pushButton, SIGNAL("clicked()"), dialog.close)
+        self.pushButton.clicked.connect(dialog.close)
         QtCore.QMetaObject.connectSlotsByName(dialog)
 
     def retranslate_ui(self, dialog):
-        _translate = QCoreApplication.translate
-        dialog.setWindowTitle(_translate("dialog", "About", None))
+        dialog.setWindowTitle("About")
+
         self.label.setText(
-            _translate(
-                "dialog",
                 "<html><head/><body><p align=\"center\">Yandex Disk Service Helper.</p>"
                 "<p align=\"center\"><a href=\"https://sourceforge.net/projects/yandish/\">"
                 "<span style=\" text-decoration: underline; color:#0000ff;\">"
@@ -53,8 +51,6 @@ class UiDialog(object):
                 "<p align=\"center\"><a href=\"https://github.com/avsokol/yandish-code\">"
                 "<span style=\" text-decoration: underline; color:#0000ff;\">"
                 "https://github.com/avsokol/yandish-code"
-                "</span></a></p><p align=\"center\">Aleksandr Sokolov</p></body></html>",
-                None
-            )
+                "</span></a></p><p align=\"center\">Aleksandr Sokolov</p></body></html>"
         )
-        self.pushButton.setText("dialog", "Ok", None)
+        self.pushButton.setText("Ok")

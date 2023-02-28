@@ -22,6 +22,7 @@ def check_links(dir, rootdir, exclude_dirs, cfgfile):
                 pass
             elif os.path.isdir(target):
                 print("ERR!")
+
             else:
                 element = element.lstrip(rootdir)
                 if element != "":
@@ -32,6 +33,7 @@ def check_links(dir, rootdir, exclude_dirs, cfgfile):
 
         if os.path.isdir(element) and os.path.islink(element) == 0:
             check_links(element, rootdir, exclude_dirs, cfgfile)
+
     return
 
 
@@ -42,9 +44,11 @@ def get_param_from_cfg_file(param, cfg_file):
 
             if line.strip() == "":
                 continue
+
             elements = line.split("=")
             if elements[0] != param:
                 continue
+
             return elements[1].strip().strip('"')
     
     return ""
@@ -84,8 +88,10 @@ def replace_params_in_cfg_file(p_values, cfg_file):
 
                 if el == "proxy":
                     new_line = key + "=" + p_values[key] + "\n"
+
                 else:
                     new_line = key + "=\"" + p_values[key] + "\"\n"
+
                 fw.write(new_line)
 
     os.remove(os.path.expanduser(cfg_file))
@@ -187,8 +193,6 @@ def do_action(action, params):
     cfg_opt = os.path.expanduser(cfg_file)
     auth_param = os.path.expanduser(auth)
 
-    is_running = False
-    message = ""
     is_running, message = is_daemon_running(prg)
 
     err_messages = [
@@ -211,6 +215,7 @@ def do_action(action, params):
     elif action == "start":
         if is_running:
             return 2, message
+
     else:
         raise Exception("Unexpected action %s\n%s" % (action, 1))
 
@@ -232,6 +237,7 @@ def do_action(action, params):
         out = proc.stdout.read()
         out = out.strip()
         out = out.decode("utf8")
+
     else:
         raise Exception("Failure %s:\n'%s'\n'%s'" % (return_code, proc.stdout.read(), proc.stderr.read()))
 
@@ -260,6 +266,7 @@ def process_result(res, action, out, params, verbose=1):
             msg = "Yandex Disk service is started"
             if len(exclude_dirs):
                 msg = msg + "\nDirectories excluded:\n" + "\n".join(exclude_dirs)
+
         elif action == "stop":
             msg = "Yandex Disk service is stopped"
 
@@ -315,6 +322,7 @@ def is_daemon_running(prg):
         res = proc.stdout.read()
         res = res.strip()
         res = res.decode("utf8")
+
     else:
         raise Exception("Failure %s:\n'%s'\n'%s'" % (return_code, proc.stdout.read(), proc.stderr.read()))
 

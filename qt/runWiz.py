@@ -11,7 +11,7 @@ sys.path.append(rjoin)
 from subprocess import Popen, PIPE
 from PySide6.QtWidgets import QWizard, QApplication
 from PySide6.QtCore import Qt, SIGNAL, QObject
-from .wizard import UiWizard
+from qt.wizard import UiWizard
 from yandish import get_default_params
 from lib.opts import AppOptions
 from lib import actions
@@ -64,19 +64,28 @@ class YaWizard(QWizard, UiWizard):
         if login == "" or passw == "":
             if login == "":
                 hint = hint + "Login is Empty"
+
             if passw == "":
                 if hint != "":
                     hint = hint + "\n"
+
                 hint = hint + "Password is empty"
 
             self.set_login_status(2, hint)
             return
 
-        proc = Popen([self._prg, "token",
-                      "-p", passw,
-                      login,
-                      self._default_auth],
-                     stdout=PIPE, stderr=PIPE)
+        proc = Popen(
+            [
+                self._prg,
+                "token",
+                "-p",
+                passw,
+                login,
+                self._default_auth
+            ],
+            stdout=PIPE,
+            stderr=PIPE
+        )
         return_code = proc.wait()
 
         if return_code != 0:
@@ -95,9 +104,11 @@ class YaWizard(QWizard, UiWizard):
         if status == 0:
             message = "Login Ok!"
             palette.setColor(QPalette.Foreground, Qt.darkGreen)
+
         elif status == 1:
             message = "Login Failed!"
             palette.setColor(QPalette.Foreground, Qt.red)
+
         elif status == 2:
             message = "Not enough credentials"
             palette.setColor(QPalette.Foreground, Qt.red)
@@ -108,6 +119,7 @@ class YaWizard(QWizard, UiWizard):
 
         if status == 0:
             self.button(self.NextButton).setEnabled(True)
+
         else:
             self.button(self.NextButton).setEnabled(False)
 
@@ -124,6 +136,7 @@ class YaWizard(QWizard, UiWizard):
         if self.srvPasswordReq.isEnabled() and self.srvPasswordReq.isChecked():
             self.srvLogin.setEnabled(True)
             self.srvPassword.setEnabled(True)
+
         else:
             self.srvLogin.setEnabled(False)
             self.srvPassword.setEnabled(False)
@@ -131,8 +144,10 @@ class YaWizard(QWizard, UiWizard):
     def toggle_proxy_auth_req(self):
         if self.proxyType.currentText() in ["HTTPS", "SOCKS5"]:
             self.srvPasswordReq.setEnabled(True)
+
         else:
             self.srvPasswordReq.setEnabled(False)
+
         self.toggle_proxy_auth()
 
     def set_proxy(self):
@@ -168,16 +183,19 @@ class YaWizard(QWizard, UiWizard):
 
                 if len(proxy_params) > 3:
                     login = proxy_params[3]
+
                 if len(proxy_params) > 4:
                     password = proxy_params[4]
 
                 if login == "" and password == "":
                     self.srvPasswordReq.setChecked(0)
+
                 else:
                     self.srvPasswordReq.setChecked(1)
 
                 self.srvLogin.setText(login)
                 self.srvPassword.setText(password)
+
             else:
                 self.srvPasswordReq.setEnabled(False)
 
@@ -208,6 +226,7 @@ class YaWizard(QWizard, UiWizard):
                 proxy_params.append(password)
 
             self._proxy = ",".join(proxy_params)
+
         else:
             raise Exception("Unexpected proxy configuration")
 
@@ -221,6 +240,7 @@ class YaWizard(QWizard, UiWizard):
 
         try:
             actions.save_params_in_cfg_file(params, yandex_cfg)
+
         except IOError:
             print("Couldn't write Yandex configuration file")
             sys.exit(3)
@@ -228,8 +248,10 @@ class YaWizard(QWizard, UiWizard):
     def set_next_button_state(self, id):
         if id == 1 and self._login_error:
             state = False
+
         else:
             state = True
+
         self.button(self.NextButton).setEnabled(state)
 
     def wizard_finish(self):
@@ -262,6 +284,7 @@ class YaWizard(QWizard, UiWizard):
         yandexcfg = yandex_cfg
         if yandex_cfg == os.path.expanduser(def_params["config"]):
             yandexcfg = ""
+
         app_opts.set_param("yandex-cfg", yandexcfg)
 
         try:
@@ -272,8 +295,9 @@ class YaWizard(QWizard, UiWizard):
             sys.exit(4)
 
     def set_signals(self):
-        QObject.connect(self.loginButton, SIGNAL("clicked()"), self.login_to_yandex)
+        self.loginButton.clicked.connect(self.login_to_yandex)
         QObject.connect(self.button(self.FinishButton), SIGNAL("clicked()"), self.wizard_finish)
+        # self.button(self.FinishButton).clicked.connect(self.wizard_finish)
 
         QObject.connect(self.proxyNone, SIGNAL("clicked()"), self.proxy_disable)
         QObject.connect(self.proxyAuto, SIGNAL("clicked()"), self.proxy_disable)
@@ -293,4 +317,4 @@ if __name__ == "__main__":
 
     yaWiz.show()
 
-    sys.exit(yaWiz.exec_())
+    sys.exit(yaWiz.exec())

@@ -1,3 +1,4 @@
+import functools
 import os
 from PySide6 import QtCore, QtGui
 from PySide6.QtCore import Qt, SIGNAL, SignalInstance
@@ -130,11 +131,13 @@ class Window(QMainWindow, UiMainWindow):
         self._proxy = params["proxy"]
 
     def get_params(self):
-        return {"prg": self._prg,
-                "config": self._config,
-                "auth": self._auth,
-                "exclude-dirs": self._exclude_dirs,
-                "rootdir": self._rootdir}
+        return {
+            "prg": self._prg,
+            "config": self._config,
+            "auth": self._auth,
+            "exclude-dirs": self._exclude_dirs,
+            "rootdir": self._rootdir
+        }
 
     def start_timer(self):
         if self.refreshTimeout.value() > 0 and not self.is_timer_active():
@@ -167,6 +170,7 @@ class Window(QMainWindow, UiMainWindow):
                 self.hide()
 
             return True
+
         else:
             return super(Window, self).event(event)
 
@@ -186,6 +190,7 @@ class Window(QMainWindow, UiMainWindow):
             x = int((screen_x-w)/2)
             y = int((screen_y-w)/2)
             self.setGeometry(QtCore.QRect(x, y, w, h))
+
         else:
             self.restoreGeometry(self._geometry)
 
@@ -241,11 +246,13 @@ class Window(QMainWindow, UiMainWindow):
 
                 if login == "" and password == "":
                     self.srvPasswordReq.setChecked(0)
+
                 else:
                     self.srvPasswordReq.setChecked(1)
 
                 self.srvLogin.setText(login)
                 self.srvPassword.setText(password)
+
             else:
                 self.srvPasswordReq.setEnabled(False)
 
@@ -273,7 +280,7 @@ class Window(QMainWindow, UiMainWindow):
 
     def get_proxy_cfg(self):
         if self.proxyNone.isChecked():
-            self._proxy = "none"
+            self._proxy = "no"
 
         elif self.proxyAuto.isChecked():
             self._proxy = "auto"
@@ -296,6 +303,7 @@ class Window(QMainWindow, UiMainWindow):
                 proxy_params.append(password)
 
             self._proxy = ",".join(proxy_params)
+
         else:
             raise Exception("Unexpected proxy configuration")
 
@@ -317,16 +325,19 @@ class Window(QMainWindow, UiMainWindow):
         app_opts = AppOptions()
         if self.startHidden.isChecked():
             start_minimized = "1"
+
         else:
             start_minimized = "0"
 
         if self.hideOnMinimize.isChecked():
             hide_on_minimize = "1"
+
         else:
             hide_on_minimize = "0"
 
         if self.startServiceAtStart.isChecked():
             start_service_at_start = "1"
+
         else:
             start_service_at_start = "0"
 
@@ -415,6 +426,7 @@ class Window(QMainWindow, UiMainWindow):
         if item is None:
             if path in self._removeItems:
                 self._removeItems.remove(path)
+
         else:
             parent = item.parent()
             if parent is None:
@@ -423,6 +435,7 @@ class Window(QMainWindow, UiMainWindow):
             parent.removeChild(item)
             if path in self._removeItems:
                 self._removeItems.remove(path)
+
             if path in self._exclude_dirs:
                 self._exclude_dirs.remove(path)
 
@@ -460,6 +473,7 @@ class Window(QMainWindow, UiMainWindow):
 
         if item.flags() & QtCore.Qt.ItemIsUserCheckable:
             properties["checkable"] = 1
+
         else:
             properties["checkable"] = 0
 
@@ -473,11 +487,13 @@ class Window(QMainWindow, UiMainWindow):
 
         if os.path.isdir(path):
             exists = 1
+
         if os.path.islink(path):
             is_link = 1
             target = os.readlink(path)
             if os.path.exists(target):
                 exists = 1
+
             else:
                 exists = 0
 
@@ -498,11 +514,13 @@ class Window(QMainWindow, UiMainWindow):
             if path in self._exclude_dirs:
                 properties["state"] = Qt.Unchecked
                 break
+
             path = os.path.dirname(path)
 
         text1 = ""
         if is_link:
             text1 = " -> " + target
+
         properties["itemText"] = [text, text1]
 
         if is_link == 1 and exists == 0:
@@ -537,6 +555,7 @@ class Window(QMainWindow, UiMainWindow):
             )
             child.setIcon(0, folder_icon)
             child.setFlags(child.flags() | Qt.ItemIsUserCheckable | Qt.ItemIsSelectable)
+
         else:
             err_icon = QtGui.QIcon()
             err_icon.addPixmap(
@@ -552,6 +571,7 @@ class Window(QMainWindow, UiMainWindow):
 
         if child is None:
             return 0
+
         else:
             return 1
 
@@ -579,9 +599,9 @@ class Window(QMainWindow, UiMainWindow):
 
         for key in properties.keys():
             if key == "itemText":
-                if properties[key][0] != item_prop[key][0] or \
-                                properties[key][1] != item_prop[key][1]:
+                if properties[key][0] != item_prop[key][0] or properties[key][1] != item_prop[key][1]:
                     return 1
+
             else:
                 if properties[key] != item_prop[key]:
                     return 1
@@ -598,8 +618,12 @@ class Window(QMainWindow, UiMainWindow):
             parent_item = self.find_path_item(updir)
 
         if not isinstance(parent_item, QTreeWidgetItem):
-            child = QTreeWidgetItem(self.treeWidget)
-            self.treeWidget.itemBelow(child)
+            try:
+                child = QTreeWidgetItem(self.treeWidget)
+                self.treeWidget.itemBelow(child)
+
+            except:
+                return
 
         elif parent_item is None:
             child = None
@@ -614,7 +638,7 @@ class Window(QMainWindow, UiMainWindow):
         if parent_dir == "":
             parent_dir = self._rootdir
 
-        c = threading.currentThread()
+        c = threading.current_thread()
 
         if c not in self._threads:
             self._threads.append(c)
@@ -634,9 +658,11 @@ class Window(QMainWindow, UiMainWindow):
                         if self.is_child_exist(lpath) == 0:
                             if startup:
                                 self.add_item(lpath, properties)
+
                             else:
                                 self.add_item(lpath, properties)
                                 # self.emit(SIGNAL("addChild"), lpath, properties)
+
                         elif self.is_child_to_be_modified(lpath, properties):
                             self.modify_item(lpath, properties)
                             # self.emit(SIGNAL("modifyChild"), lpath, properties)
@@ -653,8 +679,10 @@ class Window(QMainWindow, UiMainWindow):
         for i in range(parent_item.childCount()):
             if parent_item.child(i).checkState(0) == 0:
                 items.append(parent_item.child(i))
+
             else:
                 self.find_unchecked_items_among_children(items, parent_item.child(i), column)
+
         return items
 
     def find_item_among_children(self, parent_item, text_to_find, column=0):
@@ -672,6 +700,7 @@ class Window(QMainWindow, UiMainWindow):
         for i in path:
             try:
                 index = self.find_item_among_children(index, i, column)
+
             except:
                 return None
 
@@ -714,8 +743,10 @@ class Window(QMainWindow, UiMainWindow):
         self.treeWidget.blockSignals(True)
         if item.checkState(0) == QtCore.Qt.Checked:
             self.handle_item_checked(item)
+
         elif item.checkState(0) == QtCore.Qt.Unchecked:
             self.handle_item_unchecked(item)
+
         self.treeWidget.blockSignals(False)
 
     def get_exclude_dirs_from_tree(self):
@@ -741,7 +772,6 @@ class Window(QMainWindow, UiMainWindow):
                 return
 
         if not self.isHidden() or force == 1:
-
             # for thread in self._threads:
             #     thread._Thread__stop()
 
@@ -769,6 +799,7 @@ class Window(QMainWindow, UiMainWindow):
         if self.startServiceAtStart.isChecked():
             self.add_dir_as_tree_item("", 1)
             self.act_service("start")
+
         else:
             self.refresh_status(1)
 
@@ -814,8 +845,13 @@ class Window(QMainWindow, UiMainWindow):
         self.stop_timer()
 
         for thread in self._threads:
-            thread._shutdown()
-            # thread._Thread__stop()
+            try:
+                thread._stop()
+                # thread._shutdown()
+                # thread._Thread__stop()
+
+            except:
+                pass
 
         self.act_service("status")
         self.refresh_tree(force, clear)
@@ -836,6 +872,7 @@ class Window(QMainWindow, UiMainWindow):
         if self.srvPasswordReq.isEnabled() and self.srvPasswordReq.isChecked():
             self.srvLogin.setEnabled(True)
             self.srvPassword.setEnabled(True)
+
         else:
             self.srvLogin.setEnabled(False)
             self.srvPassword.setEnabled(False)
@@ -843,8 +880,10 @@ class Window(QMainWindow, UiMainWindow):
     def toggle_proxy_auth_req(self):
         if self.proxyType.currentText() in ["HTTPS", "SOCKS5"]:
             self.srvPasswordReq.setEnabled(True)
+
         else:
             self.srvPasswordReq.setEnabled(False)
+
         self.toggle_proxy_auth()
 
     # @WaitCursor()
@@ -860,6 +899,7 @@ class Window(QMainWindow, UiMainWindow):
             self.set_action_in_state("start", "disabled")
             self.set_button_in_state("stop", "enabled")
             self.set_action_in_state("stop", "enabled")
+
         else:
             self.set_button_in_state("stop", "disabled")
             self.set_action_in_state("stop", "disabled")
@@ -946,11 +986,11 @@ class Window(QMainWindow, UiMainWindow):
         self.reload_options()
 
     def set_signals(self):
-        QtCore.QObject.connect(self.btnExit, SIGNAL("clicked()"), QApplication.quit)
+        self.btnExit.clicked.connect(self.quit_app)
 
-        QtCore.QObject.connect(self.btnStart, SIGNAL("clicked()"), lambda: self.act_service("start"))
-        QtCore.QObject.connect(self.btnStop, SIGNAL("clicked()"), lambda: self.act_service("stop"))
-        QtCore.QObject.connect(self.btnStatus, SIGNAL("clicked()"), self.refresh_status)
+        self.btnStart.clicked.connect(functools.partial(self.act_service, "start"))
+        self.btnStop.clicked.connect(functools.partial(self.act_service, "stop"))
+        self.btnStatus.clicked.connect(self.refresh_status)
 
         QtCore.QObject.connect(self.actionStart, SIGNAL("triggered()"), lambda: self.act_service("start"))
         QtCore.QObject.connect(self.actionStop, SIGNAL("triggered()"), lambda: self.act_service("stop"))
@@ -978,3 +1018,19 @@ class Window(QMainWindow, UiMainWindow):
 
         QtCore.QObject.connect(self.srvPasswordReq, SIGNAL("clicked()"), self.toggle_proxy_auth)
         QtCore.QObject.connect(self.proxyType, SIGNAL("currentIndexChanged(QString)"), self.toggle_proxy_auth_req)
+
+    def quit_app(self):
+        print(f"Quit")
+
+        print(self._threads)
+
+        for thread in self._threads:
+            try:
+                thread._stop()
+                # thread._shutdown()
+                # thread._Thread__stop()
+
+            except:
+                pass
+
+        QApplication.quit()
