@@ -169,6 +169,7 @@ def main(argv):
 
     if action == "widget":
         show_widget(params)
+
     else:
         res, msg = do_action(action, params)
         process_result(res, action, msg, params)
